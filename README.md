@@ -151,6 +151,7 @@ existed — see [Data journey](vault/20%20Datasets/Data%20provenance.md).
 ```
 src/                 normalize · cutouts · render_manifest · dataset · train · predict · export
 sim/render_belt.py   the USD belt scene and domain randomisation
+infra/isaac-sim/     remote Isaac Sim GUI stack for SSH and Brev
 runs/<head>/         results.json and ONNX sidecars for 8 trained heads
 vault/               the documentation (Obsidian)
 hpe.ipynb            runnable notebook

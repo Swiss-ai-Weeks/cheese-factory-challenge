@@ -1,0 +1,74 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  isaac-sim:
+    image: ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0}
+    network_mode: host
+    runtime: nvidia
+    user: "1234:1234"
+    environment:
+      NVIDIA_VISIBLE_DEVICES: ${GPU_DEVICE:-all}
+      ACCEPT_EULA: Y
+      ISAACSIM_HOST: ${ISAACSIM_HOST:-127.0.0.1}
+      ISAACSIM_SIGNAL_PORT: ${ISAACSIM_SIGNAL_PORT:-49100}
+      ISAACSIM_STREAM_PORT: ${ISAACSIM_STREAM_PORT:-47998}
+    volumes:
+      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/cache/main:/isaac-sim/.cache:rw
+      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
+      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/cache/kit:/isaac-sim/kit/cache:rw
+      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/logs:/isaac-sim/.nvidia-omniverse/logs:rw
+      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/config:/isaac-sim/.nvidia-omniverse/config:rw
+      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/data:/isaac-sim/.local/share/ov/data:rw
+      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/pkg:/isaac-sim/.local/share/ov/pkg:rw
+      - ${ISAACSIM_HUB_CACHE_PATH:-/home/ubuntu/.cache/ov/hub}:/var/cache/hub:rw
+    healthcheck:
+      interval: 30s
+      timeout: 10s
+      start_period: 180s
+      retries: 3
+      test: ["CMD-SHELL", "logdir=/isaac-sim/.nvidia-omniverse/logs/Kit; [ -d \"$$logdir\" ] && latest=$$(ls -t \"$$logdir\"/*/*/kit_*.log 2>/dev/null | head -1) && [ -n \"$$latest\" ] && grep -q AppReady \"$$latest\""]
+    restart: unless-stopped
+
+  web-viewer:
+    build:
+      context: ./web-viewer
+      network: host
+      args:
+        ISAACSIM_SIGNAL_HOST: 127.0.0.1
+        ISAACSIM_MEDIA_HOST: 127.0.0.1
+        ISAACSIM_SIGNAL_PORT: ${ISAACSIM_SIGNAL_PORT:-49100}
+        ISAACSIM_STREAM_PORT: ${ISAACSIM_STREAM_PORT:-47998}
+    network_mode: host
+    environment:
+      __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: localhost
+    command: ["npx", "vite", "preview", "--host", "--port", "${WEB_VIEWER_PORT:-8210}"]
+    depends_on:
+      isaac-sim:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${WEB_VIEWER_PORT:-8210}/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
+  remote-desktop:
+    build:
+      context: ./remote-desktop
+      args:
+        WEB_VIEWER_PORT: ${WEB_VIEWER_PORT:-8210}
+    network_mode: host
+    depends_on:
+      isaac-sim:
+        condition: service_healthy
+      web-viewer:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:6080/vnc.html"]
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 4
+    restart: unless-stopped

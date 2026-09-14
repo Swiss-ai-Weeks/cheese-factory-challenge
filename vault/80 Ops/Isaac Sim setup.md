@@ -4,6 +4,12 @@ tags: [ops, simulation]
 
 # Isaac Sim setup
 
+For an interactive GUI on an SSH/Brev machine, use the reproducible
+[`infra/isaac-sim`](../../infra/isaac-sim/README.md) stack. It keeps WebRTC
+server-local and publishes a browser desktop over authenticated HTTPS.
+
+## Batch rendering
+
 A LaunchPad stack already runs Isaac Sim containers. **None of it was modified.**
 Rendering uses a disposable container instead:
 
