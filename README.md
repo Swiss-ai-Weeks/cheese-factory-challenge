@@ -63,6 +63,54 @@ inference and dropdown selectors. `hpe_fr.ipynb` is the French version.
 > It does **not** name commercial varieties ("Comté"). No dataset in the project carries
 > both a variety name and a paste type. See [variety](vault/50%20Models/variety.md).
 
+## 🎩 How we multiplied a small dataset
+
+Food Recognition only yields ~2,900 usable cheese crops. Training set is **12,355
+images** — and not one of them was annotated by hand. Four tricks, in order of how much
+they actually bought:
+
+**1. The labels were already there, and so were the outlines.**
+Food Recognition is a *segmentation* dataset: every instance carries a human-drawn
+polygon. That polygon becomes the alpha channel, giving a piece with a **real silhouette**
+instead of a rectangle of photo — and the class label rides along for free. No SAM, no
+manual labelling, six lines of PIL.
+
+**2. The 482 classes we did not want became the class we needed.**
+Only 11 of the 498 food classes are cheese. The other 482 — bread, tomato, egg, salmon —
+are exactly what a `not_cheese` class needs: real objects, real silhouettes, already
+annotated. We sampled 400 objects across **400 distinct classes** (cycling the class list
+rather than taking the most frequent, so the model sees variety rather than 400 slices of
+bread) → **1,910 renders**, for zero data collection.
+
+**3. An empty belt costs one line.**
+Hide the quad, render the scene: `UsdGeom.Imageable.MakeInvisible()`. 900 images of
+`empty`, half with an empty plate and half with nothing, so the model separates "nothing
+to pick" from "a container is there". The model now has **perfect recall on empty belts**.
+
+**4. Five viewpoints per piece.**
+Each cutout is placed in the plate and rendered 5 times with randomised camera azimuth,
+elevation, distance and focal length, lamp position/intensity/tint, and plate and belt
+shades. 1,909 pieces → **9,545 images**.
+
+> [!IMPORTANT]
+> **Trick 4 multiplies images, not cheeses.** There are still 1,909 distinct pieces seen
+> from more angles. It buys viewpoint invariance — genuinely useful for a belt camera —
+> but it teaches no new cheese.
+>
+> It also creates a trap: five renders of one piece are **one object**, not five samples.
+> Split them across train and test and you measure memorisation. Every manifest carries a
+> `group` column holding the source piece, and that is what drives the split — never the
+> filename. We learned this the hard way on CHEESE-HIDB, where 9 wheels photographed 42
+> times each produced a meaningless **100% macro-F1**. See
+> [Splits and data leakage](vault/30%20Pipeline/Splits%20and%20data%20leakage.md).
+
+| | pieces | images |
+|---|---|---|
+| cheese, 11 types | 1,909 | 9,545 |
+| `not_cheese`, 400 classes | 382 | 1,910 |
+| `empty` | 900 | 900 |
+| **total** | **3,191** | **12,355** |
+
 ## 📊 Results
 
 Shipped model **`sim_type13`** — ConvNeXt-Base, 384 px, trained on 12355 Isaac Sim
