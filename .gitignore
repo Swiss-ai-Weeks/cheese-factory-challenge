@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------------------
+# Donnees et poids : trop volumineux pour git, et entierement reconstructibles.
+# Tout se regenere avec vault/80 Ops/Reproduce everything.md
+# ---------------------------------------------------------------------------
+
+# 14 Go de telechargements bruts
+data/raw/
+
+# 947 Mo d'images normalisees + decoupes + rendus convertis
+data/processed/
+
+# 4,6 Go de rendus PNG bruts (archive ; les JPEG utiles sont dans data/processed)
+sim/out/
+
+# Checkpoints 350 Mo piece et exports ONNX : au-dela de la limite GitHub de 100 Mo.
+# Les results.json sont versionnes, eux : ce sont les mesures.
+runs/**/*.pt
+runs/**/*.onnx
+
+# environnement
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# sorties locales
+*.log

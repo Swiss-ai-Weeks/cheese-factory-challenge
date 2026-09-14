@@ -1,0 +1,2418 @@
+{
+  "best_val": {
+    "macro_f1": 0.4053154392749418,
+    "top1": 0.5660377358490566,
+    "epoch": 38
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "lr": 3.428571428571429e-05,
+      "train_loss": 5.689742224557059,
+      "train_top1": 0.014732142857142857,
+      "val_loss": 5.719980832665721,
+      "val_top1": 0.008385744234800839,
+      "val_top5": 0.041928721174004195,
+      "val_macro_f1": 0.004965986394557823,
+      "seconds": 28.9
+    },
+    {
+      "epoch": 2,
+      "lr": 6.761904761904763e-05,
+      "train_loss": 4.803566810062954,
+      "train_top1": 0.28482142857142856,
+      "val_loss": 5.381829665641865,
+      "val_top1": 0.06289308176100629,
+      "val_top5": 0.14046121593291405,
+      "val_macro_f1": 0.04211575085558826,
+      "seconds": 11.9
+    },
+    {
+      "epoch": 3,
+      "lr": 0.0001,
+      "train_loss": 3.2818768909999303,
+      "train_top1": 0.6598214285714286,
+      "val_loss": 4.7710837248236375,
+      "val_top1": 0.21174004192872117,
+      "val_top5": 0.33542976939203356,
+      "val_macro_f1": 0.12040323496845236,
+      "seconds": 11.8
+    },
+    {
+      "epoch": 4,
+      "lr": 9.992407582166581e-05,
+      "train_loss": 2.2195037364959718,
+      "train_top1": 0.7986607142857143,
+      "val_loss": 4.183179801365115,
+      "val_top1": 0.28721174004192873,
+      "val_top5": 0.4528301886792453,
+      "val_macro_f1": 0.18983146289804995,
+      "seconds": 11.9
+    },
+    {
+      "epoch": 5,
+      "lr": 9.969653386589748e-05,
+      "train_loss": 1.631132095200675,
+      "train_top1": 0.8852678571428572,
+      "val_loss": 3.757619779814714,
+      "val_top1": 0.350104821802935,
+      "val_top5": 0.5408805031446541,
+      "val_macro_f1": 0.23723689306354823,
+      "seconds": 12.0
+    },
+    {
+      "epoch": 6,
+      "lr": 9.931806517013612e-05,
+      "train_loss": 1.3570803812571934,
+      "train_top1": 0.9214285714285714,
+      "val_loss": 3.5108975224524923,
+      "val_top1": 0.39832285115303984,
+      "val_top5": 0.5828092243186582,
+      "val_macro_f1": 0.28297297209193845,
+      "seconds": 12.0
+    },
+    {
+      "epoch": 7,
+      "lr": 9.878981913137179e-05,
+      "train_loss": 1.259270065171378,
+      "train_top1": 0.9379464285714286,
+      "val_loss": 3.3631574472791246,
+      "val_top1": 0.4276729559748428,
+      "val_top5": 0.6037735849056604,
+      "val_macro_f1": 0.3094541901061345,
+      "seconds": 12.0
+    },
+    {
+      "epoch": 8,
+      "lr": 9.811340001546251e-05,
+      "train_loss": 1.16690879208701,
+      "train_top1": 0.9558035714285714,
+      "val_loss": 3.310261103592079,
+      "val_top1": 0.429769392033543,
+      "val_top5": 0.6205450733752621,
+      "val_macro_f1": 0.31950452712062616,
+      "seconds": 11.8
+    },
+    {
+      "epoch": 9,
+      "lr": 9.729086208503174e-05,
+      "train_loss": 1.0983784914016723,
+      "train_top1": 0.9651785714285714,
+      "val_loss": 3.2795177225796683,
+      "val_top1": 0.4360587002096436,
+      "val_top5": 0.6310272536687631,
+      "val_macro_f1": 0.32255477590863246,
+      "seconds": 12.4
+    },
+    {
+      "epoch": 10,
+      "lr": 9.632470336074009e-05,
+      "train_loss": 1.0557541932378496,
+      "train_top1": 0.975,
+      "val_loss": 3.1711006074581505,
+      "val_top1": 0.4716981132075472,
+      "val_top5": 0.6477987421383647,
+      "val_macro_f1": 0.33825462761120956,
+      "seconds": 11.8
+    },
+    {
+      "epoch": 11,
+      "lr": 9.521785803487889e-05,
+      "train_loss": 1.0316452247755867,
+      "train_top1": 0.9803571428571428,
+      "val_loss": 3.1447583104579455,
+      "val_top1": 0.48846960167714887,
+      "val_top5": 0.6477987421383647,
+      "val_macro_f1": 0.3556542737142531,
+      "seconds": 12.3
+    },
+    {
+      "epoch": 12,
+      "lr": 9.397368756032445e-05,
+      "train_loss": 0.9969238264220102,
+      "train_top1": 0.9861607142857143,
+      "val_loss": 3.145991222413581,
+      "val_top1": 0.5052410901467506,
+      "val_top5": 0.6477987421383647,
+      "val_macro_f1": 0.3488957550841276,
+      "seconds": 12.3
+    },
+    {
+      "epoch": 13,
+      "lr": 9.259597044191636e-05,
+      "train_loss": 0.9957805327006749,
+      "train_top1": 0.9857142857142858,
+      "val_loss": 3.108973129240472,
+      "val_top1": 0.5010482180293501,
+      "val_top5": 0.6645702306079665,
+      "val_macro_f1": 0.34054537169728794,
+      "seconds": 12.1
+    },
+    {
+      "epoch": 14,
+      "lr": 9.108889076126226e-05,
+      "train_loss": 0.9748559577124459,
+      "train_top1": 0.9928571428571429,
+      "val_loss": 3.0783503830307937,
+      "val_top1": 0.5136268343815513,
+      "val_top5": 0.6750524109014675,
+      "val_macro_f1": 0.36210910245044037,
+      "seconds": 12.1
+    },
+    {
+      "epoch": 15,
+      "lr": 8.945702546981969e-05,
+      "train_loss": 0.9813833951950073,
+      "train_top1": 0.9879464285714286,
+      "val_loss": 3.0148371490542494,
+      "val_top1": 0.5262054507337526,
+      "val_top5": 0.689727463312369,
+      "val_macro_f1": 0.3611982565530884,
+      "seconds": 11.5
+    },
+    {
+      "epoch": 16,
+      "lr": 8.770533048884482e-05,
+      "train_loss": 0.9660178712436132,
+      "train_top1": 0.9933035714285714,
+      "val_loss": 3.0315218451637893,
+      "val_top1": 0.519916142557652,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.37675795500744236,
+      "seconds": 11.7
+    },
+    {
+      "epoch": 17,
+      "lr": 8.583912565842257e-05,
+      "train_loss": 0.9551678487232753,
+      "train_top1": 0.99375,
+      "val_loss": 3.075823327030526,
+      "val_top1": 0.5220125786163522,
+      "val_top5": 0.6729559748427673,
+      "val_macro_f1": 0.37446362579912496,
+      "seconds": 11.9
+    },
+    {
+      "epoch": 18,
+      "lr": 8.386407858128706e-05,
+      "train_loss": 0.9521642327308655,
+      "train_top1": 0.9941964285714285,
+      "val_loss": 3.036727201513774,
+      "val_top1": 0.5178197064989518,
+      "val_top5": 0.6792452830188679,
+      "val_macro_f1": 0.3639645632922298,
+      "seconds": 11.9
+    },
+    {
+      "epoch": 19,
+      "lr": 8.178618741049842e-05,
+      "train_loss": 0.9404857669557843,
+      "train_top1": 0.9955357142857143,
+      "val_loss": 3.052495559556429,
+      "val_top1": 0.5366876310272537,
+      "val_top5": 0.6750524109014675,
+      "val_macro_f1": 0.3761823499836081,
+      "seconds": 12.3
+    },
+    {
+      "epoch": 20,
+      "lr": 7.961176263324901e-05,
+      "train_loss": 0.93658972127097,
+      "train_top1": 0.996875,
+      "val_loss": 3.052580329607118,
+      "val_top1": 0.5450733752620545,
+      "val_top5": 0.6792452830188679,
+      "val_macro_f1": 0.36795501386678964,
+      "seconds": 12.0
+    },
+    {
+      "epoch": 21,
+      "lr": 7.734740790612136e-05,
+      "train_loss": 0.937671959400177,
+      "train_top1": 0.9950892857142857,
+      "val_loss": 3.0363615633806593,
+      "val_top1": 0.519916142557652,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.38280683666868964,
+      "seconds": 11.8
+    },
+    {
+      "epoch": 22,
+      "lr": 7.500000000000001e-05,
+      "train_loss": 0.9340302569525583,
+      "train_top1": 0.996875,
+      "val_loss": 3.0413781501961954,
+      "val_top1": 0.5408805031446541,
+      "val_top5": 0.6813417190775681,
+      "val_macro_f1": 0.38896066999095186,
+      "seconds": 11.6
+    },
+    {
+      "epoch": 23,
+      "lr": 7.257666791554448e-05,
+      "train_loss": 0.9295250841549465,
+      "train_top1": 0.9964285714285714,
+      "val_loss": 3.002471245059927,
+      "val_top1": 0.5450733752620545,
+      "val_top5": 0.6918238993710691,
+      "val_macro_f1": 0.3850042612838689,
+      "seconds": 11.9
+    },
+    {
+      "epoch": 24,
+      "lr": 7.008477123264848e-05,
+      "train_loss": 0.9292906710079738,
+      "train_top1": 0.9977678571428571,
+      "val_loss": 3.0212895735254826,
+      "val_top1": 0.5366876310272537,
+      "val_top5": 0.6855345911949685,
+      "val_macro_f1": 0.3792039435034343,
+      "seconds": 12.2
+    },
+    {
+      "epoch": 25,
+      "lr": 6.753187775963773e-05,
+      "train_loss": 0.9233863728387015,
+      "train_top1": 0.9977678571428571,
+      "val_loss": 3.0756051885256976,
+      "val_top1": 0.5241090146750524,
+      "val_top5": 0.6771488469601677,
+      "val_macro_f1": 0.368670654044115,
+      "seconds": 12.1
+    },
+    {
+      "epoch": 26,
+      "lr": 6.492574055008473e-05,
+      "train_loss": 0.9230512499809265,
+      "train_top1": 0.9982142857142857,
+      "val_loss": 3.0455005533790187,
+      "val_top1": 0.5471698113207547,
+      "val_top5": 0.6792452830188679,
+      "val_macro_f1": 0.3799192626323183,
+      "seconds": 12.9
+    },
+    {
+      "epoch": 27,
+      "lr": 6.227427435703997e-05,
+      "train_loss": 0.9147111245564052,
+      "train_top1": 0.9995535714285714,
+      "val_loss": 3.0392812902822435,
+      "val_top1": 0.5555555555555556,
+      "val_top5": 0.6792452830188679,
+      "val_macro_f1": 0.3903223654539642,
+      "seconds": 11.8
+    },
+    {
+      "epoch": 28,
+      "lr": 5.958553159618693e-05,
+      "train_loss": 0.9114552497863769,
+      "train_top1": 1.0,
+      "val_loss": 3.055531244857756,
+      "val_top1": 0.5471698113207547,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.3883164708242107,
+      "seconds": 12.3
+    },
+    {
+      "epoch": 29,
+      "lr": 5.686767789092041e-05,
+      "train_loss": 0.9152107971055167,
+      "train_top1": 0.9986607142857142,
+      "val_loss": 3.0280536695596307,
+      "val_top1": 0.5345911949685535,
+      "val_top5": 0.6981132075471698,
+      "val_macro_f1": 0.3826394375470135,
+      "seconds": 11.9
+    },
+    {
+      "epoch": 30,
+      "lr": 5.4128967273616625e-05,
+      "train_loss": 0.9165617431913103,
+      "train_top1": 0.9982142857142857,
+      "val_loss": 3.0429210542882763,
+      "val_top1": 0.5513626834381551,
+      "val_top5": 0.6855345911949685,
+      "val_macro_f1": 0.38940369580939455,
+      "seconds": 12.7
+    },
+    {
+      "epoch": 31,
+      "lr": 5.1377717118408105e-05,
+      "train_loss": 0.9129219259534563,
+      "train_top1": 0.9991071428571429,
+      "val_loss": 3.010816543107263,
+      "val_top1": 0.5429769392033543,
+      "val_top5": 0.6939203354297694,
+      "val_macro_f1": 0.38582241032068026,
+      "seconds": 12.2
+    },
+    {
+      "epoch": 32,
+      "lr": 4.8622282881591906e-05,
+      "train_loss": 0.9103972894804818,
+      "train_top1": 0.9991071428571429,
+      "val_loss": 3.0420764447258204,
+      "val_top1": 0.5450733752620545,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.388848078598474,
+      "seconds": 11.9
+    },
+    {
+      "epoch": 33,
+      "lr": 4.5871032726383386e-05,
+      "train_loss": 0.9084952848298209,
+      "train_top1": 1.0,
+      "val_loss": 3.055702380414279,
+      "val_top1": 0.5576519916142557,
+      "val_top5": 0.6750524109014675,
+      "val_macro_f1": 0.39127706818643004,
+      "seconds": 12.8
+    },
+    {
+      "epoch": 34,
+      "lr": 4.3132322109079596e-05,
+      "train_loss": 0.9081467917987278,
+      "train_top1": 0.9995535714285714,
+      "val_loss": 3.0602827202099174,
+      "val_top1": 0.5534591194968553,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.39754141042995533,
+      "seconds": 12.1
+    },
+    {
+      "epoch": 35,
+      "lr": 4.0414468403813095e-05,
+      "train_loss": 0.9090951272419521,
+      "train_top1": 0.9995535714285714,
+      "val_loss": 3.052444335049803,
+      "val_top1": 0.5534591194968553,
+      "val_top5": 0.6855345911949685,
+      "val_macro_f1": 0.3976184534014545,
+      "seconds": 11.8
+    },
+    {
+      "epoch": 36,
+      "lr": 3.772572564296005e-05,
+      "train_loss": 0.9079547047615051,
+      "train_top1": 0.9995535714285714,
+      "val_loss": 3.067587618557912,
+      "val_top1": 0.5513626834381551,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.39020373797063296,
+      "seconds": 11.8
+    },
+    {
+      "epoch": 37,
+      "lr": 3.5074259449915284e-05,
+      "train_loss": 0.9067193474088396,
+      "train_top1": 0.9995535714285714,
+      "val_loss": 3.056742532198284,
+      "val_top1": 0.559748427672956,
+      "val_top5": 0.6855345911949685,
+      "val_macro_f1": 0.3933857028367626,
+      "seconds": 11.7
+    },
+    {
+      "epoch": 38,
+      "lr": 3.2468122240362284e-05,
+      "train_loss": 0.9059748751776558,
+      "train_top1": 1.0,
+      "val_loss": 3.0428564303576073,
+      "val_top1": 0.5660377358490566,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.4053154392749418,
+      "seconds": 11.7
+    },
+    {
+      "epoch": 39,
+      "lr": 2.991522876735154e-05,
+      "train_loss": 0.9048901677131653,
+      "train_top1": 1.0,
+      "val_loss": 3.055397129658633,
+      "val_top1": 0.5639412997903563,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.3904369063333939,
+      "seconds": 11.8
+    },
+    {
+      "epoch": 40,
+      "lr": 2.7423332084455544e-05,
+      "train_loss": 0.9051749672208513,
+      "train_top1": 0.9995535714285714,
+      "val_loss": 3.0489702844519786,
+      "val_top1": 0.5555555555555556,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.3882125410693194,
+      "seconds": 11.6
+    },
+    {
+      "epoch": 41,
+      "lr": 2.500000000000001e-05,
+      "train_loss": 0.9042548963001796,
+      "train_top1": 1.0,
+      "val_loss": 3.048413866470945,
+      "val_top1": 0.559748427672956,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.39080393705091715,
+      "seconds": 12.3
+    },
+    {
+      "epoch": 42,
+      "lr": 2.2652592093878666e-05,
+      "train_loss": 0.9039349113191877,
+      "train_top1": 1.0,
+      "val_loss": 3.056549606083324,
+      "val_top1": 0.559748427672956,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.3927221311131044,
+      "seconds": 12.0
+    },
+    {
+      "epoch": 43,
+      "lr": 2.0388237366751006e-05,
+      "train_loss": 0.9035020198140825,
+      "train_top1": 1.0,
+      "val_loss": 3.0590352722183964,
+      "val_top1": 0.5576519916142557,
+      "val_top5": 0.6855345911949685,
+      "val_macro_f1": 0.3925122541254854,
+      "seconds": 11.7
+    },
+    {
+      "epoch": 44,
+      "lr": 1.821381258950161e-05,
+      "train_loss": 0.904267406463623,
+      "train_top1": 1.0,
+      "val_loss": 3.058469305498295,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6960167714884696,
+      "val_macro_f1": 0.39438587813472387,
+      "seconds": 12.2
+    },
+    {
+      "epoch": 45,
+      "lr": 1.6135921418712956e-05,
+      "train_loss": 0.9031372240611485,
+      "train_top1": 1.0,
+      "val_loss": 3.056676592716881,
+      "val_top1": 0.559748427672956,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.39257858951583713,
+      "seconds": 12.0
+    },
+    {
+      "epoch": 46,
+      "lr": 1.4160874341577446e-05,
+      "train_loss": 0.902950610433306,
+      "train_top1": 1.0,
+      "val_loss": 3.051722556540051,
+      "val_top1": 0.559748427672956,
+      "val_top5": 0.6855345911949685,
+      "val_macro_f1": 0.3973288719314033,
+      "seconds": 11.6
+    },
+    {
+      "epoch": 47,
+      "lr": 1.2294669511155193e-05,
+      "train_loss": 0.9021995765822274,
+      "train_top1": 1.0,
+      "val_loss": 3.059678211652008,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6813417190775681,
+      "val_macro_f1": 0.40001963481766206,
+      "seconds": 11.8
+    },
+    {
+      "epoch": 48,
+      "lr": 1.0542974530180327e-05,
+      "train_loss": 0.9038684095655168,
+      "train_top1": 1.0,
+      "val_loss": 3.060362208064497,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.3949694140458864,
+      "seconds": 11.9
+    },
+    {
+      "epoch": 49,
+      "lr": 8.911109238737747e-06,
+      "train_loss": 0.9030871800013951,
+      "train_top1": 1.0,
+      "val_loss": 3.0577809325804,
+      "val_top1": 0.5576519916142557,
+      "val_top5": 0.6855345911949685,
+      "val_macro_f1": 0.3954013404423485,
+      "seconds": 12.1
+    },
+    {
+      "epoch": 50,
+      "lr": 7.404029558083653e-06,
+      "train_loss": 0.9017352887562343,
+      "train_top1": 1.0,
+      "val_loss": 3.0581738813868107,
+      "val_top1": 0.5576519916142557,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.39602682867035693,
+      "seconds": 12.4
+    },
+    {
+      "epoch": 51,
+      "lr": 6.026312439675552e-06,
+      "train_loss": 0.9033682176045009,
+      "train_top1": 0.9991071428571429,
+      "val_loss": 3.050089925090222,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6855345911949685,
+      "val_macro_f1": 0.3998911482798752,
+      "seconds": 13.0
+    },
+    {
+      "epoch": 52,
+      "lr": 4.782141965121128e-06,
+      "train_loss": 0.9038370319775173,
+      "train_top1": 0.9995535714285714,
+      "val_loss": 3.05412509906217,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.39714970536015015,
+      "seconds": 11.7
+    },
+    {
+      "epoch": 53,
+      "lr": 3.675296639259912e-06,
+      "train_loss": 0.9021849342754908,
+      "train_top1": 1.0,
+      "val_loss": 3.057857432455387,
+      "val_top1": 0.559748427672956,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.3952258486275229,
+      "seconds": 12.5
+    },
+    {
+      "epoch": 54,
+      "lr": 2.7091379149682685e-06,
+      "train_loss": 0.9012669580323356,
+      "train_top1": 1.0,
+      "val_loss": 3.060570152050794,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6834381551362684,
+      "val_macro_f1": 0.3951745170944712,
+      "seconds": 12.9
+    },
+    {
+      "epoch": 55,
+      "lr": 1.8865999845374793e-06,
+      "train_loss": 0.901811477116176,
+      "train_top1": 1.0,
+      "val_loss": 3.059568253203258,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6855345911949685,
+      "val_macro_f1": 0.3955798431447921,
+      "seconds": 12.0
+    },
+    {
+      "epoch": 56,
+      "lr": 1.210180868628219e-06,
+      "train_loss": 0.9016780257225037,
+      "train_top1": 1.0,
+      "val_loss": 3.0592203750050544,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.39551003785528127,
+      "seconds": 11.6
+    },
+    {
+      "epoch": 57,
+      "lr": 6.819348298638839e-07,
+      "train_loss": 0.9029396346637181,
+      "train_top1": 1.0,
+      "val_loss": 3.058187234826558,
+      "val_top1": 0.559748427672956,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.39484115431746064,
+      "seconds": 12.3
+    },
+    {
+      "epoch": 58,
+      "lr": 3.034661341025258e-07,
+      "train_loss": 0.9033957430294581,
+      "train_top1": 1.0,
+      "val_loss": 3.0575936825270422,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.3955798431447921,
+      "seconds": 12.5
+    },
+    {
+      "epoch": 59,
+      "lr": 7.59241783341913e-08,
+      "train_loss": 0.9017403875078474,
+      "train_top1": 1.0,
+      "val_loss": 3.057837060412521,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.6876310272536688,
+      "val_macro_f1": 0.3955798431447921,
+      "seconds": 12.4
+    },
+    {
+      "epoch": 60,
+      "lr": 0.0,
+      "train_loss": 0.9018991623606001,
+      "train_top1": 1.0,
+      "val_loss": 3.0571073266195303,
+      "val_top1": 0.5618448637316562,
+      "val_top5": 0.689727463312369,
+      "val_macro_f1": 0.3955798431447921,
+      "seconds": 12.6
+    }
+  ],
+  "test": {
+    "loss": 3.0635468964806645,
+    "top1": 0.5241090146750524,
+    "top5": 0.7044025157232704,
+    "macro_f1": 0.353247675910224
+  },
+  "per_class": {
+    "abbaye_de_belloc": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1-score": 0.6666666666666666,
+      "support": 2.0
+    },
+    "abbaye_de_citeaux": {
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1-score": 0.8571428571428571,
+      "support": 6.0
+    },
+    "abbaye_du_mont_des_cats": {
+      "precision": 0.8571428571428571,
+      "recall": 1.0,
+      "f1-score": 0.9230769230769231,
+      "support": 6.0
+    },
+    "abertam": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    },
+    "abondance": {
+      "precision": 0.2857142857142857,
+      "recall": 0.2857142857142857,
+      "f1-score": 0.2857142857142857,
+      "support": 7.0
+    },
+    "acapella": {
+      "precision": 0.6363636363636364,
+      "recall": 1.0,
+      "f1-score": 0.7777777777777778,
+      "support": 7.0
+    },
+    "ackawi": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "acorn": {
+      "precision": 1.0,
+      "recall": 0.8888888888888888,
+      "f1-score": 0.9411764705882353,
+      "support": 9.0
+    },
+    "adelost": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "afuega_l_pitu": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1-score": 0.6666666666666666,
+      "support": 2.0
+    },
+    "airag": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "airedale": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 5.0
+    },
+    "aisy_cendre": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "allgauer_emmentaler": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "alverca": {
+      "precision": 0.6666666666666666,
+      "recall": 0.2857142857142857,
+      "f1-score": 0.4,
+      "support": 7.0
+    },
+    "ambert": {
+      "precision": 0.2777777777777778,
+      "recall": 0.4166666666666667,
+      "f1-score": 0.3333333333333333,
+      "support": 12.0
+    },
+    "american_cheese": {
+      "precision": 1.0,
+      "recall": 0.8333333333333334,
+      "f1-score": 0.9090909090909091,
+      "support": 6.0
+    },
+    "ami_du_chambertin": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "anejo_enchilado": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "anthoriro": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "appenzell": {
+      "precision": 0.6,
+      "recall": 0.6,
+      "f1-score": 0.6,
+      "support": 5.0
+    },
+    "aragon": {
+      "precision": 0.4444444444444444,
+      "recall": 0.5714285714285714,
+      "f1-score": 0.5,
+      "support": 7.0
+    },
+    "ardi_gasna": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 6.0
+    },
+    "ardrahan": {
+      "precision": 0.75,
+      "recall": 0.6,
+      "f1-score": 0.6666666666666666,
+      "support": 5.0
+    },
+    "aromes_au_gene_de_marc": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 4.0
+    },
+    "asadero": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "asiago": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 8.0
+    },
+    "autun": {
+      "precision": 0.5714285714285714,
+      "recall": 1.0,
+      "f1-score": 0.7272727272727273,
+      "support": 8.0
+    },
+    "baby_swiss": {
+      "precision": 0.3333333333333333,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.4444444444444444,
+      "support": 3.0
+    },
+    "babybel": {
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1-score": 0.8571428571428571,
+      "support": 3.0
+    },
+    "baguette_laonnaise": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "bakers": {
+      "precision": 0.5,
+      "recall": 0.8,
+      "f1-score": 0.6153846153846154,
+      "support": 5.0
+    },
+    "baladi": {
+      "precision": 0.5,
+      "recall": 0.2857142857142857,
+      "f1-score": 0.36363636363636365,
+      "support": 7.0
+    },
+    "balaton": {
+      "precision": 0.5833333333333334,
+      "recall": 1.0,
+      "f1-score": 0.7368421052631579,
+      "support": 7.0
+    },
+    "bandal": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1-score": 0.6666666666666666,
+      "support": 8.0
+    },
+    "banon": {
+      "precision": 0.17647058823529413,
+      "recall": 0.375,
+      "f1-score": 0.24,
+      "support": 8.0
+    },
+    "basing": {
+      "precision": 1.0,
+      "recall": 0.625,
+      "f1-score": 0.7692307692307693,
+      "support": 8.0
+    },
+    "basket_cheese": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "beaufort": {
+      "precision": 0.6,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.631578947368421,
+      "support": 9.0
+    },
+    "beauvoorde": {
+      "precision": 1.0,
+      "recall": 0.5714285714285714,
+      "f1-score": 0.7272727272727273,
+      "support": 7.0
+    },
+    "beenleigh_blue": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "beer_cheese": {
+      "precision": 0.6666666666666666,
+      "recall": 0.5,
+      "f1-score": 0.5714285714285714,
+      "support": 4.0
+    },
+    "bel_paese": {
+      "precision": 0.42857142857142855,
+      "recall": 0.42857142857142855,
+      "f1-score": 0.42857142857142855,
+      "support": 7.0
+    },
+    "bergader": {
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1-score": 0.8,
+      "support": 2.0
+    },
+    "berkswell": {
+      "precision": 0.6,
+      "recall": 0.375,
+      "f1-score": 0.46153846153846156,
+      "support": 8.0
+    },
+    "beyaz_peynir": {
+      "precision": 0.125,
+      "recall": 0.2,
+      "f1-score": 0.15384615384615385,
+      "support": 5.0
+    },
+    "bierkase": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "blarney": {
+      "precision": 0.5,
+      "recall": 0.7142857142857143,
+      "f1-score": 0.5882352941176471,
+      "support": 7.0
+    },
+    "bleu_d_auvergne": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1-score": 0.8,
+      "support": 5.0
+    },
+    "bleu_de_gex": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "bleu_de_laqueuille": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "bleu_des_causses": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 4.0
+    },
+    "blue": {
+      "precision": 0.3333333333333333,
+      "recall": 0.35714285714285715,
+      "f1-score": 0.3448275862068966,
+      "support": 14.0
+    },
+    "blue_castello": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "bocconcini": {
+      "precision": 0.35714285714285715,
+      "recall": 0.625,
+      "f1-score": 0.45454545454545453,
+      "support": 8.0
+    },
+    "boeren_leidenkaas": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "bonchester": {
+      "precision": 0.8571428571428571,
+      "recall": 0.8571428571428571,
+      "f1-score": 0.8571428571428571,
+      "support": 7.0
+    },
+    "bosworth": {
+      "precision": 0.5,
+      "recall": 0.42857142857142855,
+      "f1-score": 0.46153846153846156,
+      "support": 7.0
+    },
+    "bougon": {
+      "precision": 0.8333333333333334,
+      "recall": 0.7142857142857143,
+      "f1-score": 0.7692307692307693,
+      "support": 7.0
+    },
+    "boulette_d_avesnes": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "boursault": {
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1-score": 0.5,
+      "support": 2.0
+    },
+    "boursin": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "bouyssou": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 4.0
+    },
+    "bra": {
+      "precision": 0.8888888888888888,
+      "recall": 1.0,
+      "f1-score": 0.9411764705882353,
+      "support": 8.0
+    },
+    "breakfast_cheese": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "brebis_du_lavort": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "bresse_bleu": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1-score": 0.8888888888888888,
+      "support": 5.0
+    },
+    "brick": {
+      "precision": 0.5714285714285714,
+      "recall": 0.5,
+      "f1-score": 0.5333333333333333,
+      "support": 8.0
+    },
+    "brie": {
+      "precision": 0.4,
+      "recall": 0.8571428571428571,
+      "f1-score": 0.5454545454545454,
+      "support": 7.0
+    },
+    "brie_au_poivre": {
+      "precision": 0.6,
+      "recall": 1.0,
+      "f1-score": 0.75,
+      "support": 3.0
+    },
+    "brie_de_meaux": {
+      "precision": 0.5555555555555556,
+      "recall": 0.8333333333333334,
+      "f1-score": 0.6666666666666666,
+      "support": 6.0
+    },
+    "brie_de_melun": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 4.0
+    },
+    "brillat_savarin": {
+      "precision": 0.5,
+      "recall": 0.5714285714285714,
+      "f1-score": 0.5333333333333333,
+      "support": 7.0
+    },
+    "brin": {
+      "precision": 0.5555555555555556,
+      "recall": 0.7142857142857143,
+      "f1-score": 0.625,
+      "support": 7.0
+    },
+    "brin_d_amour": {
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1-score": 0.8571428571428571,
+      "support": 3.0
+    },
+    "briquette_de_brebis": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "broccio": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "brousse_du_rove": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "bryndza": {
+      "precision": 0.3333333333333333,
+      "recall": 1.0,
+      "f1-score": 0.5,
+      "support": 1.0
+    },
+    "buffalo": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "burgos": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cabecou": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cabrales": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "cachaille": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "caciocavallo": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "caciotta": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "caerphilly": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "calenzana": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "camembert": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "canestrato": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cantal": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "caprice_des_dieux": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "carre_de_l_est": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cashel_blue": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "castelmagno": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "chabichou": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "chaource": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "charolais": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 3.0
+    },
+    "chaumes": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cheddar": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "cheshire": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "chevres": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cojack": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cold_pack": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "comte": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "coolea": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cotija": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "cottage_cheese": {
+      "precision": 1.0,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.8,
+      "support": 3.0
+    },
+    "cougar_gold": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "coulommiers": {
+      "precision": 0.6666666666666666,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.6666666666666666,
+      "support": 3.0
+    },
+    "cream_cheese": {
+      "precision": 0.3333333333333333,
+      "recall": 0.3333333333333333,
+      "f1-score": 0.3333333333333333,
+      "support": 3.0
+    },
+    "crema_agria": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "creme_fraiche": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "crescenza": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "crottin_de_chavignol": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cuajada": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1-score": 0.6666666666666666,
+      "support": 3.0
+    },
+    "curd": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 4.0
+    },
+    "cure_nantais": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "cypress_grove_chevre": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "danbo": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "derby": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "double_gloucester": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "dry_jack": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "duddleswell": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "durrus": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "dutch_mimolette": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "edam": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1-score": 0.6666666666666666,
+      "support": 1.0
+    },
+    "edelpilz": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "emmental": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "epoisses_de_bourgogne": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "esbareich": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "etorki": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "farmer": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "feta": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "filetta": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "fiore_sardo": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "flor_de_guia": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "fontal": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "formaggio_di_capra": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "fougerus": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "fourme_d_ambert": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "fourme_de_montbrison": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "fresh_mozzarella": {
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1-score": 0.5,
+      "support": 2.0
+    },
+    "fribourgeois": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "friesian": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "fromage_a_raclette": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "fromage_corse": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "fromage_frais": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1-score": 0.6666666666666666,
+      "support": 2.0
+    },
+    "gabriel": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "garrotxa": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "geitost": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "gorgonzola": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "gouda": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "grana": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "grana_padano": {
+      "precision": 0.3333333333333333,
+      "recall": 1.0,
+      "f1-score": 0.5,
+      "support": 1.0
+    },
+    "grand_vatel": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "graviera": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "greve": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "gruyere": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "halloumi": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "havarti": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "herve": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "iberico": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1-score": 0.6666666666666666,
+      "support": 1.0
+    },
+    "isle_of_mull": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "jarlsberg": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "jibneh_arabieh": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "kaseri": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "kashta": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "kefalotyri": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "la_vache_qui_rit": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "laguiole": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "lancashire": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "langres": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "leicester": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "limburger": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "livarot": {
+      "precision": 0.3333333333333333,
+      "recall": 1.0,
+      "f1-score": 0.5,
+      "support": 1.0
+    },
+    "longhorn": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "maasdam": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "mahon": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "mamirolle": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "manchego": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "manur": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "mascarpone": {
+      "precision": 0.6666666666666666,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.6666666666666666,
+      "support": 3.0
+    },
+    "maytag_blue": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "metton": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "mimolette": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "mixte": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "monterey_jack": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "morbier": {
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1-score": 0.5,
+      "support": 2.0
+    },
+    "mozzarella": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "mozzarella_di_bufala": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "muenster": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "murol": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "myzithra": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "neufchatel": {
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1-score": 0.5,
+      "support": 2.0
+    },
+    "northumberland": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "oaxaca": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "olivet_cendre": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "orla": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "ossau_iraty": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "oszczypek": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "oxford_blue": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "paneer": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "panela": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "parmesan": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "parmigiano_reggiano": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "pecorino": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "pecorino_romano": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "penamellera": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "penbryn": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "pencarreg": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "pepper_jack": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "petit_suisse": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "pinconning": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "piora": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "podhalanski": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "poivre_d_ane": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "pont_l_eveque": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "port_salut": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "pouligny_saint_pierre": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "pressato": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "provolone": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "quark": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "queso_blanco": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "queso_de_murcia": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "queso_majorero": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "rabacal": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "raclette": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "reblochon": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1-score": 0.6666666666666666,
+      "support": 2.0
+    },
+    "red_leicester": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "reggianito": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "requeson": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "ricotta": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "ricotta_salata": {
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1-score": 0.8,
+      "support": 2.0
+    },
+    "rigotte": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "rocamadour": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "rollot": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "romano": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "roquefort": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "saga": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "sage_derby": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "saint_nectaire": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "saint_paulin": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "sainte_maure": {
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1-score": 0.5,
+      "support": 2.0
+    },
+    "salers": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "san_simon": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "sap_sago": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "sardo": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "sbrinz": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "scamorza": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "selles_sur_cher": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "serat": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "serra_da_estrela": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "shropshire_blue": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "smoked_gouda": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "soumaintrain": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "stilton": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "string": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "sveciaost": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "swiss": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "tala": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "taleggio": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "tamie": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "taupiniere": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "teifi": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "telemea": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "tete_de_moine": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "tetilla": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "tillamook_cheddar": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1-score": 0.6666666666666666,
+      "support": 1.0
+    },
+    "tilsit": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "toma": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "tomme_de_chevre": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "tomme_de_savoie": {
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1-score": 0.8,
+      "support": 2.0
+    },
+    "torta_del_casar": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "tronchon": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "trou_du_cru": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "truffe": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "tupi": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "ulloa": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "vacherin_fribourgeois": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "valencay": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "vermont_cheddar": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "vignotte": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "washed_rind_cheese": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "wensleydale": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "white_stilton": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "yarg_cornish": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "zamorano": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "accuracy": 0.5241090146750524,
+    "macro avg": {
+      "precision": 0.20927764308585384,
+      "recall": 0.22597828483245153,
+      "f1-score": 0.20974080757169547,
+      "support": 477.0
+    },
+    "weighted avg": {
+      "precision": 0.4976490812321371,
+      "recall": 0.5241090146750524,
+      "f1-score": 0.4933664141138762,
+      "support": 477.0
+    }
+  }
+}

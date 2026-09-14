@@ -1,0 +1,35 @@
+{
+  "task": "fr_cheese_type",
+  "classes": [
+    "blue_mould_cheese",
+    "cheese_generic",
+    "cottage_cheese",
+    "cream_cheese",
+    "emmental_cheese",
+    "fresh_cheese",
+    "goat_cheese_soft",
+    "hard_cheese",
+    "processed_cheese",
+    "raclette_cheese",
+    "semi_hard_cheese",
+    "soft_cheese"
+  ],
+  "img_size": 384,
+  "mean": [
+    0.57893,
+    0.5269,
+    0.45318
+  ],
+  "std": [
+    0.27042,
+    0.26677,
+    0.27936
+  ],
+  "preprocessing": "RGB -> resize(437) -> center_crop(384) -> /255 -> (x - mean) / std -> NCHW float32",
+  "val_metrics": {
+    "loss": 1.638195796596536,
+    "top1": 0.6304849884526559,
+    "top5": 0.8799076212471132,
+    "macro_f1": 0.5673569528167214
+  }
+}

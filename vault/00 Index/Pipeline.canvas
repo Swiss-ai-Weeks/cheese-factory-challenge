@@ -1,0 +1,303 @@
+{
+ "nodes": [
+  {
+   "id": "g1",
+   "type": "group",
+   "label": "\u2460 SOURCES \u2014 public, already annotated",
+   "x": -80,
+   "y": -80,
+   "width": 1320,
+   "height": 420,
+   "color": "4"
+  },
+  {
+   "id": "d1",
+   "type": "file",
+   "file": "20 Datasets/Food Recognition 2022.md",
+   "x": -40,
+   "y": -20,
+   "width": 380,
+   "height": 320,
+   "color": "4"
+  },
+  {
+   "id": "d2",
+   "type": "file",
+   "file": "20 Datasets/CHEESE-HIDB.md",
+   "x": 380,
+   "y": -20,
+   "width": 380,
+   "height": 320,
+   "color": "4"
+  },
+  {
+   "id": "d3",
+   "type": "file",
+   "file": "20 Datasets/Cheese Images.md",
+   "x": 800,
+   "y": -20,
+   "width": 380,
+   "height": 320,
+   "color": "4"
+  },
+  {
+   "id": "g2",
+   "type": "group",
+   "label": "\u2461 PIPELINE \u2014 no image hand-labelled",
+   "x": -80,
+   "y": 400,
+   "width": 1320,
+   "height": 420,
+   "color": "3"
+  },
+  {
+   "id": "p1",
+   "type": "file",
+   "file": "30 Pipeline/Normalisation.md",
+   "x": -40,
+   "y": 460,
+   "width": 380,
+   "height": 320,
+   "color": "3"
+  },
+  {
+   "id": "p2",
+   "type": "file",
+   "file": "30 Pipeline/Cutouts.md",
+   "x": 380,
+   "y": 460,
+   "width": 380,
+   "height": 320,
+   "color": "3"
+  },
+  {
+   "id": "p3",
+   "type": "file",
+   "file": "30 Pipeline/Isaac Sim rendering.md",
+   "x": 800,
+   "y": 460,
+   "width": 380,
+   "height": 320,
+   "color": "3"
+  },
+  {
+   "id": "w1",
+   "type": "text",
+   "text": "> [!danger] The rule that governs everything\n> Split by **physical object**, never by file.\n> [[Splits and data leakage]]",
+   "x": 1300,
+   "y": 460,
+   "width": 340,
+   "height": 180,
+   "color": "1"
+  },
+  {
+   "id": "w2",
+   "type": "text",
+   "text": "> [!note] Two extra classes\n> `empty` + `not_cheese` so the arm can\n> refuse to act. [[Reject classes]]",
+   "x": 1300,
+   "y": 660,
+   "width": 340,
+   "height": 160,
+   "color": "5"
+  },
+  {
+   "id": "g3",
+   "type": "group",
+   "label": "\u2462 MODEL \u2014 one network, three answers",
+   "x": -80,
+   "y": 880,
+   "width": 1320,
+   "height": 420,
+   "color": "6"
+  },
+  {
+   "id": "m1",
+   "type": "file",
+   "file": "50 Models/sim_type13.md",
+   "x": -40,
+   "y": 940,
+   "width": 380,
+   "height": 320,
+   "color": "6"
+  },
+  {
+   "id": "m2",
+   "type": "file",
+   "file": "60 Results/Model comparison.md",
+   "x": 380,
+   "y": 940,
+   "width": 380,
+   "height": 320,
+   "color": "6"
+  },
+  {
+   "id": "m3",
+   "type": "file",
+   "file": "60 Results/Reject performance.md",
+   "x": 800,
+   "y": 940,
+   "width": 380,
+   "height": 320,
+   "color": "6"
+  },
+  {
+   "id": "g4",
+   "type": "group",
+   "label": "\u2463 INTEGRATION \u2014 what the robot consumes",
+   "x": -80,
+   "y": 1360,
+   "width": 1320,
+   "height": 420,
+   "color": "2"
+  },
+  {
+   "id": "i1",
+   "type": "file",
+   "file": "70 Integration/Output contract.md",
+   "x": -40,
+   "y": 1420,
+   "width": 380,
+   "height": 320,
+   "color": "2"
+  },
+  {
+   "id": "i2",
+   "type": "file",
+   "file": "70 Integration/Inference API.md",
+   "x": 380,
+   "y": 1420,
+   "width": 380,
+   "height": 320,
+   "color": "2"
+  },
+  {
+   "id": "i3",
+   "type": "file",
+   "file": "70 Integration/Robot pipeline.md",
+   "x": 800,
+   "y": 1420,
+   "width": 380,
+   "height": 320,
+   "color": "2"
+  },
+  {
+   "id": "c1",
+   "type": "text",
+   "text": "> [!failure] Not validated\n> Nothing here has been measured on the\n> actual demo scene.\n> [[What the numbers do not measure]]\n> [[Open questions]]",
+   "x": 1300,
+   "y": 1420,
+   "width": 340,
+   "height": 220,
+   "color": "1"
+  },
+  {
+   "id": "c2",
+   "type": "text",
+   "text": "**Start here** \u2192 [[Home]]\n\n[[Data provenance]] \u00b7 [[Bug log]]\n[[Measurement pitfalls]]",
+   "x": 1300,
+   "y": -20,
+   "width": 340,
+   "height": 180
+  }
+ ],
+ "edges": [
+  {
+   "id": "e1",
+   "fromNode": "d1",
+   "fromSide": "bottom",
+   "toNode": "p1",
+   "toSide": "top",
+   "label": "polygons + types"
+  },
+  {
+   "id": "e2",
+   "fromNode": "d2",
+   "fromSide": "bottom",
+   "toNode": "p1",
+   "toSide": "top",
+   "label": "wheels"
+  },
+  {
+   "id": "e3",
+   "fromNode": "d3",
+   "fromSide": "bottom",
+   "toNode": "p1",
+   "toSide": "top",
+   "label": "varieties"
+  },
+  {
+   "id": "e4",
+   "fromNode": "p1",
+   "fromSide": "right",
+   "toNode": "p2",
+   "toSide": "left",
+   "label": "crops"
+  },
+  {
+   "id": "e5",
+   "fromNode": "p2",
+   "fromSide": "right",
+   "toNode": "p3",
+   "toSide": "left",
+   "label": "RGBA silhouettes"
+  },
+  {
+   "id": "e6",
+   "fromNode": "p3",
+   "fromSide": "bottom",
+   "toNode": "m1",
+   "toSide": "top",
+   "label": "12,355 renders"
+  },
+  {
+   "id": "e7",
+   "fromNode": "m1",
+   "fromSide": "right",
+   "toNode": "m2",
+   "toSide": "left"
+  },
+  {
+   "id": "e8",
+   "fromNode": "m2",
+   "fromSide": "right",
+   "toNode": "m3",
+   "toSide": "left"
+  },
+  {
+   "id": "e9",
+   "fromNode": "m1",
+   "fromSide": "bottom",
+   "toNode": "i1",
+   "toSide": "top",
+   "label": "SortResult"
+  },
+  {
+   "id": "e10",
+   "fromNode": "i1",
+   "fromSide": "right",
+   "toNode": "i2",
+   "toSide": "left"
+  },
+  {
+   "id": "e11",
+   "fromNode": "i2",
+   "fromSide": "right",
+   "toNode": "i3",
+   "toSide": "left"
+  },
+  {
+   "id": "e12",
+   "fromNode": "w1",
+   "fromSide": "left",
+   "toNode": "p3",
+   "toSide": "right"
+  },
+  {
+   "id": "e13",
+   "fromNode": "w2",
+   "fromSide": "left",
+   "toNode": "p3",
+   "toSide": "right"
+  }
+ ]
+}

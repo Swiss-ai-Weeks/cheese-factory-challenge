@@ -1,0 +1,65 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showTags": true,
+  "showAttachments": true,
+  "hideUnresolved": true,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "tag:#ship-it",
+      "color": {
+        "a": 1,
+        "rgb": 2278750
+      }
+    },
+    {
+      "query": "tag:#gotcha OR tag:#bug",
+      "color": {
+        "a": 1,
+        "rgb": 14824989
+      }
+    },
+    {
+      "query": "tag:#dataset",
+      "color": {
+        "a": 1,
+        "rgb": 3634415
+      }
+    },
+    {
+      "query": "tag:#model",
+      "color": {
+        "a": 1,
+        "rgb": 12094826
+      }
+    },
+    {
+      "query": "tag:#moc",
+      "color": {
+        "a": 1,
+        "rgb": 9868950
+      }
+    },
+    {
+      "query": "tag:#todo",
+      "color": {
+        "a": 1,
+        "rgb": 15905331
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1.2,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": false,
+  "centerStrength": 0.52,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 260,
+  "scale": 0.7,
+  "close": false
+}
