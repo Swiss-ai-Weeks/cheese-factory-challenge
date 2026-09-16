@@ -1,10 +1,59 @@
-# Cheese Factory — Perception
+# Cheese Factory — Autonomous Isaac Sim sorting
 
-Perception block for the **Physical AI cheese factory** challenge: a belt camera frame
-goes in, a sorting decision comes out, and the downstream pipeline drives the robot arm.
+End-to-end **Physical AI cheese factory** challenge: a rendered belt camera
+frame goes through crop detection and `CheeseSorter`, then a collision-aware
+Franka picks only accepted cheese and places it in the selected bin.
 
 ```
-Isaac Sim camera ──▶ CheeseSorter.predict(frame) ──▶ SortResult ──▶ arm control
+spawn → conveyor → RTX RGB/depth → foreground crop → CheeseSorter
+                                                     │
+                           reject chute ◀── status ───┤
+                                                     ▼ status == "ok" only
+                         calibrated pick XY → cuMotion Franka → five bins
+```
+
+## Isaac Sim factory demo
+
+The factory implementation is under `sim/factory/`. It uses Isaac Sim 6.1's
+experimental RTX camera and maintained cuMotion Franka example controller. A
+calibrated pixel ray intersects the conveyor plane, so lateral pick position is
+derived from the camera rather than hardcoded. Ground-truth class metadata is
+used only for evaluation.
+
+Headless deterministic evaluation:
+
+```bash
+infra/isaac-sim/run-headless.sh development
+```
+
+Streamed GUI for the SSH/Brev setup:
+
+```bash
+infra/isaac-sim/run-gui.sh development
+```
+
+`development` is an explicit rendered-color integration classifier because the
+Git-ignored trained checkpoint is not currently on this workstation. For the
+real model, restore `runs/sim_type13/best.pt` and omit that argument. Production
+mode fails closed when the artifact is absent.
+
+Outputs are saved under ignored `outputs/factory/`: annotated camera frames and
+a `results.json` with detection, classification, pick, correct-bin, end-to-end,
+and timing metrics. See the [demo runbook](docs/demo_runbook.md),
+[MCP research](docs/isaac_mcp_research.md), and
+[evaluation protocol](docs/evaluation_results.md).
+
+The verified 11-object development run achieved 100% detection,
+classification, physical picks, correct-bin placements, and end-to-end object
+outcomes, including safe rejection of the foreign object. These are integration
+results, not trained-model accuracy.
+
+Pure-Python checks:
+
+```bash
+uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python numpy pillow pytest pyyaml
+.venv/bin/python -m pytest -q
 ```
 
 The model answers three things at once — the fine cheese **type**, the **bin** it belongs
@@ -151,7 +200,9 @@ existed — see [Data journey](vault/20%20Datasets/Data%20provenance.md).
 ```
 src/                 normalize · cutouts · render_manifest · dataset · train · predict · export
 sim/render_belt.py   the USD belt scene and domain randomisation
+sim/factory/         autonomous scene · camera perception · state machine · controller · evaluation
 infra/isaac-sim/     remote Isaac Sim GUI stack for SSH and Brev
+docs/                MCP compatibility research and hackathon runbook
 runs/<head>/         results.json and ONNX sidecars for 8 trained heads
 vault/               the documentation (Obsidian)
 hpe.ipynb            runnable notebook

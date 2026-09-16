@@ -1,0 +1,58 @@
+{
+  "seed": 2026,
+  "physics_hz": 60,
+  "render_hz": 30,
+  "max_objects": 11,
+  "belt": {
+    "speed_mps": 0.20,
+    "spawn_position": [0.50, -0.65, 0.055],
+    "object_orientation_wxyz": [1.0, 0.0, 0.0, 0.0],
+    "pick_line_y": 0.00,
+    "plane_z": 0.03,
+    "spacing_m": 0.18
+  },
+  "camera": {
+    "prim_path": "/World/InspectionCamera",
+    "position": [0.50, 0.00, 1.30],
+    "orientation_wxyz": [1.0, 0.0, 0.0, 0.0],
+    "resolution": [480, 640],
+    "horizontal_fov_deg": 42.0,
+    "warmup_frames": 40,
+    "roi": [300, 205, 345, 275]
+  },
+  "perception": {
+    "model_path": "runs/sim_type13/best.pt",
+    "min_confidence": 0.55,
+    "background_threshold": 32,
+    "minimum_area_px": 180,
+    "crop_padding_px": 16
+  },
+  "robot": {
+    "prim_path": "/World/Franka",
+    "home_timeout_s": 15.0,
+    "motion_timeout_s": 45.0,
+    "grasp_height_offset_m": 0.0,
+    "pick_position": [0.50, 0.00, 0.055]
+  },
+  "bins": {
+    "bin_hard": [0.00, 0.52, 0.0258],
+    "bin_semi_hard": [0.24, 0.55, 0.0258],
+    "bin_soft": [0.48, 0.54, 0.0258],
+    "bin_fresh": [0.67, 0.32, 0.0258],
+    "bin_blue": [0.69, -0.30, 0.0258]
+  },
+  "reject_position": [0.72, -0.62, 0.055],
+  "evaluation_sequence": [
+    "hard_cheese",
+    "emmental_cheese",
+    "semi_hard_cheese",
+    "raclette_cheese",
+    "soft_cheese",
+    "goat_cheese_soft",
+    "fresh_cheese",
+    "cottage_cheese",
+    "blue_mould_cheese",
+    "blue_mould_cheese",
+    "not_cheese"
+  ]
+}

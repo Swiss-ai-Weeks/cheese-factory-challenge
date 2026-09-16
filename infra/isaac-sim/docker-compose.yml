@@ -13,15 +13,19 @@ services:
       ISAACSIM_HOST: ${ISAACSIM_HOST:-127.0.0.1}
       ISAACSIM_SIGNAL_PORT: ${ISAACSIM_SIGNAL_PORT:-49100}
       ISAACSIM_STREAM_PORT: ${ISAACSIM_STREAM_PORT:-47998}
+      CHEESE_CLASSIFIER: ${CHEESE_CLASSIFIER:-model}
+      CHEESE_MAX_OBJECTS: ${CHEESE_MAX_OBJECTS:-}
     volumes:
-      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/cache/main:/isaac-sim/.cache:rw
-      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
-      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/cache/kit:/isaac-sim/kit/cache:rw
-      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/logs:/isaac-sim/.nvidia-omniverse/logs:rw
-      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/config:/isaac-sim/.nvidia-omniverse/config:rw
-      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/data:/isaac-sim/.local/share/ov/data:rw
-      - ${ISAAC_SIM_DATA:-/home/ubuntu/docker/isaac-sim}/pkg:/isaac-sim/.local/share/ov/pkg:rw
-      - ${ISAACSIM_HUB_CACHE_PATH:-/home/ubuntu/.cache/ov/hub}:/var/cache/hub:rw
+      - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/cache/main:/isaac-sim/.cache:rw
+      - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
+      - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/cache/kit:/isaac-sim/kit/cache:rw
+      - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/logs:/isaac-sim/.nvidia-omniverse/logs:rw
+      - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/config:/isaac-sim/.nvidia-omniverse/config:rw
+      - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/data:/isaac-sim/.local/share/ov/data:rw
+      - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/pkg:/isaac-sim/.local/share/ov/pkg:rw
+      - ${ISAACSIM_HUB_CACHE_PATH:-${HOME}/.cache/ov/hub}:/var/cache/hub:rw
+      - ../..:/workspace:rw
+    command: ${ISAAC_SIM_ARGS:-}
     healthcheck:
       interval: 30s
       timeout: 10s

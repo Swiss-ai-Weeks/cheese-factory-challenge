@@ -25,6 +25,8 @@ __pycache__/
 
 # sorties locales
 *.log
+outputs/factory/
 
 # Local Isaac Sim host paths and GPU selection
 infra/isaac-sim/.env
+.env
