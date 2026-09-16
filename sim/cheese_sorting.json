@@ -1,0 +1,367 @@
+{
+ "images": 839,
+ "fps": 24,
+ "duree_s": 34.96,
+ "pieces": 11,
+ "traitees": 11,
+ "justes": 11,
+ "compteurs": {
+  "bin_hard": 2,
+  "bin_semi_hard": 2,
+  "bin_soft": 2,
+  "bin_fresh": 2,
+  "bin_blue": 2,
+  "reject": 1
+ },
+ "voies": [
+  "bin_hard",
+  "bin_semi_hard",
+  "bin_soft",
+  "bin_fresh",
+  "bin_blue",
+  "reject"
+ ],
+ "decisions": [
+  {
+   "piece": 0,
+   "uid": "d6a9798055216aea",
+   "label": "blue_mould_cheese",
+   "verite_voie": "bin_blue",
+   "voie": "bin_blue",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_blue",
+    "bin_confidence": 0.9184094667434692,
+    "cheese_type": "blue_mould_cheese",
+    "type_confidence": 0.9184094667434692,
+    "topk_types": [
+     [
+      "blue_mould_cheese",
+      0.9184094667434692
+     ],
+     [
+      "raclette_cheese",
+      0.008240667171776295
+     ],
+     [
+      "goat_cheese_soft",
+      0.00814316887408495
+     ]
+    ],
+    "latency_ms": 48.06880897376686,
+    "server_ms": 48.23105700779706,
+    "aller_retour_ms": 75.01716702245176
+   }
+  },
+  {
+   "piece": 1,
+   "uid": "97996770ce78f87e",
+   "label": "cream_cheese",
+   "verite_voie": "bin_fresh",
+   "voie": "bin_fresh",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_fresh",
+    "bin_confidence": 0.9423032151535153,
+    "cheese_type": "cream_cheese",
+    "type_confidence": 0.9310337901115417,
+    "topk_types": [
+     [
+      "cream_cheese",
+      0.9310337901115417
+     ],
+     [
+      "not_cheese",
+      0.007618896197527647
+     ],
+     [
+      "processed_cheese",
+      0.007469709496945143
+     ]
+    ],
+    "latency_ms": 40.32227804418653,
+    "server_ms": 40.480285068042576,
+    "aller_retour_ms": 64.08847693819553
+   }
+  },
+  {
+   "piece": 2,
+   "uid": "77fd944acacec95e",
+   "label": "blue_mould_cheese",
+   "verite_voie": "bin_blue",
+   "voie": "bin_blue",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_blue",
+    "bin_confidence": 0.904809832572937,
+    "cheese_type": "blue_mould_cheese",
+    "type_confidence": 0.904809832572937,
+    "topk_types": [
+     [
+      "blue_mould_cheese",
+      0.904809832572937
+     ],
+     [
+      "raclette_cheese",
+      0.009606469422578812
+     ],
+     [
+      "fresh_cheese",
+      0.008589137345552444
+     ]
+    ],
+    "latency_ms": 29.991553048603237,
+    "server_ms": 30.15828796196729,
+    "aller_retour_ms": 52.395686972886324
+   }
+  },
+  {
+   "piece": 3,
+   "uid": "ea730e6c91ab47f9",
+   "label": "cottage_cheese",
+   "verite_voie": "bin_fresh",
+   "voie": "bin_fresh",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_fresh",
+    "bin_confidence": 0.9353292947635055,
+    "cheese_type": "cottage_cheese",
+    "type_confidence": 0.9182240962982178,
+    "topk_types": [
+     [
+      "cottage_cheese",
+      0.9182240962982178
+     ],
+     [
+      "blue_mould_cheese",
+      0.016719607636332512
+     ],
+     [
+      "fresh_cheese",
+      0.008570869453251362
+     ]
+    ],
+    "latency_ms": 33.19715510588139,
+    "server_ms": 33.33700296934694,
+    "aller_retour_ms": 59.10057597793639
+   }
+  },
+  {
+   "piece": 4,
+   "uid": "28ac2991cd30b999",
+   "label": "emmental_cheese",
+   "verite_voie": "bin_hard",
+   "voie": "bin_hard",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_hard",
+    "bin_confidence": 0.9258957700803876,
+    "cheese_type": "emmental_cheese",
+    "type_confidence": 0.9213802814483643,
+    "topk_types": [
+     [
+      "emmental_cheese",
+      0.9213802814483643
+     ],
+     [
+      "goat_cheese_soft",
+      0.009517374448478222
+     ],
+     [
+      "cream_cheese",
+      0.007951092906296253
+     ]
+    ],
+    "latency_ms": 29.025765950791538,
+    "server_ms": 29.163324972614646,
+    "aller_retour_ms": 50.85426999721676
+   }
+  },
+  {
+   "piece": 5,
+   "uid": "7dc24785aec70dc8",
+   "label": "raclette_cheese",
+   "verite_voie": "bin_semi_hard",
+   "voie": "bin_semi_hard",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_semi_hard",
+    "bin_confidence": 0.9208031962625682,
+    "cheese_type": "raclette_cheese",
+    "type_confidence": 0.9136912226676941,
+    "topk_types": [
+     [
+      "raclette_cheese",
+      0.9136912226676941
+     ],
+     [
+      "cottage_cheese",
+      0.009980028495192528
+     ],
+     [
+      "empty",
+      0.008200833573937416
+     ]
+    ],
+    "latency_ms": 31.850679079070687,
+    "server_ms": 32.04216796439141,
+    "aller_retour_ms": 55.66209403332323
+   }
+  },
+  {
+   "piece": 6,
+   "uid": "ff842e76122dcccf",
+   "label": "hard_cheese",
+   "verite_voie": "bin_hard",
+   "voie": "bin_hard",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_hard",
+    "bin_confidence": 0.9196655615232885,
+    "cheese_type": "hard_cheese",
+    "type_confidence": 0.9137532711029053,
+    "topk_types": [
+     [
+      "hard_cheese",
+      0.9137532711029053
+     ],
+     [
+      "semi_hard_cheese",
+      0.00921319704502821
+     ],
+     [
+      "goat_cheese_soft",
+      0.008102873340249062
+     ]
+    ],
+    "latency_ms": 29.705374035984278,
+    "server_ms": 29.8775170231238,
+    "aller_retour_ms": 51.16353300400078
+   }
+  },
+  {
+   "piece": 7,
+   "uid": "289f6bd39dc44082",
+   "label": "raclette_cheese",
+   "verite_voie": "bin_semi_hard",
+   "voie": "bin_semi_hard",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_semi_hard",
+    "bin_confidence": 0.921267376281321,
+    "cheese_type": "raclette_cheese",
+    "type_confidence": 0.9120988845825195,
+    "topk_types": [
+     [
+      "raclette_cheese",
+      0.9120988845825195
+     ],
+     [
+      "cottage_cheese",
+      0.010350653901696205
+     ],
+     [
+      "hard_cheese",
+      0.009617884643375874
+     ]
+    ],
+    "latency_ms": 31.06916497927159,
+    "server_ms": 31.2079539289698,
+    "aller_retour_ms": 54.599803988821805
+   }
+  },
+  {
+   "piece": 8,
+   "uid": "89604934c563f58e",
+   "label": "processed_cheese",
+   "verite_voie": "bin_soft",
+   "voie": "bin_soft",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_soft",
+    "bin_confidence": 0.9328250458929688,
+    "cheese_type": "processed_cheese",
+    "type_confidence": 0.9215589165687561,
+    "topk_types": [
+     [
+      "processed_cheese",
+      0.9215589165687561
+     ],
+     [
+      "semi_hard_cheese",
+      0.010238219052553177
+     ],
+     [
+      "soft_cheese",
+      0.007741904817521572
+     ]
+    ],
+    "latency_ms": 28.87701103463769,
+    "server_ms": 29.035399085842073,
+    "aller_retour_ms": 51.32876895368099
+   }
+  },
+  {
+   "piece": 9,
+   "uid": "f328c22fbce2896a",
+   "label": "taboule-prepared-with-couscous",
+   "verite_voie": "reject",
+   "voie": "reject",
+   "decision": {
+    "status": "not_cheese",
+    "bin": null,
+    "bin_confidence": 0.867985188961029,
+    "cheese_type": "not_cheese",
+    "type_confidence": 0.867985188961029,
+    "topk_types": [
+     [
+      "not_cheese",
+      0.867985188961029
+     ],
+     [
+      "cottage_cheese",
+      0.02857694961130619
+     ],
+     [
+      "fresh_cheese",
+      0.018709219992160797
+     ]
+    ],
+    "latency_ms": 29.253632063046098,
+    "server_ms": 29.404410044662654,
+    "aller_retour_ms": 51.60529806744307
+   }
+  },
+  {
+   "piece": 10,
+   "uid": "4ddc7c9cab7662a0",
+   "label": "soft_cheese",
+   "verite_voie": "bin_soft",
+   "voie": "bin_soft",
+   "decision": {
+    "status": "ok",
+    "bin": "bin_soft",
+    "bin_confidence": 0.9232224887236953,
+    "cheese_type": "soft_cheese",
+    "type_confidence": 0.9069240689277649,
+    "topk_types": [
+     [
+      "soft_cheese",
+      0.9069240689277649
+     ],
+     [
+      "fresh_cheese",
+      0.008489194326102734
+     ],
+     [
+      "processed_cheese",
+      0.00843856856226921
+     ]
+    ],
+    "latency_ms": 28.771116049028933,
+    "server_ms": 28.906731051392853,
+    "aller_retour_ms": 50.31250603497028
+   }
+  }
+ ]
+}

@@ -72,4 +72,16 @@ docker run --rm --gpus "device=0" ... /workspace/sim/render_belt.py --empty 900 
 ./sync_jupyter.sh
 ```
 
+## 7 — The sorting line demo (optional)
+
+```bash
+.venv/bin/python sim/make_labels.py
+.venv/bin/python sim/pick_demo_pieces.py --per-bin 2 --negatives 1
+.venv/bin/python sim/sort_server.py &
+# then the container, see [[Sorting line demo]]
+.venv/bin/python sim/make_video.py
+```
+
+~15 min: 10 of rendering, the rest model and encoding.
+
 Total: ~2 h wall clock, most of it rendering.

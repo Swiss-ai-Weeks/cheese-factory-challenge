@@ -15,7 +15,11 @@ rsync -a --delete "$SRC/runs/"           "$DST/runs/"
 # Les PNG bruts de sim/out (3,6 Go) ne sont pas copies : la feuille lit les JPEG
 # convertis dans data/processed/images/sim_belt. Les bruts restent sur l'hote.
 rsync -a          "$SRC/sim/"*.py        "$DST/sim/"
+# La video de la ligne de tri et son releve : la section 8 de la feuille les lit.
+rsync -a          "$SRC/sim/cheese_sorting.mp4" "$SRC/sim/cheese_sorting.json" "$DST/sim/"
 cp "$SRC/README.md" "$DST/README.md" 2>/dev/null || true
+# Les feuilles sont servies a la racine de /workspace, pas dans cheese/
+cp "$SRC/hpe.ipynb" "$SRC/hpe_fr.ipynb" "$DST/../"
 # vault Obsidian (documentation), copie aussi a la racine de /workspace
 rsync -a --delete "$SRC/vault/" "$DST/../vault/"
 

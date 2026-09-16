@@ -12,6 +12,9 @@ data/processed/
 # 4,6 Go de rendus PNG bruts (archive ; les JPEG utiles sont dans data/processed)
 sim/out/
 
+# images de la demo de tri : ~1 Go de PNG, dont la video est le seul livrable
+sim/render/
+
 # Checkpoints 350 Mo piece et exports ONNX : au-dela de la limite GitHub de 100 Mo.
 # Les results.json sont versionnes, eux : ce sont les mesures.
 runs/**/*.pt

@@ -10,3 +10,4 @@ tags: [moc, integration]
 | [[Inference API]] | `CheeseSorter`, batching, latency, input formats |
 | [[ONNX export]] | TensorRT path and the preprocessing sidecar |
 | [[Robot pipeline]] | the detect-then-classify recommendation, threshold tuning |
+| [[Sorting line demo]] | the model driving a full sorting line in Isaac Sim |

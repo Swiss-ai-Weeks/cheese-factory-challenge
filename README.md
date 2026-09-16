@@ -35,6 +35,7 @@ Start at **[`vault/00 Index/Home.md`](vault/00%20Index/Home.md)**, or jump strai
 
 | I want to… | read |
 |---|---|
+| see the model drive a sorting line | [Sorting line demo](vault/70%20Integration/Sorting%20line%20demo.md) |
 | understand where the data comes from | [Data journey](vault/20%20Datasets/Data%20provenance.md) |
 | integrate the robot | [Output contract](vault/70%20Integration/Output%20contract.md) · [Inference API](vault/70%20Integration/Inference%20API.md) |
 | see what the models are worth | [Model comparison](vault/60%20Results/Model%20comparison.md) |
@@ -151,6 +152,7 @@ existed — see [Data journey](vault/20%20Datasets/Data%20provenance.md).
 ```
 src/                 normalize · cutouts · render_manifest · dataset · train · predict · export
 sim/render_belt.py   the USD belt scene and domain randomisation
+sim/sorting_line.py  the demo: a full sorting line, routed by the model
 infra/isaac-sim/     remote Isaac Sim GUI stack for SSH and Brev
 runs/<head>/         results.json and ONNX sidecars for 8 trained heads
 vault/               the documentation (Obsidian)

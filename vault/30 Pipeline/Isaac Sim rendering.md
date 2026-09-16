@@ -9,6 +9,10 @@ engine: Isaac Sim 6.0.1
 Places each [[Cutouts|cutout]] in a plate on a conveyor and renders it from several
 viewpoints, so training data lives in the robot's domain.
 
+> [!note] The belt, the plate and the cutout quad live in `sim/usd_kit.py`
+> [[Sorting line demo|The sorting line]] imports the same ones, which is what makes its
+> inspection station the domain the model was trained on.
+
 ```bash
 docker run --rm --gpus "device=0" -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \
   -v /home/nvidia/hpe/cheese:/workspace -v /home/nvidia/.cache/ov/hub:/var/cache/hub \

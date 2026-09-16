@@ -1,0 +1,167 @@
+[
+ {
+  "uid": "d6a9798055216aea",
+  "label": "blue_mould_cheese",
+  "bin": "bin_blue",
+  "path": "cutouts/bin_blue/d6a9798055216aea.png",
+  "width": 136,
+  "height": 135,
+  "accord": 1.0,
+  "confiance": 0.9128366112709045,
+  "types_vus": [
+   "blue_mould_cheese",
+   "blue_mould_cheese",
+   "blue_mould_cheese"
+  ]
+ },
+ {
+  "uid": "97996770ce78f87e",
+  "label": "cream_cheese",
+  "bin": "bin_fresh",
+  "path": "cutouts/bin_fresh/97996770ce78f87e.png",
+  "width": 333,
+  "height": 251,
+  "accord": 1.0,
+  "confiance": 0.938346337992698,
+  "types_vus": [
+   "cream_cheese",
+   "cream_cheese",
+   "cream_cheese"
+  ]
+ },
+ {
+  "uid": "77fd944acacec95e",
+  "label": "blue_mould_cheese",
+  "bin": "bin_blue",
+  "path": "cutouts/bin_blue/77fd944acacec95e.png",
+  "width": 184,
+  "height": 256,
+  "accord": 1.0,
+  "confiance": 0.9117000301678976,
+  "types_vus": [
+   "blue_mould_cheese",
+   "blue_mould_cheese",
+   "blue_mould_cheese"
+  ]
+ },
+ {
+  "uid": "ea730e6c91ab47f9",
+  "label": "cottage_cheese",
+  "bin": "bin_fresh",
+  "path": "cutouts/bin_fresh/ea730e6c91ab47f9.png",
+  "width": 482,
+  "height": 512,
+  "accord": 1.0,
+  "confiance": 0.9252933077514172,
+  "types_vus": [
+   "cottage_cheese",
+   "cottage_cheese",
+   "cottage_cheese"
+  ]
+ },
+ {
+  "uid": "28ac2991cd30b999",
+  "label": "emmental_cheese",
+  "bin": "bin_hard",
+  "path": "cutouts/bin_hard/28ac2991cd30b999.png",
+  "width": 307,
+  "height": 307,
+  "accord": 1.0,
+  "confiance": 0.9225836506423851,
+  "types_vus": [
+   "emmental_cheese",
+   "emmental_cheese",
+   "emmental_cheese"
+  ]
+ },
+ {
+  "uid": "7dc24785aec70dc8",
+  "label": "raclette_cheese",
+  "bin": "bin_semi_hard",
+  "path": "cutouts/bin_semi_hard/7dc24785aec70dc8.png",
+  "width": 252,
+  "height": 512,
+  "accord": 1.0,
+  "confiance": 0.9248102898709476,
+  "types_vus": [
+   "raclette_cheese",
+   "raclette_cheese",
+   "raclette_cheese"
+  ]
+ },
+ {
+  "uid": "ff842e76122dcccf",
+  "label": "hard_cheese",
+  "bin": "bin_hard",
+  "path": "cutouts/bin_hard/ff842e76122dcccf.png",
+  "width": 76,
+  "height": 104,
+  "accord": 1.0,
+  "confiance": 0.9145487632292012,
+  "types_vus": [
+   "hard_cheese",
+   "hard_cheese",
+   "hard_cheese"
+  ]
+ },
+ {
+  "uid": "289f6bd39dc44082",
+  "label": "raclette_cheese",
+  "bin": "bin_semi_hard",
+  "path": "cutouts/bin_semi_hard/289f6bd39dc44082.png",
+  "width": 301,
+  "height": 194,
+  "accord": 1.0,
+  "confiance": 0.9217867399565876,
+  "types_vus": [
+   "raclette_cheese",
+   "raclette_cheese",
+   "raclette_cheese"
+  ]
+ },
+ {
+  "uid": "89604934c563f58e",
+  "label": "processed_cheese",
+  "bin": "bin_soft",
+  "path": "cutouts/bin_soft/89604934c563f58e.png",
+  "width": 232,
+  "height": 227,
+  "accord": 1.0,
+  "confiance": 0.9270371416738877,
+  "types_vus": [
+   "processed_cheese",
+   "processed_cheese",
+   "processed_cheese"
+  ]
+ },
+ {
+  "uid": "f328c22fbce2896a",
+  "label": "taboule-prepared-with-couscous",
+  "bin": "not_cheese",
+  "path": "cutouts/not_cheese/f328c22fbce2896a.png",
+  "width": 512,
+  "height": 378,
+  "accord": 1.0,
+  "confiance": 0.9047573804855347,
+  "types_vus": [
+   "not_cheese",
+   "not_cheese",
+   "not_cheese"
+  ]
+ },
+ {
+  "uid": "4ddc7c9cab7662a0",
+  "label": "soft_cheese",
+  "bin": "bin_soft",
+  "path": "cutouts/bin_soft/4ddc7c9cab7662a0.png",
+  "width": 279,
+  "height": 259,
+  "accord": 1.0,
+  "confiance": 0.9246567940960327,
+  "types_vus": [
+   "soft_cheese",
+   "soft_cheese",
+   "soft_cheese"
+  ]
+ }
+]

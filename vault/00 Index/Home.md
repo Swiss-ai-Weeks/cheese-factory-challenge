@@ -54,7 +54,7 @@ flowchart LR
 - 🔬 [[Methodology MOC]] — recipe, algorithms, metrics
 - 🤖 [[Models MOC]] — eight heads trained
 - 📊 [[Results MOC]] — comparisons and pitfalls
-- 🔌 [[Integration MOC]] — how to call it
+- 🔌 [[Integration MOC]] — how to call it · [[Sorting line demo]]
 - 🛠 [[Ops MOC]] — environment and reproduction
 - 📝 [[Decision log]] · [[Bug log]] · [[Open questions]]
 
