@@ -22,7 +22,7 @@ a appris.
     # conteneur
     docker run --rm --gpus all --network host -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \
       -v /home/nvidia/hpe/cheese:/workspace -v /home/nvidia/.cache/ov/hub:/var/cache/hub \
-      --entrypoint /isaac-sim/python.sh nvcr.io/nvidia/isaac-sim:6.0.1 \
+      --entrypoint /isaac-sim/python.sh ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0} \
       /workspace/sim/sorting_line.py --out /workspace/sim/render
 
 Sorties : `frames/f*.png` (la vue d'ensemble), `insp/i*.png` (ce que voit la

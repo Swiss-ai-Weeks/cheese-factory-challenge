@@ -41,7 +41,7 @@ mkdir -p sim/out && chmod 777 sim/out          # the container is not root
 for i in 0 1; do
   docker run -d --rm --gpus "device=$i" -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \
     -v $PWD:/workspace -v ~/.cache/ov/hub:/var/cache/hub \
-    --name gen$i --entrypoint /isaac-sim/python.sh nvcr.io/nvidia/isaac-sim:6.0.1 \
+    --name gen$i --entrypoint /isaac-sim/python.sh ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0} \
     /workspace/sim/render_belt.py --all --views 5 --min-fill 0.35 --max-ar 3.0 \
       --elev-min 45 --elev-max 80 --shard $i/2 --seed $((200+i)) --skip-existing
 done

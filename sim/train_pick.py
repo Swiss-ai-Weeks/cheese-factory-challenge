@@ -8,7 +8,7 @@ renverser le morceau qu'elle transporte.
     docker run --rm --gpus '"device=0"' -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \\
       -v /home/nvidia/hpe/cheese:/workspace -v ~/.cache/ov/hub:/var/cache/hub \\
       -e PYTHONPATH=/isaac-sim/extsDeprecated/omni.isaac.ml_archive/pip_prebundle \\
-      --entrypoint /isaac-sim/python.sh nvcr.io/nvidia/isaac-sim:6.0.1 \\
+      --entrypoint /isaac-sim/python.sh ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0} \\
       /workspace/sim/train_pick.py --envs 1024 --iters 1500
 
 `torch` n'est pas sur le chemin par defaut du conteneur mais il est dans

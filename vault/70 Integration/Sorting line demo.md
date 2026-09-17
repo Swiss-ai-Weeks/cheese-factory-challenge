@@ -32,7 +32,7 @@ that class lifts and pushes it onto its own lane. One lane per output class.
 | `sim/usd_kit.py` | container | belt, plate, cutout quad — shared with `render_belt.py` |
 
 > [!note] Why the model lives outside the container
-> The `isaac-sim:6.0.1` image has neither torch nor timm, and adding them to it would
+> The Isaac Sim 6.1 image has neither torch nor timm, and adding them to it would
 > fork a 32 GB image for one dependency. The scene POSTs the camera frame to the host
 > instead. That split is also the one the real line has: camera and PLC on one side,
 > perception on the other.
@@ -66,7 +66,7 @@ so the lanes can meet the main belt.
 mkdir -p sim/render/{frames,insp} && chmod 777 sim/render sim/render/*
 docker run --rm --gpus '"device=1"' --network host -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \
   -v $PWD:/workspace -v ~/.cache/ov/hub:/var/cache/hub \
-  --entrypoint /isaac-sim/python.sh nvcr.io/nvidia/isaac-sim:6.0.1 \
+  --entrypoint /isaac-sim/python.sh ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0} \
   /workspace/sim/sorting_line.py --out /workspace/sim/render
 
 .venv/bin/python sim/make_video.py

@@ -12,6 +12,26 @@ corporate networks.
 - Docker with the NVIDIA Container Toolkit
 - Access to `nvcr.io/nvidia/isaac-sim:6.1.0`
 
+## Environment check
+
+Run the non-destructive preflight before starting a demo:
+
+```bash
+infra/isaac-sim/check-environment.sh
+```
+
+It treats GPU, Docker, running services, MCP, model endpoint and the Python
+environment as required. Missing datasets, raw renders and the ignored trained
+checkpoint are reported as warnings so the development integration harness can
+still be tested honestly.
+
+The default image is `nvcr.io/nvidia/isaac-sim:6.1.0`. Override it explicitly
+when reproducing an older result:
+
+```bash
+export ISAAC_SIM_IMAGE=nvcr.io/nvidia/isaac-sim:<tag>
+```
+
 ## Start
 
 ```bash

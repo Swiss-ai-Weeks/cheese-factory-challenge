@@ -28,7 +28,7 @@ tags: [ops, reference]
 
 | | |
 |---|---|
-| Isaac Sim | `nvcr.io/nvidia/isaac-sim:6.0.1` |
+| Isaac Sim | `nvcr.io/nvidia/isaac-sim:6.1.0` (override with `ISAAC_SIM_IMAGE`) |
 | USD API | `pxr` — `UsdGeom`, `UsdShade`, `UsdLux`, `Sdf`, `Gf` |
 | Replicator | `omni.replicator.core` — render products, RGB annotator, orchestrator |
 | renderer | RaytracedLighting, `rt_subframes=12` |

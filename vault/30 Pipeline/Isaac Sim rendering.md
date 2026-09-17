@@ -16,7 +16,7 @@ viewpoints, so training data lives in the robot's domain.
 ```bash
 docker run --rm --gpus "device=0" -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \
   -v /home/nvidia/hpe/cheese:/workspace -v /home/nvidia/.cache/ov/hub:/var/cache/hub \
-  --entrypoint /isaac-sim/python.sh nvcr.io/nvidia/isaac-sim:6.0.1 \
+  --entrypoint /isaac-sim/python.sh ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0} \
   /workspace/sim/render_belt.py --all --views 5 --min-fill 0.35 --max-ar 3.0 \
     --elev-min 45 --elev-max 80 --shard 0/2 --seed 200 --skip-existing
 ```

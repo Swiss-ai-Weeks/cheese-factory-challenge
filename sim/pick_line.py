@@ -16,7 +16,7 @@ demandee sans la renverser. Ce fichier est le point de rencontre.
     docker run --rm --gpus '"device=0"' --network host -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \\
       -v /home/nvidia/hpe/cheese:/workspace -v ~/.cache/ov/hub:/var/cache/hub \\
       -e PYTHONPATH=/isaac-sim/extsDeprecated/omni.isaac.ml_archive/pip_prebundle \\
-      --entrypoint /isaac-sim/python.sh nvcr.io/nvidia/isaac-sim:6.0.1 \\
+      --entrypoint /isaac-sim/python.sh ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0} \\
       /workspace/sim/pick_line.py --out /workspace/sim/rendu_bras
 
 `--scripte` remplace la politique par l'automate de reference : utile pour
