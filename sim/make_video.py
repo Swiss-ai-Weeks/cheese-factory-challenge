@@ -70,6 +70,37 @@ def puce(d, xy, texte, couleur, police, marge=(14, 7)):
     return w + 2 * marge[0]
 
 
+def carte_bras(d, xy, taille, enr):
+    """Ce que fait le bras : sa phase, la hauteur de l'assiette, son bilan."""
+    x, y = xy; w, h = taille
+    derniere = enr.get("derniere")
+    couleur = COULEURS[derniere["voie"]] if derniere else (96, 104, 118)
+    carte(d, (x, y), (w, h))
+    d.text((x + 16, y + 14), "FR3 ARM", font=F[15], fill=ESTOMPE)
+    d.text((x + w - 16, y + 14),
+           "PPO policy" if PILOTE == "politique" else "scripted", font=FN[14],
+           fill=ESTOMPE, anchor="ra")
+
+    phase = {"amenee": "feeding the plate", "inspection": "inspecting",
+             "avance": "indexing to pick window",
+             "retour": "returning home",
+             "tri": "plate held" if enr.get("tenue") else "reaching for plate"}.get(
+        enr.get("etat"), enr.get("etat", ""))
+    d.text((x + 16, y + 40), phase, font=F[19],
+           fill=ENCRE if enr.get("etat") == "tri" else ESTOMPE)
+
+    # hauteur de l'assiette : c'est le signe visible de la prise
+    z = float(enr.get("z_assiette", 0.0))
+    d.text((x + 16, y + 74), "plate height", font=FN[14], fill=ESTOMPE)
+    barre(d, (x + 16, y + 96), w - 32, 11, min(1.0, z / 0.35), couleur)
+    d.text((x + w - 16, y + 70), f"{z * 100:4.1f} cm", font=FM[14], fill=ENCRE, anchor="ra")
+
+    d.text((x + 16, y + 118), "placed", font=FN[14], fill=ESTOMPE)
+    d.text((x + 96, y + 116), str(enr.get("posees", 0)), font=F[19], fill=(118, 208, 128))
+    d.text((x + 150, y + 118), "missed", font=FN[14], fill=ESTOMPE)
+    d.text((x + 214, y + 116), str(enr.get("ratees", 0)), font=F[19], fill=ESTOMPE)
+
+
 def hud(fond: Image.Image, enr: dict, insp_cache: dict) -> Image.Image:
     img = fond.convert("RGBA")
     calque = Image.new("RGBA", img.size, (0, 0, 0, 0))
@@ -81,7 +112,7 @@ def hud(fond: Image.Image, enr: dict, insp_cache: dict) -> Image.Image:
     # -- bandeau de titre ---------------------------------------------------
     d.rectangle([0, 0, W, 52], fill=FOND + (205,))
     d.text((20, 13), "CHEESE SORTING LINE", font=F[26], fill=ENCRE)
-    d.text((366, 20), "Isaac Sim  ·  ConvNeXt-Base sim_type13  ·  13 classes → 6 sorties",
+    d.text((366, 20), "Isaac Sim  ·  ConvNeXt-Base sim_type13  ·  13 classes → 6 outputs",
            font=FN[16], fill=ESTOMPE)
     d.text((W - 20, 17), f"piece {min(enr['piece'] + 1, enr['n_pieces'])}/{enr['n_pieces']}",
            font=F[19], fill=ENCRE, anchor="ra")
@@ -89,7 +120,7 @@ def hud(fond: Image.Image, enr: dict, insp_cache: dict) -> Image.Image:
     # -- vignette de la camera d'inspection ---------------------------------
     vx, vy, vw = 14, H - 286, 228
     carte(d, (vx, vy), (vw, 270), bord=couleur)
-    d.text((vx + 16, vy + 12), "CAMERA D'INSPECTION", font=F[15], fill=ESTOMPE)
+    d.text((vx + 16, vy + 12), "INSPECTION CAMERA", font=F[15], fill=ESTOMPE)
     ix, iy, iw = vx + 16, vy + 34, 196
     if enr.get("insp"):
         vignette = insp_cache.get(enr["insp"])
@@ -101,16 +132,16 @@ def hud(fond: Image.Image, enr: dict, insp_cache: dict) -> Image.Image:
         d.rectangle([ix, iy, ix + iw - 1, iy + iw - 1], outline=couleur + (255,), width=3)
     else:
         d.rounded_rectangle([ix, iy, ix + iw, iy + iw], radius=8, fill=(30, 33, 40, 235))
-        d.text((ix + iw / 2, iy + iw / 2), "en attente", font=FN[16], fill=ESTOMPE,
+        d.text((ix + iw / 2, iy + iw / 2), "waiting", font=FN[16], fill=ESTOMPE,
                anchor="mm")
-    d.text((ix, vy + 240), "768 px  ·  entree modele 384 px", font=FN[14], fill=ESTOMPE)
+    d.text((ix, vy + 240), "768 px  ·  model input 384 px", font=FN[14], fill=ESTOMPE)
 
     # -- decision du modele --------------------------------------------------
     cx, cy, cw, ch = vx + vw + 14, vy, 480, 270
     carte(d, (cx, cy), (cw, ch))
-    d.text((cx + 18, cy + 14), "DECISION DU MODELE", font=F[15], fill=ESTOMPE)
+    d.text((cx + 18, cy + 14), "MODEL DECISION", font=F[15], fill=ESTOMPE)
     if enr.get("inspection") and derniere and derniere["piece"] == enr["piece"]:
-        d.text((cx + cw - 18, cy + 12), "● ANALYSE", font=F[15], fill=(118, 208, 128),
+        d.text((cx + cw - 18, cy + 12), "● ANALYSING", font=F[15], fill=(118, 208, 128),
                anchor="ra")
 
     if derniere:
@@ -120,12 +151,12 @@ def hud(fond: Image.Image, enr: dict, insp_cache: dict) -> Image.Image:
         largeur = puce(d, (cx + 18, cy + 86), NOMS[dec["voie"]], couleur, F[22])
         d.text((cx + 32 + largeur, cy + 94), f"{dec['bin_confidence'] * 100:.1f} %",
                font=F[22], fill=ENCRE)
-        d.text((cx + 18, cy + 132), "probabilites par type", font=FN[14], fill=ESTOMPE)
+        d.text((cx + 18, cy + 132), "per-type probabilities", font=FN[14], fill=ESTOMPE)
         # la verite terrain vient du manifeste de la piece posee sur le tapis :
         # le HUD montre donc aussi les erreurs, quand il y en a. Cette ligne est
         # la seule assez large pour les noms de bac longs.
         d.text((cx + cw - 18, cy + 130),
-               "✓ bac attendu" if dec["juste"] else f"✗ attendu : {NOMS[dec['verite_voie']]}",
+               "✓ expected bin" if dec["juste"] else f"✗ expected {NOMS[dec['verite_voie']]}",
                font=F[17], fill=(118, 208, 128) if dec["juste"] else (232, 170, 80),
                anchor="ra")
         y = cy + 154
@@ -135,22 +166,26 @@ def hud(fond: Image.Image, enr: dict, insp_cache: dict) -> Image.Image:
             d.text((cx + cw - 18, y), f"{prob * 100:5.1f}%", font=FM[14], fill=ESTOMPE,
                    anchor="ra")
             y += 24
-        etat = {"ok": "status ok — le bras peut ranger",
-                "not_cheese": "status not_cheese — ne pas actionner le bras",
-                "empty": "status empty — rien a ramasser",
-                "uncertain": "status uncertain — laisser passer",
-                "erreur": "serveur injoignable"}.get(dec["status"], dec["status"])
+        # La meme phrase ne vaut pas dans les deux scenes : l'une a un bras,
+        # l'autre un aiguillage.
+        etat = {"ok": ("status ok — the arm may sort it" if PILOTE
+                       else "status ok — divert to its lane"),
+                "not_cheese": ("status not_cheese — do not pick" if PILOTE
+                               else "status not_cheese — send to REJECT"),
+                "empty": "status empty — nothing to pick",
+                "uncertain": "status uncertain — let it through",
+                "erreur": "server unreachable"}.get(dec["status"], dec["status"])
         d.text((cx + 18, cy + ch - 32), etat, font=FN[16], fill=ESTOMPE)
         d.text((cx + cw - 18, cy + ch - 32), f"{dec['latency_ms']:.0f} ms", font=FM[16],
                fill=ESTOMPE, anchor="ra")
     else:
-        d.text((cx + 18, cy + 112), "premiere piece en approche…", font=FN[20],
+        d.text((cx + 18, cy + 112), "first piece on its way…", font=FN[20],
                fill=ESTOMPE)
 
     # -- compteurs par sortie -------------------------------------------------
     bx, by, bw = W - 258, 74, 240
     carte(d, (bx, by), (bw, 44 + 34 * len(ORDRE)))
-    d.text((bx + 16, by + 14), "PIECES PAR SORTIE", font=F[15], fill=ESTOMPE)
+    d.text((bx + 16, by + 14), "PIECES PER OUTPUT", font=F[15], fill=ESTOMPE)
     y = by + 40
     for cle in ORDRE:
         actif = bool(derniere) and derniere["voie"] == cle
@@ -161,6 +196,9 @@ def hud(fond: Image.Image, enr: dict, insp_cache: dict) -> Image.Image:
         d.text((bx + bw - 16, y), str(enr["compteurs"][cle]), font=F[19],
                fill=ENCRE if actif else ESTOMPE, anchor="ra")
         y += 34
+
+    if PILOTE:
+        carte_bras(d, (bx, y + 14), (bw, 146), enr)
 
     return Image.alpha_composite(img, calque).convert("RGB")
 
@@ -185,6 +223,9 @@ def carton(taille, titre, lignes, sous=None) -> Image.Image:
 
 journal = [json.loads(l) for l in (RENDU / "timeline.jsonl").read_text().splitlines() if l]
 resume = json.loads((RENDU / "resume.json").read_text())
+# `pilote` n'est ecrit que par `pick_line.py` : quand il est la, la video montre
+# aussi ce que fait le bras. Sans lui, c'est la video de l'aiguillage, inchangee.
+PILOTE = resume.get("pilote")
 for enr in journal:
     enr["n_pieces"] = resume["pieces"]
 print(f"{len(journal)} images, {resume['justes']}/{resume['traitees']} pieces bien triees")
@@ -192,19 +233,33 @@ print(f"{len(journal)} images, {resume['justes']}/{resume['traitees']} pieces bi
 premiere = Image.open(RENDU / "frames" / f"f{journal[0]['f']:05d}.png")
 taille = premiere.size
 
-ouverture = carton(taille, "CHEESE SORTING LINE",
-                   [("Isaac Sim  ·  ConvNeXt-Base (sim_type13)", None),
-                    ("", None),
-                    ("le modele lit la camera, l'aiguillage suit", ENCRE)],
-                   sous="une voie de sortie par classe")
+if PILOTE:
+    ouverture = carton(taille, "CHEESE SORTING CELL",
+                       [("Isaac Sim  ·  ConvNeXt-Base  ·  Franka FR3", None),
+                        ("", None),
+                        ("one model says which cheese it is,", ENCRE),
+                        ("the arm only ever sees a lane number", ENCRE)],
+                       sous="two trades, neither knows the other")
+else:
+    ouverture = carton(taille, "CHEESE SORTING LINE",
+                       [("Isaac Sim  ·  ConvNeXt-Base (sim_type13)", None),
+                        ("", None),
+                        ("the model reads the camera, the diverter follows", ENCRE)],
+                       sous="one output lane per class")
 
-lignes_fin = [(f"{resume['traitees']} pieces inspectees", ENCRE),
-              (f"{resume['justes']}/{resume['traitees']} rangees dans le bac attendu",
+lignes_fin = []
+if PILOTE:
+    lignes_fin.append((f"{resume['posees']}/{resume['pieces']} plates set down "
+                       f"on the right lane", (118, 208, 128)
+                       if resume["posees"] == resume["pieces"] else (226, 180, 90)))
+lignes_fin += [(f"{resume['traitees']} pieces inspected", ENCRE),
+              (f"{resume['justes']}/{resume['traitees']} routed to the expected bin",
                (118, 208, 128) if resume["justes"] == resume["traitees"] else (226, 180, 90)),
               ("", None)]
 lignes_fin += [(f"{NOMS[c]} : {resume['compteurs'][c]}", COULEURS[c])
                for c in ORDRE if resume["compteurs"][c]]
-final = carton(taille, "BILAN", lignes_fin, sous="decisions prises par le modele, pas par un script")
+final = carton(taille, "RESULTS", lignes_fin,
+               sous="every lane was chosen by the model, not by a script")
 
 cmd = ["ffmpeg", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
        "-s", f"{taille[0]}x{taille[1]}", "-r", str(args.fps), "-i", "-",

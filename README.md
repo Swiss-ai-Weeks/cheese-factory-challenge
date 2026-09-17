@@ -153,6 +153,12 @@ existed — see [Data journey](vault/20%20Datasets/Data%20provenance.md).
 src/                 normalize · cutouts · render_manifest · dataset · train · predict · export
 sim/render_belt.py   the USD belt scene and domain randomisation
 sim/sorting_line.py  the demo: a full sorting line, routed by the model
+sim/pick_cell.py     the FR3 cell: belt, arm, six output lanes, reward
+sim/train_pick.py    PPO for the arm, 1024 cells in parallel
+sim/pick_line.py     camera + arm end to end: the model decides, the arm executes
+sim/make_video.py    the HUD and the H.264 encode, for both demos
+sim/banc_automate.py bench for the reference state machine — the feasibility witness
+sim/banc_politique.py bench for a checkpoint: what the policy does, step by step
 infra/isaac-sim/     remote Isaac Sim GUI stack for SSH and Brev
 runs/<head>/         results.json and ONNX sidecars for 8 trained heads
 vault/               the documentation (Obsidian)
@@ -165,6 +171,48 @@ sync_jupyter.sh      copy to a Jupyter workspace
 > GitHub's 100 MB file limit). Everything regenerates from
 > [Reproduce everything](vault/80%20Ops/Reproduce%20everything.md) in about two hours,
 > most of it rendering.
+
+## 🦾 The arm
+
+The camera's verdict drives a Franka FR3: the plate is indexed under the inspection
+station, `sim_type13` names the cheese, and the arm carries the plate to the lane for
+that class. Two models, two trades — the classifier has never seen an arm, and the arm's
+policy receives an integer, never an image.
+
+Three things the cell had to be taught, each of which cost a full training run:
+
+* **A plate a parallel gripper can actually hold.** 180 mm gripped by the rim hangs
+  90 mm from its centre of mass — 0.12 N.m on two jaws, it tips and the cheese falls. At
+  68 mm the gripper straddles it and the grip line runs through the centre of mass.
+* **A reward that pays progress, not state.** Carrying paid ~10 per step for as long as
+  you liked; putting the plate down paid 80 once and ended the episode. Loitering was
+  worth ten times succeeding, and 29 M steps went into learning exactly that. The reward
+  is now the change in a potential, which is zero when nothing happens.
+* **An arm that can reach its own lanes.** Joint 1 of an FR3 stops at ±157°, so there is
+  a 46° sector behind it where nothing is reachable. Mounted facing the belt, that sector
+  sat in the middle of the lane arc: `bin_soft` and `bin_fresh` were unreachable.
+
+```bash
+# train (in the container, one H100)
+.../python.sh /workspace/sim/train_pick.py --envs 1024 --iters 900
+
+# the line, end to end — model on the host, scene in the container
+.venv/bin/python sim/sort_server.py
+.../python.sh /workspace/sim/pick_line.py --out /workspace/sim/rendu_bras
+.venv/bin/python sim/make_video.py --render sim/rendu_bras --out sim/cheese_picking.mp4
+```
+
+`--scripte` swaps the policy for the reference state machine, which is the witness that
+the task is feasible at all — and it is what drives the arm in `sim/cheese_picking.mp4`
+today. **The learned policy is not there yet**: it grips, lifts and carries the plate
+(up to 33% of cells holding), but it has never completed a deposit, and once the
+"already gripped" curriculum fades out it no longer picks off the belt either. The curve
+is in `runs/pick_fr3/results.json` and in section 9.1 of the notebook. `runs/pick_fr3_echec_bord/`
+keeps the 29 M-step run that failed before the cell was fixed, as the reference point.
+
+What is left to solve is an exploration problem, not a physics one: lowering the plate
+onto the lane and opening the jaws. The state machine does it in the same cell, so the
+task is reachable; the policy has not found it.
 
 ## ⚡ Quick start
 

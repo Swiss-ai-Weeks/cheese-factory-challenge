@@ -19,6 +19,8 @@ parser.add_argument("--cutouts", type=int, default=8, help="nombre de pieces dis
 parser.add_argument("--views", type=int, default=3, help="vues par piece")
 parser.add_argument("--out", default="/workspace/sim/out")
 parser.add_argument("--res", type=int, default=768)
+parser.add_argument("--subframes", type=int, default=12,
+                    help="echantillons raytracing par image")
 parser.add_argument("--seed", type=int, default=0)
 parser.add_argument("--manifest", default="/workspace/data/processed/cutouts/manifest.csv")
 parser.add_argument("--root", default="/workspace/data/processed")
@@ -48,7 +50,8 @@ import omni.usd, omni.replicator.core as rep
 from pxr import UsdGeom, UsdShade, UsdLux, Gf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from usd_kit import Tapis, disque, materiau_texture, materiau_uni, quad, teinter, viser
+from usd_kit import (Tapis, assiette, materiau_texture, materiau_uni, quad, teinter,
+                     viser)
 
 rng = random.Random(args.seed)
 stage = omni.usd.get_context().get_stage()
@@ -61,10 +64,16 @@ monde = UsdGeom.Xform.Define(stage, "/World")
 tapis = Tapis(stage, "/World/tapis")
 mat_tapis = tapis.mat_dalle
 
-RAYON_ASSIETTE = 0.22          # rayon utile ou peut tenir une piece
-assiette = disque(stage, "/World/assiette", RAYON_ASSIETTE, 0.30, 0.010, 0.030)
+# L'assiette n'est plus le disque plat de 60 cm des premiers rendus : c'est le
+# plateau que la pince du FR3 sait saisir par le bord (`usd_kit.assiette`), soit
+# 18 cm de diametre et une paroi de 4.5 cm. Le domaine vu par la camera change
+# donc completement, et c'est pour cela que tout est re-rendu et re-entraine.
+RAYON_PLATEAU = 0.090          # bord exterieur
+RAYON_ASSIETTE = 0.082         # rayon utile ou peut tenir une piece
+plat = assiette(stage, "/World/assiette", rayon=RAYON_PLATEAU, hauteur=0.045,
+                epaisseur=0.008)
 mat_assiette = materiau_uni(stage, "/World/mat_assiette", (0.92, 0.92, 0.90), rugosite=0.25)
-UsdShade.MaterialBindingAPI(assiette).Bind(mat_assiette)
+UsdShade.MaterialBindingAPI(plat).Bind(mat_assiette)
 
 # la piece de fromage
 piece = quad(stage, "/World/fromage")
@@ -72,13 +81,13 @@ mat_piece, tex_piece = materiau_texture(stage, "/World/mat_fromage")
 UsdShade.MaterialBindingAPI(piece).Bind(mat_piece)
 op_piece = UsdGeom.Xformable(piece).AddTransformOp()
 vis_piece = UsdGeom.Imageable(piece)
-vis_assiette = UsdGeom.Imageable(assiette)
+vis_assiette = UsdGeom.Imageable(plat)
 
 # lumieres
 dome = UsdLux.DomeLight.Define(stage, "/World/dome")
 dome.CreateIntensityAttr(300.0)
 cle = UsdLux.SphereLight.Define(stage, "/World/cle")
-cle.CreateRadiusAttr(0.12); cle.CreateIntensityAttr(30000.0)
+cle.CreateRadiusAttr(0.045); cle.CreateIntensityAttr(4000.0)
 op_cle = UsdGeom.Xformable(cle).AddTranslateOp()
 
 # camera
@@ -143,7 +152,7 @@ def randomiser_scene():
     """Tirage commun a toutes les vues : camera, lumieres, teintes."""
     azimut = rng.uniform(0, 360)
     elevation = rng.uniform(args.elev_min, args.elev_max)
-    dist = rng.uniform(0.85, 1.45)
+    dist = rng.uniform(0.33, 0.55)
     ar_ = math.radians(azimut); el = math.radians(elevation)
     oeil = Gf.Vec3d(dist * math.cos(el) * math.cos(ar_),
                     dist * math.cos(el) * math.sin(ar_),
@@ -151,10 +160,10 @@ def randomiser_scene():
     viser(op_cam, oeil, Gf.Vec3d(0, 0, 0.02))
     cam.GetFocalLengthAttr().Set(rng.uniform(20.0, 32.0))
     al = math.radians(rng.uniform(0, 360)); el2 = math.radians(rng.uniform(40, 85))
-    dl = rng.uniform(0.8, 1.6)
+    dl = rng.uniform(0.30, 0.60)
     op_cle.Set(Gf.Vec3d(dl * math.cos(el2) * math.cos(al),
                         dl * math.cos(el2) * math.sin(al), dl * math.sin(el2)))
-    cle.GetIntensityAttr().Set(rng.uniform(12000, 60000))
+    cle.GetIntensityAttr().Set(rng.uniform(1700, 8300))
     dome.GetIntensityAttr().Set(rng.uniform(120, 700))
     teinte = rng.uniform(0.88, 1.0)
     cle.CreateColorAttr(Gf.Vec3f(1.0, teinte, rng.uniform(teinte, 1.0)))
@@ -168,7 +177,7 @@ def randomiser_scene():
 def rendre():
     """Un pas de rendu, avec quelques essais si le moteur n'a pas suivi."""
     for _ in range(3):
-        rep.orchestrator.step(rt_subframes=12)
+        rep.orchestrator.step(rt_subframes=args.subframes)
         img = annot.get_data()
         if img is not None and img.size:
             return np.asarray(img)[:, :, :3]
@@ -228,11 +237,11 @@ for i, r in enumerate(choisies):
         op_piece.Set(
             Gf.Matrix4d().SetScale(Gf.Vec3d(lx, ly, 1.0)) *
             Gf.Matrix4d().SetRotate(Gf.Rotation(Gf.Vec3d(0, 0, 1), rot)) *
-            Gf.Matrix4d().SetTranslate(Gf.Vec3d(dx, dy, 0.013)))
+            Gf.Matrix4d().SetTranslate(Gf.Vec3d(dx, dy, 0.010)))
 
         azimut = rng.uniform(0, 360)
         elevation = rng.uniform(args.elev_min, args.elev_max)          # vue plongeante, comme une cam de tapis
-        dist = rng.uniform(0.85, 1.45)
+        dist = rng.uniform(0.33, 0.55)
         ar_ = math.radians(azimut); el = math.radians(elevation)
         oeil = Gf.Vec3d(dist * math.cos(el) * math.cos(ar_),
                         dist * math.cos(el) * math.sin(ar_),
@@ -241,11 +250,11 @@ for i, r in enumerate(choisies):
         cam.GetFocalLengthAttr().Set(rng.uniform(20.0, 32.0))
 
         al = math.radians(rng.uniform(0, 360)); el2 = math.radians(rng.uniform(40, 85))
-        dl = rng.uniform(0.8, 1.6)
+        dl = rng.uniform(0.30, 0.60)
         op_cle.Set(Gf.Vec3d(dl * math.cos(el2) * math.cos(al),
                             dl * math.cos(el2) * math.sin(al),
                             dl * math.sin(el2)))
-        cle.GetIntensityAttr().Set(rng.uniform(12000, 60000))
+        cle.GetIntensityAttr().Set(rng.uniform(1700, 8300))
         dome.GetIntensityAttr().Set(rng.uniform(120, 700))
         teinte = rng.uniform(0.88, 1.0)
         cle.CreateColorAttr(Gf.Vec3f(1.0, teinte, rng.uniform(teinte, 1.0)))
@@ -256,7 +265,7 @@ for i, r in enumerate(choisies):
 
         img = None
         for essai in range(3):
-            rep.orchestrator.step(rt_subframes=12)
+            rep.orchestrator.step(rt_subframes=args.subframes)
             img = annot.get_data()
             if img is not None and img.size:
                 break

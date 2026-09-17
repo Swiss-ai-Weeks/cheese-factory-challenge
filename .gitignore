@@ -12,8 +12,16 @@ data/processed/
 # 4,6 Go de rendus PNG bruts (archive ; les JPEG utiles sont dans data/processed)
 sim/out/
 
-# images de la demo de tri : ~1 Go de PNG, dont la video est le seul livrable
+# images des demos : ~1 a 7 Go de PNG chacune, dont la video est le seul livrable
 sim/render/
+sim/rendu_auto/
+sim/rendu_bras/
+sim/out2/
+sim/out_test/
+
+# bancs d'essai jetables ecrits pour isoler un bug, gardes hors depot. Les deux
+# qui servent encore sont `sim/banc_automate.py` et `sim/banc_politique.py`.
+sim/_essai_*.py
 
 # Checkpoints 350 Mo piece et exports ONNX : au-dela de la limite GitHub de 100 Mo.
 # Les results.json sont versionnes, eux : ce sont les mesures.

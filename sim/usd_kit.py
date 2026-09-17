@@ -134,6 +134,75 @@ def disque(stage, chemin, rayon_int, rayon_ext, z_fond, z_bord, segments=96):
     return m
 
 
+def assiette(stage, chemin, rayon=0.090, hauteur=0.045, epaisseur=0.008,
+             fond=0.008, segments=96):
+    """Assiette **prehensible** : un vrai volume ferme, pas une coque.
+
+    `disque()` ci-dessus est une surface d'epaisseur nulle : parfaite pour un
+    rendu, impossible a saisir — PhysX n'a rien a pincer et la pince traverse.
+    Celle-ci est un plateau creux : un socle plein, une paroi verticale de
+    `epaisseur` qui retient ce qu'on transporte.
+
+    A 68 mm de diametre pour 80 mm d'ouverture, la pince du FR3 ENJAMBE
+    l'assiette et serre sur le socle, de part et d'autre. C'est ce qui rend la
+    prise tenable : la ligne de serrage passe par l'axe du centre de masse, et
+    l'assiette pend a plat. La saisir par le bord, comme le laissait croire la
+    premiere version de cette fonction, la fait pendre a un rayon de son centre
+    de masse — elle bascule, et ce qu'elle porte tombe.
+
+           |<--------- 2 * rayon (68 mm) --------->|
+        >|#|#                                   #|#|<  <- les DEUX mors
+           #.#                                    #.#   ^ hauteur
+           #######################################.##   | fond (plein)
+           |<-->| epaisseur
+
+    Le maillage est ferme (paroi exterieure, couronne du bord, paroi
+    interieure, dessus du fond, dessous) pour que la decomposition convexe de
+    PhysX lui donne un collider correct. Comme `disque()`, il est construit a la
+    main : un cylindre USD se tesselle en decagone visible.
+    """
+    n = segments
+    pts, sts, faces, counts = [], [], [], []
+    r_int = rayon - epaisseur
+
+    def anneau(r, z):
+        """Ajoute n points sur un cercle, renvoie l'index du premier."""
+        base = len(pts)
+        for i in range(n):
+            a = 2 * math.pi * i / n
+            c, s_ = math.cos(a), math.sin(a)
+            pts.append(Gf.Vec3f(r * c, r * s_, z))
+            sts.append(Gf.Vec2f(0.5 + 0.5 * (r / rayon) * c,
+                                0.5 + 0.5 * (r / rayon) * s_))
+        return base
+
+    A = anneau(rayon, 0.0)          # bas exterieur
+    B = anneau(rayon, hauteur)      # haut exterieur
+    C = anneau(r_int, hauteur)      # haut interieur
+    D = anneau(r_int, fond)         # naissance du fond
+
+    c_haut = len(pts); pts.append(Gf.Vec3f(0, 0, fond)); sts.append(Gf.Vec2f(0.5, 0.5))
+    c_bas = len(pts); pts.append(Gf.Vec3f(0, 0, 0.0)); sts.append(Gf.Vec2f(0.5, 0.5))
+
+    for i in range(n):
+        j = (i + 1) % n
+        faces += [A + i, A + j, B + j, B + i]; counts.append(4)   # paroi exterieure
+        faces += [B + i, B + j, C + j, C + i]; counts.append(4)   # couronne du bord
+        faces += [C + i, C + j, D + j, D + i]; counts.append(4)   # paroi interieure
+        faces += [c_haut, D + i, D + j]; counts.append(3)         # dessus du fond
+        faces += [c_bas, A + j, A + i]; counts.append(3)          # dessous
+
+    m = UsdGeom.Mesh.Define(stage, chemin)
+    m.CreatePointsAttr(pts)
+    m.CreateFaceVertexCountsAttr(counts)
+    m.CreateFaceVertexIndicesAttr(faces)
+    m.CreateSubdivisionSchemeAttr("none")
+    m.CreateExtentAttr([Gf.Vec3f(-rayon, -rayon, 0.0), Gf.Vec3f(rayon, rayon, hauteur)])
+    UsdGeom.PrimvarsAPI(m).CreatePrimvar(
+        "st", Sdf.ValueTypeNames.TexCoord2fArray, UsdGeom.Tokens.vertex).Set(sts)
+    return m
+
+
 def boite(stage, chemin, taille, centre, materiau=None):
     """Cube unitaire mis a l'echelle et place : mur, dalle, poteau."""
     c = UsdGeom.Cube.Define(stage, chemin)
