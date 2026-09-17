@@ -135,3 +135,6 @@ so the overlay can be redesigned without re-rendering a single frame.
 - [[Inference API]] — `CheeseSorter`, the class the server wraps
 - [[Isaac Sim rendering]] — the renders the inspection station imitates
 - [[Isaac Sim setup]] — the container, the shader cache, the 40 s startup
+
+→ The next block down the line, where an arm replaces the diverter:
+[[Pick and place cell]]

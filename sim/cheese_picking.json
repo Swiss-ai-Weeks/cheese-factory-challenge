@@ -1,13 +1,13 @@
 {
- "images": 4486,
+ "images": 4953,
  "fps": 30,
- "duree_s": 149.53,
+ "duree_s": 165.1,
  "pieces": 8,
  "traitees": 8,
- "posees": 2,
+ "posees": 1,
  "justes": 8,
  "compteurs": {
-  "bin_hard": 1,
+  "bin_hard": 0,
   "bin_semi_hard": 0,
   "bin_soft": 0,
   "bin_fresh": 0,
@@ -34,26 +34,26 @@
    "insp": "i00.png",
    "status": "ok",
    "bin": "bin_blue",
-   "bin_confidence": 0.9359216690063477,
+   "bin_confidence": 0.9364060163497925,
    "cheese_type": "blue_mould_cheese",
-   "type_confidence": 0.9359216690063477,
+   "type_confidence": 0.9364060163497925,
    "topk_types": [
     [
      "blue_mould_cheese",
-     0.9359216690063477
+     0.9364060163497925
     ],
     [
      "hard_cheese",
-     0.006962445564568043
+     0.006822146475315094
     ],
     [
      "soft_cheese",
-     0.006669614464044571
+     0.006242039613425732
     ]
    ],
-   "latency_ms": 29.442836064845324,
-   "server_ms": 29.604054987430573,
-   "aller_retour_ms": 60.897254035808146,
+   "latency_ms": 29.70907196868211,
+   "server_ms": 29.868570971302688,
+   "aller_retour_ms": 62.38072307314724,
    "issue": "posee",
    "voie_finale": "bin_blue"
   },
@@ -67,26 +67,26 @@
    "insp": "i01.png",
    "status": "ok",
    "bin": "bin_fresh",
-   "bin_confidence": 0.8951589036732912,
+   "bin_confidence": 0.9064702657051384,
    "cheese_type": "cream_cheese",
-   "type_confidence": 0.8799227476119995,
+   "type_confidence": 0.8942104578018188,
    "topk_types": [
     [
      "cream_cheese",
-     0.8799227476119995
+     0.8942104578018188
     ],
     [
-     "hard_cheese",
-     0.01802303083240986
+     "goat_cheese_soft",
+     0.014070575125515461
     ],
     [
      "raclette_cheese",
-     0.017596935853362083
+     0.013933835551142693
     ]
    ],
-   "latency_ms": 32.186597934924066,
-   "server_ms": 32.349506043829024,
-   "aller_retour_ms": 59.46634092833847,
+   "latency_ms": 28.667636099271476,
+   "server_ms": 28.824084089137614,
+   "aller_retour_ms": 56.110336096026,
    "issue": "delai",
    "voie_finale": "bin_fresh"
   },
@@ -100,26 +100,26 @@
    "insp": "i02.png",
    "status": "ok",
    "bin": "bin_blue",
-   "bin_confidence": 0.9023804664611816,
+   "bin_confidence": 0.9036921262741089,
    "cheese_type": "blue_mould_cheese",
-   "type_confidence": 0.9023804664611816,
+   "type_confidence": 0.9036921262741089,
    "topk_types": [
     [
      "blue_mould_cheese",
-     0.9023804664611816
+     0.9036921262741089
+    ],
+    [
+     "cream_cheese",
+     0.009526911191642284
     ],
     [
      "raclette_cheese",
-     0.00904757808893919
-    ],
-    [
-     "cottage_cheese",
-     0.008955279365181923
+     0.009227038361132145
     ]
    ],
-   "latency_ms": 32.892565010115504,
-   "server_ms": 33.06139702908695,
-   "aller_retour_ms": 58.710373006761074,
+   "latency_ms": 30.360658071003854,
+   "server_ms": 30.52311495412141,
+   "aller_retour_ms": 59.472976019605994,
    "issue": "delai",
    "voie_finale": "bin_blue"
   },
@@ -133,26 +133,26 @@
    "insp": "i03.png",
    "status": "ok",
    "bin": "bin_fresh",
-   "bin_confidence": 0.8830875419080257,
+   "bin_confidence": 0.8999914741143584,
    "cheese_type": "cottage_cheese",
-   "type_confidence": 0.8482669591903687,
+   "type_confidence": 0.8659750819206238,
    "topk_types": [
     [
      "cottage_cheese",
-     0.8482669591903687
+     0.8659750819206238
     ],
     [
      "blue_mould_cheese",
-     0.02707512490451336
+     0.020666304975748062
     ],
     [
      "cream_cheese",
-     0.020736420527100563
+     0.019595148041844368
     ]
    ],
-   "latency_ms": 29.707026085816324,
-   "server_ms": 29.876997927203774,
-   "aller_retour_ms": 58.50819102488458,
+   "latency_ms": 28.63771398551762,
+   "server_ms": 28.794165002182126,
+   "aller_retour_ms": 59.0567629551515,
    "issue": "delai",
    "voie_finale": "bin_fresh"
   },
@@ -166,27 +166,27 @@
    "insp": "i04.png",
    "status": "ok",
    "bin": "bin_hard",
-   "bin_confidence": 0.9083242733031511,
+   "bin_confidence": 0.8941823979839683,
    "cheese_type": "emmental_cheese",
-   "type_confidence": 0.9023386240005493,
+   "type_confidence": 0.887322723865509,
    "topk_types": [
     [
      "emmental_cheese",
-     0.9023386240005493
+     0.887322723865509
     ],
     [
      "cream_cheese",
-     0.010855162516236305
+     0.013867075555026531
     ],
     [
-     "goat_cheese_soft",
-     0.010015535168349743
+     "raclette_cheese",
+     0.010809911414980888
     ]
    ],
-   "latency_ms": 30.579473939724267,
-   "server_ms": 30.756968073546886,
-   "aller_retour_ms": 57.275149039924145,
-   "issue": "posee",
+   "latency_ms": 29.422882944345474,
+   "server_ms": 29.59184895735234,
+   "aller_retour_ms": 56.51863699313253,
+   "issue": "delai",
    "voie_finale": "bin_hard"
   },
   {
@@ -199,26 +199,26 @@
    "insp": "i05.png",
    "status": "ok",
    "bin": "bin_semi_hard",
-   "bin_confidence": 0.9187939278781414,
+   "bin_confidence": 0.9166761846281588,
    "cheese_type": "raclette_cheese",
-   "type_confidence": 0.9121758341789246,
+   "type_confidence": 0.9098454713821411,
    "topk_types": [
     [
      "raclette_cheese",
-     0.9121758341789246
+     0.9098454713821411
     ],
     [
      "cream_cheese",
-     0.00905027985572815
+     0.009206327609717846
     ],
     [
      "soft_cheese",
-     0.008571771904826164
+     0.00919285137206316
     ]
    ],
-   "latency_ms": 29.70667800400406,
-   "server_ms": 29.865975957363844,
-   "aller_retour_ms": 57.362954947166145,
+   "latency_ms": 33.207352040335536,
+   "server_ms": 33.375814906321466,
+   "aller_retour_ms": 60.239434940740466,
    "issue": "delai",
    "voie_finale": "bin_semi_hard"
   },
@@ -232,26 +232,26 @@
    "insp": "i06.png",
    "status": "ok",
    "bin": "bin_hard",
-   "bin_confidence": 0.9172119335271418,
+   "bin_confidence": 0.9148278338834643,
    "cheese_type": "hard_cheese",
-   "type_confidence": 0.909439206123352,
+   "type_confidence": 0.9067418575286865,
    "topk_types": [
     [
      "hard_cheese",
-     0.909439206123352
-    ],
-    [
-     "not_cheese",
-     0.008253849111497402
+     0.9067418575286865
     ],
     [
      "raclette_cheese",
-     0.008237744681537151
+     0.008745159953832626
+    ],
+    [
+     "not_cheese",
+     0.008267630822956562
     ]
    ],
-   "latency_ms": 29.129159986041486,
-   "server_ms": 29.305292991921306,
-   "aller_retour_ms": 55.61398796271533,
+   "latency_ms": 31.890669954009354,
+   "server_ms": 32.05703792627901,
+   "aller_retour_ms": 58.87498194351792,
    "issue": "delai",
    "voie_finale": "bin_hard"
   },
@@ -265,26 +265,26 @@
    "insp": "i07.png",
    "status": "ok",
    "bin": "bin_semi_hard",
-   "bin_confidence": 0.9229673314839602,
+   "bin_confidence": 0.9197815963998437,
    "cheese_type": "raclette_cheese",
-   "type_confidence": 0.909629225730896,
+   "type_confidence": 0.9054813981056213,
    "topk_types": [
     [
      "raclette_cheese",
-     0.909629225730896
+     0.9054813981056213
     ],
     [
      "semi_hard_cheese",
-     0.013338105753064156
+     0.014300198294222355
     ],
     [
      "cottage_cheese",
-     0.010612343437969685
+     0.010929598473012447
     ]
    ],
-   "latency_ms": 30.067198094911873,
-   "server_ms": 30.22926300764084,
-   "aller_retour_ms": 58.650405961088836,
+   "latency_ms": 32.00762998312712,
+   "server_ms": 32.17398491688073,
+   "aller_retour_ms": 60.12897309847176,
    "issue": "delai",
    "voie_finale": "bin_semi_hard"
   }

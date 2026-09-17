@@ -79,7 +79,14 @@ N_VOIES = 6
 ANGLE_VOIE0 = -148.0    # degres, 0 = +x ; les voies sont du cote oppose au tapis
 ANGLE_VOIE1 = -32.0
 LARG_VOIE = 0.32
-LONG_VOIE = 0.60
+# Les voies de sortie sont de vrais convoyeurs : l'assiette posee repart avec
+# elles. Il leur faut donc de la longueur au-dela du point de depose — la dalle
+# est centree plus loin que ce point, de sorte qu'elle s'etend de 0.35 m a
+# 2.15 m du bras, et que l'assiette a un metre et demi a parcourir avant
+# d'atteindre le bout. C'est aussi ce qui la sort du champ avant la piece
+# suivante, au lieu de la faire disparaitre d'un coup.
+LONG_VOIE = 1.80
+R_VOIE_DALLE = 1.25     # centre de la dalle, en aval du point de depose
 
 # L'assiette est dimensionnee pour que la pince l'ENJAMBE, et non pour qu'elle
 # la pince par le bord. Ce n'est pas un detail d'esthetique, c'est la condition
@@ -206,6 +213,7 @@ class Cellule:
         self.gen = torch.Generator(device=self.dev).manual_seed(graine)
         self.ccd = ccd
         self.auto_collisions = auto_collisions
+        self.espacement = espacement
 
         self.monde = World(stage_units_in_meters=1.0, backend="torch", device=device,
                            physics_dt=dt_physique, rendering_dt=dt_physique * sous_pas)
@@ -277,6 +285,12 @@ class Cellule:
         z = lambda: torch.zeros(self.n, device=self.dev)
         self.cible = torch.zeros(self.n, dtype=torch.long, device=self.dev)
         self.vitesse = z() + 0.15
+        # Vitesse des convoyeurs de SORTIE. A zero par defaut : a
+        # l'entrainement, l'episode s'arrete des que l'assiette est posee, donc
+        # les faire defiler ne changerait rien a ce que la politique apprend —
+        # mais cela deplacerait des assiettes tombees a cote, et donc les
+        # causes de fin. On ne l'allume que pour la demo.
+        self.vitesse_voies = 0.0
         self.pas_ep, self.tenue, self.posee = z(), z(), z()
         # potentiel du pas precedent : la recompense en est la variation
         self.phi_prec = z()
@@ -361,8 +375,12 @@ class Cellule:
         mat_tapis = materiau_uni(st, base + "/mat_tapis", (0.10, 0.10, 0.12), rugosite=0.85)
         mat_pince = materiau_uni(st, base + "/mat_pince", (0.86, 0.87, 0.85), rugosite=0.3)
 
-        # 3.2 m : au-dela, les sols des cellules voisines se recouvrent
-        sol = boite(st, base + "/sol", (3.2, 2.8, 0.10), (0, 0, -0.97), mat_sol)
+        # Le sol doit porter jusqu'au bout des convoyeurs de sortie, qui vont
+        # maintenant a 2.15 m du bras — mais sans deborder sur la cellule
+        # voisine, sinon mille sols se recouvrent a l'entrainement. On le
+        # dimensionne donc sur l'espacement de la grille.
+        cote = min(self.espacement - 0.5, 5.6)
+        sol = boite(st, base + "/sol", (cote, cote * 0.9, 0.10), (0, 0, -0.97), mat_sol)
         self._statique(sol.GetPrim())
 
         # tapis d'amenee : une dalle statique. Le defilement est joue en
@@ -374,13 +392,14 @@ class Cellule:
         # les six tapis de sortie, en arc autour du bras
         for k, (x, y) in enumerate(voies_xy()):
             a = math.degrees(math.atan2(y, x))
+            f = R_VOIE_DALLE / R_VOIE          # la dalle deborde en aval
             t = boite(st, base + f"/voie_{k}", (LONG_VOIE, LARG_VOIE, 0.04),
                       (0, 0, 0), materiau_uni(st, base + f"/mat_voie_{k}",
                                               (0.14, 0.15, 0.18), rugosite=0.8))
             UsdGeom.Xformable(t).GetOrderedXformOps()[0].Set(
                 Gf.Matrix4d().SetScale(Gf.Vec3d(LONG_VOIE, LARG_VOIE, 0.04)) *
                 Gf.Matrix4d().SetRotate(Gf.Rotation(Gf.Vec3d(0, 0, 1), a)) *
-                Gf.Matrix4d().SetTranslate(Gf.Vec3d(x, y, -0.02)))
+                Gf.Matrix4d().SetTranslate(Gf.Vec3d(x * f, y * f, -0.02)))
             self._statique(t.GetPrim())
 
         # socle du bras : sa base affleure la surface des tapis
@@ -601,16 +620,29 @@ class Cellule:
         saisir l'assiette.
         """
         da = self.vitesse * self.dt
+        dv = self.vitesse_voies * self.dt
         for vue in (self.plats, self.morceaux):
             p, q = vue.get_world_poses()
             loc = p - self.origines
-            dessus = (loc[:, 2] < 0.075) & (loc[:, 1] > Y_TAPIS - LARG_TAPIS / 2) & \
-                     (loc[:, 1] < Y_TAPIS + LARG_TAPIS / 2) & (self.tenue < 0.5) & \
-                     (self.vitesse > 1e-4)
-            if not bool(dessus.any()):
+            bas = (loc[:, 2] < 0.075) & (self.tenue < 0.5)
+            dessus = bas & (loc[:, 1] > Y_TAPIS - LARG_TAPIS / 2) & \
+                     (loc[:, 1] < Y_TAPIS + LARG_TAPIS / 2) & (self.vitesse > 1e-4)
+            # Les voies de sortie emportent ce qu'on y depose, radialement, vers
+            # l'aval. Elles sont toutes du cote des y negatifs, a l'oppose du
+            # tapis d'amenee : un simple test de signe suffit a les distinguer,
+            # et la direction du convoyeur est le rayon lui-meme.
+            r = loc[:, :2].norm(dim=1).clamp(min=1e-6)
+            d = loc[:, :2] / r.unsqueeze(1)
+            if self.vitesse_voies > 1e-4:
+                voie = bas & (loc[:, 1] < 0.05) & (r > 0.32)
+            else:
+                voie = torch.zeros_like(bas)
+            if not bool(dessus.any() or voie.any()):
                 continue
             p = p.clone()
             p[dessus, 0] += da[dessus]
+            p[voie, 0] += (d[:, 0] * dv)[voie]
+            p[voie, 1] += (d[:, 1] * dv)[voie]
             vue.set_world_poses(p, q)
             # Les vitesses lues ont un pas de retard : juste apres une remise,
             # les recopier ressusciterait l'ancienne. On remet donc a zero les
@@ -618,6 +650,8 @@ class Cellule:
             v = vue.get_velocities().clone()
             v[dessus, 0] = self.vitesse[dessus]
             v[dessus, 1] *= 0.5
+            v[voie, 0] = (d[:, 0] * self.vitesse_voies)[voie]
+            v[voie, 1] = (d[:, 1] * self.vitesse_voies)[voie]
             v[self.frais_cpt > 0] = 0.0
             vue.set_velocities(v)
 

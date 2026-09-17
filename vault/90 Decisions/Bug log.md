@@ -5,8 +5,12 @@ priority: high
 
 # Bug log
 
-Four failures that produced **wrong numbers rather than error messages**. Every one was
-caught by a count. → [[Measurement pitfalls]] for the pattern.
+Failures that produced **wrong numbers rather than error messages**. Every one was caught
+by a count. → [[Measurement pitfalls]] for the pattern.
+
+Bugs 1–4 are perception, 5–10 are the [[Pick and place cell]]. The robotics ones share a
+family resemblance: a physics engine that degrades silently instead of raising, and reads
+that lag one step behind writes.
 
 ## 1. Wheel leakage in CHEESE-HIDB
 **Symptom:** 100% macro-F1 by epoch 13.
@@ -35,6 +39,61 @@ warning counts typeless renders. → [[Render manifest]]
 macro average over five bins. 0.733 × 5/6 = 0.611 exactly.
 **Fix:** always pass an explicit `labels=` to `f1_score`.
 **Near-miss:** nearly led to recommending a two-head architecture. → [[Model comparison]]
+
+## 5. PhysX dropped contacts instead of failing
+
+**Symptom:** at 1024 cells the cheese fell through the bottom of its own plate;
+`part_tenue` stuck at 0.4%. The same scene at 256 cells reached 16% in five iterations.
+**Cause:** `PxGpuDynamicsMemoryConfig::totalAggregatePairsCapacity` is sized for *a*
+scene, not a thousand. Too small, PhysX does not fail — it **misses interactions** and
+says so in a flood of errors drowned in a 10 MB log.
+**Fix:** the GPU buffers are now sized from the cell count. 4,657 errors → 0.
+**Pattern:** the failure was invisible in every metric except the one physical quantity
+nobody was plotting. → [[Measurement pitfalls]]
+
+## 6. A non-uniform scale on a collider makes the body drift
+
+**Symptom:** the cheese accelerated upward at 8.7 g, left its plate in five steps, and
+the episode was declared spilled.
+**Cause:** the piece was a unit cube **scaled** to 26×22×10 mm. `usd_kit.py` already
+documented this for a rigid body's own transform; it holds one level further down, for
+its colliders. The plate's sixteen wall pavers had the same fault, and made the plate
+slide out of the jaws.
+**Fix:** primitives at native size, only rotated and translated.
+
+## 7. Imposing a velocity does not make a conveyor
+
+**Symptom:** 0.16 m/s commanded, 0.000 m travelled.
+**Cause:** PhysX has no conveyor. The belt's own friction (1.3) cancels an imposed
+velocity within one substep, and a body resting on a static slab simply stops.
+**Fix:** impose the **advance** — position and velocity together. That is what a belt
+does: it moves things, it does not push them.
+**Aside:** `set_velocities(..., indices=...)` silently does nothing on a one-cell view,
+which sent the diagnosis down the wrong path for an hour.
+
+## 8. The arm does not stop where you write it
+
+**Symptom:** the rest pose read 18 mm away from where the arm settled; a plate placed
+into the jaws at that pose fell straight between them.
+**Cause:** body transforms lag one step behind a joint write, *and* the arm sags under
+its own weight below its setpoint.
+**Fix:** gravity compensation on the arm links — which every real FR3 controller has —
+and the rest pose measured after letting it settle.
+
+## 9. Teleporting an arm catapults what is near it
+
+**Symptom:** a "already gripped" reset sent the cheese off at 7 m/s.
+**Cause:** writing the arm to a new pose makes its fingers sweep, in one step, the whole
+volume between the old pose and the new one. Whatever was just written there is ejected.
+**Fix:** a reset that never teleports a gripping arm — the plate is slid into the jaws
+one step *after* the arm has been placed, when its transforms have caught up.
+
+## 10. A dense reward that argues against succeeding
+
+Filed at length in [[Pick and place cell]], because it is a design fault rather than a
+bug: carrying the plate paid ~10 per step indefinitely, setting it down paid 80 once and
+**ended the episode**. Loitering was worth ten times succeeding. 29 M steps went into
+learning exactly that, and every metric looked healthy except the only one that mattered.
 
 ## Smaller ones
 

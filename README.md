@@ -214,6 +214,22 @@ What is left to solve is an exploration problem, not a physics one: lowering the
 onto the lane and opening the jaws. The state machine does it in the same cell, so the
 task is reachable; the policy has not found it.
 
+### Staging
+
+The feed belt is 5 m long and runs off both edges of the frame, and the plate is **born
+outside the camera field**: it rides into shot instead of appearing in the middle of it.
+The six output conveyors carry away what is set down on them — that is what a real cell
+does, and it is also what stops the next piece from replacing a plate still sitting
+visibly on its lane, since the scene holds only one plate body.
+
+Both videos use the same HUD (`sim/make_video.py`): inspection thumbnail, the model's
+decision with per-type probabilities and latency, per-output counters, and — for the arm
+— its phase, the plate height, and the placed/missed tally.
+
+The full write-up, including every failure that got in the way, is in the vault:
+[Pick and place cell](vault/70%20Integration/Pick%20and%20place%20cell.md) and
+[Bug log](vault/90%20Decisions/Bug%20log.md).
+
 ## ⚡ Quick start
 
 ```bash

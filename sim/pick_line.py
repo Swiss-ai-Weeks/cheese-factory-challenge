@@ -45,6 +45,8 @@ ap.add_argument("--insp-res", type=int, default=768)
 ap.add_argument("--subframes", type=int, default=4)
 ap.add_argument("--dwell", type=float, default=0.8, help="arret sous la camera, en secondes")
 ap.add_argument("--vitesse", type=float, default=0.35, help="m/s du tapis d'amenee")
+ap.add_argument("--vitesse-voies", type=float, default=0.28,
+                help="m/s des convoyeurs de sortie : l'assiette posee repart avec")
 # L'assiette naît hors cadre et entre dans l'image en defilant : on ne la voit
 # jamais apparaitre. Le point de depart est en amont du bord gauche du champ.
 ap.add_argument("--x-depart", type=float, default=-1.85,
@@ -74,7 +76,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pick_cell import (Automate, Cellule, HAUT_ASSIETTE, LARG_TAPIS, LARG_VOIE,
                        LONG_VOIE, N_VOIES, RAYON_ASSIETTE, X_PRISE, Y_TAPIS,
                        Z_BASE, Z_MORCEAU, FOND_ASSIETTE, LONG_TAPIS,
-                       X_ENTREE, ecart_lacet, lacet_de, voies_xy)
+                       X_ENTREE, LONG_VOIE, R_VOIE, R_VOIE_DALLE, ecart_lacet,
+                       lacet_de, voies_xy)
 from usd_kit import (Tapis, boite, materiau_texture, materiau_uni, orbite, quad,
                      viser)
 
@@ -121,11 +124,12 @@ for k, (x, y) in enumerate(voies_xy()):
     cle = VOIES[k]
     # plus etroit que la voie physique : a 62 cm du bras, six voies de 32 cm se
     # recouvrent et l'ensemble se lit comme une seule nappe
-    t = Tapis(stage, base + f"/tapis_voie_{k}", longueur=0.72, largeur=0.22,
+    t = Tapis(stage, base + f"/tapis_voie_{k}", longueur=LONG_VOIE, largeur=0.22,
               rails=False,
               couleur_dalle=tuple(0.22 * c for c in couleurs[cle]),
               couleur_latte=tuple(0.11 * c for c in couleurs[cle]))
-    t.placer((x * 1.06, y * 1.06, -0.001), rotation_z=math.degrees(math.atan2(y, x)))
+    f = R_VOIE_DALLE / R_VOIE
+    t.placer((x * f, y * f, -0.001), rotation_z=math.degrees(math.atan2(y, x)))
     tapis_voies.append(t)
 
     # panneau : Isaac Sim ne sait pas ecrire, le texte est une texture. Tous
@@ -134,7 +138,7 @@ for k, (x, y) in enumerate(voies_xy()):
     mat_p, _ = materiau_texture(stage, base + f"/mat_pan_{k}",
                                 str(Path(args.panneaux) / f"{cle}.png"))
     UsdShade.MaterialBindingAPI(panneau).Bind(mat_p)
-    r = 0.95
+    r = 0.95          # juste en aval de la depose ; l'assiette passe dessous
     UsdGeom.Xformable(panneau).AddTransformOp().Set(
         Gf.Matrix4d().SetScale(Gf.Vec3d(0.34, 0.107, 1.0)) *
         Gf.Matrix4d().SetRotate(Gf.Rotation(Gf.Vec3d(1, 0, 0), 90.0)) *
@@ -350,6 +354,7 @@ for _ in range(8):
 if args.preview:
     habiller(infos[0])
     cellule.vitesse[:] = 0.0          # l'apercu juge un cadrage, pas un defilement
+    cellule.vitesse_voies = 0.0
     placer_piece(X_INSPECT)
     for _ in range(30):
         cellule.agir(actions()); cellule.pas()
@@ -388,6 +393,8 @@ t0_total = time.perf_counter()
 habiller(infos[0])
 placer_piece(args.x_depart)
 cellule.vitesse[:] = args.vitesse
+# Les convoyeurs de sortie tournent en permanence : ce qu'on y depose repart.
+cellule.vitesse_voies = args.vitesse_voies
 
 while k < args.max_frames and i_piece < len(infos):
     p_ass, _ = cellule.pose_assiette()
@@ -402,7 +409,10 @@ while k < args.max_frames and i_piece < len(infos):
         attente -= DT
     elif etat == "retour":
         retour_k += 1
-        if au_repos() or retour_k > 120:
+        # On ne repart pas des que le bras est rentre : il faut aussi laisser au
+        # convoyeur de sortie le temps d'emporter l'assiette posee hors du champ,
+        # sinon elle disparaitrait d'un coup quand la piece suivante est placee.
+        if (au_repos() and retour_k > 85) or retour_k > 150:
             habiller(infos[i_piece])
             placer_piece(args.x_depart)
             cellule.vitesse[:] = args.vitesse
@@ -432,7 +442,7 @@ while k < args.max_frames and i_piece < len(infos):
     avance += float(cellule.vitesse[0]) * DT
     amenee.defiler(avance)
     for t_ in tapis_voies:
-        t_.defiler(0.6 * t)
+        t_.defiler(args.vitesse_voies * t)   # les lattes suivent le convoyeur
 
     vue, insp = rendre()
     if vue is None:
