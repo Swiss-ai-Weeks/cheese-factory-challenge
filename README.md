@@ -159,7 +159,9 @@ sim/pick_line.py     camera + arm end to end: the model decides, the arm execute
 sim/make_video.py    the HUD and the H.264 encode, for both demos
 sim/banc_automate.py bench for the reference state machine — the feasibility witness
 sim/banc_politique.py bench for a checkpoint: what the policy does, step by step
+sim/factory/         Isaac 6.1 camera-to-control evaluation harness and metrics
 infra/isaac-sim/     remote Isaac Sim GUI stack for SSH and Brev
+docs/                demo runbook, evaluation protocol and MCP compatibility research
 runs/<head>/         results.json and ONNX sidecars for 8 trained heads
 vault/               the documentation (Obsidian)
 hpe.ipynb            runnable notebook
@@ -229,6 +231,38 @@ decision with per-type probabilities and latency, per-output counters, and — f
 The full write-up, including every failure that got in the way, is in the vault:
 [Pick and place cell](vault/70%20Integration/Pick%20and%20place%20cell.md) and
 [Bug log](vault/90%20Decisions/Bug%20log.md).
+
+## Isaac Sim 6.1 evaluation harness
+
+The integrated repository also keeps the modular harness under `sim/factory/`.
+It uses the Isaac Sim 6.1 experimental RTX camera API, separates perception,
+state-machine and controller logic, and writes machine-readable detection,
+classification, pick, placement and timing metrics.
+
+```bash
+# deterministic camera-to-controller integration check
+infra/isaac-sim/run-headless.sh development
+
+# streamed GUI on the remote workstation
+infra/isaac-sim/run-gui.sh development
+```
+
+The explicit `development` mode classifies rendered proxy colours. It is useful
+for testing the complete software and robot-control path, but its results are
+**not trained-model accuracy**. Production mode expects the ignored
+`runs/sim_type13/best.pt` checkpoint and fails closed when it is missing.
+
+The three robot paths have different evidence:
+
+- `sim/pick_line.py --scripte` is the reliable scripted reference state machine
+  used by the committed arm video.
+- The learned PPO arm policy remains experimental: it grips and carries but has
+  not completed a deposit.
+- `sim/factory/` is a deterministic Isaac 6.1 integration/evaluation harness;
+  its development-classifier metrics validate plumbing, not cheese recognition.
+
+See the [demo runbook](docs/demo_runbook.md), [evaluation protocol](docs/evaluation_results.md)
+and [Isaac MCP research](docs/isaac_mcp_research.md).
 
 ## ⚡ Quick start
 
