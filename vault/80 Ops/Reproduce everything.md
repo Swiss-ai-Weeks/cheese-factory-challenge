@@ -13,19 +13,19 @@ See [[Environment]].
 ## 2 — Download the three datasets
 
 ```bash
-# Food Recognition 2022 — the DatasetNinja link is dead, use dataset-tools
-pip install dataset-tools
-python -c "import dataset_tools as d; d.download(dataset='Food Recognition 2022', dst_dir='data/raw/')"
+.venv/bin/pip install dataset-tools huggingface-hub pyarrow opencv-python-headless
+.venv/bin/python src/download_datasets.py
 
-# cheese-images
-.venv/bin/python -c "from huggingface_hub import snapshot_download; \
-  snapshot_download('NoeFlandre/cheese-images', repo_type='dataset', local_dir='data/raw/cheese_images')"
-
-# CHEESE-HIDB — parallel per-file, git clone is far slower
-curl -s 'https://api.github.com/repos/andrealoddo/CHEESE-HIDB/git/trees/main?recursive=1' \
-  | python3 -c "import sys,json,urllib.parse; [print('https://raw.githubusercontent.com/andrealoddo/CHEESE-HIDB/main/'+urllib.parse.quote(e['path'])+'\t'+e['path']) for e in json.load(sys.stdin)['tree'] if e['type']=='blob' and e['path'].lower().endswith(('.jpg','.jpeg','.png'))]" \
-  | xargs -P 24 -d '\n' -I{} bash -c 'IFS=$'"'"'\t'"'"' read -r u p <<< "{}"; mkdir -p "$(dirname "$p")"; curl -sL -o "$p" "$u"'
+# Dataset Tools currently points at a disabled Dropbox archive. When the
+# downloader reports a Hugging Face mirror, reconstruct the exact directory
+# contract consumed by normalize.py. Multi-object mirror rows are excluded:
+# that mirror does not preserve a reliable label-to-box association for them.
+.venv/bin/python src/extract_food_recognition_hf.py \
+  --clean --single-object-only
 ```
+
+The downloader is idempotent. Use `--force` only when intentionally replacing
+an existing raw dataset.
 
 ## 3 — Normalise and cut out
 
@@ -37,40 +37,59 @@ curl -s 'https://api.github.com/repos/andrealoddo/CHEESE-HIDB/git/trees/main?rec
 ## 4 — Render the belt
 
 ```bash
-mkdir -p sim/out && chmod 777 sim/out          # the container is not root
-for i in 0 1; do
-  docker run -d --rm --gpus "device=$i" -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \
-    -v $PWD:/workspace -v ~/.cache/ov/hub:/var/cache/hub \
-    --name gen$i --entrypoint /isaac-sim/python.sh ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0} \
-    /workspace/sim/render_belt.py --all --views 5 --min-fill 0.35 --max-ar 3.0 \
-      --elev-min 45 --elev-max 80 --shard $i/2 --seed $((200+i)) --skip-existing
-done
-# then the empty-belt class
-docker run --rm --gpus "device=0" ... /workspace/sim/render_belt.py --empty 900 --elev-min 45 --elev-max 80
+mkdir -p outputs/render-belt && chmod 777 outputs/render-belt
+docker run --rm --gpus all -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \
+  -e PYTHONPATH=/workspace -v "$PWD:/workspace" \
+  --entrypoint /isaac-sim/python.sh \
+  ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0} \
+  /workspace/sim/render_belt.py --all --views 5 --min-fill 0.35 \
+    --max-ar 3.0 --skip-existing --out /workspace/outputs/render-belt
+
+# Then render the empty-belt reject class with the same mounts/image.
+docker run --rm --gpus all -e ACCEPT_EULA=Y -e PRIVACY_CONSENT=Y \
+  -e PYTHONPATH=/workspace -v "$PWD:/workspace" \
+  --entrypoint /isaac-sim/python.sh \
+  ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0} \
+  /workspace/sim/render_belt.py --empty 300 --views 1 --skip-existing \
+    --out /workspace/outputs/render-belt
 ```
 
 > [!important] Verify the counts before training
 > ```bash
-> ls sim/out/*.png | sed 's/.*__\(.*\)__.*/\1/' | sort | uniq -c | awk '$1 != 5'
+> ls outputs/render-belt/*.png | sed 's/.*__\(.*\)__.*/\1/' | sort | uniq -c | awk '$1 != 5'
 > ```
 > Should print nothing except the `empty` pieces. See [[Measurement pitfalls]].
 
 ## 5 — Manifest and training
 
 ```bash
-.venv/bin/python src/render_manifest.py
+.venv/bin/python src/render_manifest.py --renders outputs/render-belt \
+    --out data/processed/manifest_sim.csv
 .venv/bin/python src/train.py --task sim_type \
     --manifest data/processed/manifest_sim.csv \
     --model convnext_base.fb_in22k_ft_in1k_384 --img-size 384 \
-    --epochs 20 --batch-size 96 --lr 1e-4 --workers 32 --out runs/sim_type13
+    --epochs 20 --batch-size 64 --lr 1e-4 --workers 8 \
+    --balanced-sampler --out runs/sim_type13
+
+# Direct seven-way sorting head (five bins plus empty/not-cheese)
+.venv/bin/python src/train.py --task sim_bin \
+    --manifest data/processed/manifest_sim.csv \
+    --model convnext_base.fb_in22k_ft_in1k_384 --img-size 384 \
+    --epochs 20 --batch-size 64 --lr 1e-4 --workers 8 \
+    --balanced-sampler --out runs/sim_bin
 ```
 
 ## 6 — Export and publish
 
 ```bash
-.venv/bin/python src/export.py runs/sim_type13/best.pt
+.venv/bin/pip install onnx onnxscript onnxruntime-gpu
+.venv/bin/python src/export.py runs/sim_type13/best.pt \
+    --out runs/sim_type13/model.onnx
 ./sync_jupyter.sh
 ```
+
+The ONNX exporter prints the maximum numerical difference against PyTorch.
+Treat the export as accepted only when that parity check succeeds.
 
 ## 7 — The sorting line demo (optional)
 

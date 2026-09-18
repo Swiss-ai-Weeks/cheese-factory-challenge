@@ -1,0 +1,36 @@
+{
+  "task": "sim_type",
+  "classes": [
+    "blue_mould_cheese",
+    "cottage_cheese",
+    "cream_cheese",
+    "emmental_cheese",
+    "empty",
+    "fresh_cheese",
+    "goat_cheese_soft",
+    "hard_cheese",
+    "not_cheese",
+    "processed_cheese",
+    "raclette_cheese",
+    "semi_hard_cheese",
+    "soft_cheese"
+  ],
+  "img_size": 384,
+  "mean": [
+    0.5505,
+    0.51033,
+    0.45025
+  ],
+  "std": [
+    0.2721,
+    0.26728,
+    0.28183
+  ],
+  "preprocessing": "RGB -> resize(437) -> center_crop(384) -> /255 -> (x - mean) / std -> NCHW float32",
+  "val_metrics": {
+    "loss": 1.1662557780195815,
+    "top1": 0.8,
+    "top5": 0.926605504587156,
+    "macro_f1": 0.49043888979740724
+  }
+}

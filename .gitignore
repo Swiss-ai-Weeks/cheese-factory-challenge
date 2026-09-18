@@ -27,6 +27,7 @@ sim/_essai_*.py
 # Les results.json sont versionnes, eux : ce sont les mesures.
 runs/**/*.pt
 runs/**/*.onnx
+runs/**/*.onnx.data
 
 # environnement
 .venv/
@@ -36,7 +37,7 @@ __pycache__/
 
 # sorties locales
 *.log
-outputs/factory/
+outputs/
 
 # Local Isaac Sim host paths and GPU selection
 infra/isaac-sim/.env

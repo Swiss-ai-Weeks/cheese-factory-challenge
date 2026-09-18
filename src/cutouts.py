@@ -52,13 +52,41 @@ def _one(job: tuple) -> dict | None:
         with Image.open(img_path) as src:
             img = src.convert("RGB")
 
-        # masque du polygone, dans le repere de l'image complete
+        # Le jeu original fournit des polygones. Le miroir de secours conserve
+        # seulement les boites : GrabCut en affine alors la silhouette au lieu
+        # de coller un rectangle photographique dans la scene Isaac.
         masque = Image.new("L", img.size, 0)
-        ImageDraw.Draw(masque).polygon(points, fill=255)
-        # les polygones interieurs (trous) sont retires
-        for trou in obj["points"].get("interior", []):
-            if len(trou) >= 3:
-                ImageDraw.Draw(masque).polygon([tuple(p) for p in trou], fill=0)
+        if obj.get("source") == "hf_bbox":
+            import cv2
+            import numpy as np
+
+            rgb = np.asarray(img)
+            gc = np.zeros(rgb.shape[:2], np.uint8)
+            ix0, iy0 = max(0, int(x0)), max(0, int(y0))
+            ix1 = min(img.width, int(x1 + 0.999))
+            iy1 = min(img.height, int(y1 + 0.999))
+            largeur, hauteur = ix1 - ix0, iy1 - iy0
+            marge_x, marge_y = max(1, int(0.02 * largeur)), max(1, int(0.02 * hauteur))
+            rx0, ry0 = max(1, ix0 - marge_x), max(1, iy0 - marge_y)
+            rx1 = min(img.width - 1, ix1 + marge_x)
+            ry1 = min(img.height - 1, iy1 + marge_y)
+            rectangle = (rx0, ry0, max(1, rx1 - rx0), max(1, ry1 - ry0))
+            bg_model = np.zeros((1, 65), np.float64)
+            fg_model = np.zeros((1, 65), np.float64)
+            cv2.grabCut(rgb, gc, rectangle, bg_model, fg_model, 4, cv2.GC_INIT_WITH_RECT)
+            foreground = np.where((gc == cv2.GC_FGD) | (gc == cv2.GC_PR_FGD), 255, 0).astype("uint8")
+            masque = Image.fromarray(foreground, mode="L")
+            # Les images difficiles ne doivent pas disparaitre silencieusement.
+            crop_mask = foreground[iy0:iy1, ix0:ix1]
+            if not crop_mask.size or crop_mask.mean() < 12.0:
+                masque = Image.new("L", img.size, 0)
+                ImageDraw.Draw(masque).polygon(points, fill=255)
+        else:
+            ImageDraw.Draw(masque).polygon(points, fill=255)
+            # les polygones interieurs (trous) sont retires
+            for trou in obj["points"].get("interior", []):
+                if len(trou) >= 3:
+                    ImageDraw.Draw(masque).polygon([tuple(p) for p in trou], fill=0)
 
         img = img.crop((x0, y0, x1, y1))
         masque = masque.crop((x0, y0, x1, y1))
