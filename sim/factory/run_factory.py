@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import time
 import traceback
 
@@ -13,6 +14,7 @@ import numpy as np
 from sim.factory.config import FactoryConfig, load_config
 from sim.factory.controller import PHASE_TO_FACTORY_STATE
 from sim.factory.geometry import pixel_to_plane
+from sim.factory.hud import FactoryHud
 from sim.factory.perception import (
     BIN_OF_TYPE,
     ForegroundDetector,
@@ -132,8 +134,17 @@ async def run(
         roi=camera_config.get("roi"),
     )
     records: list[dict] = []
+    sequence = list(factory_config.raw["evaluation_sequence"])
+    limit = max_objects if max_objects is not None else int(factory_config.raw["max_objects"])
+    total_objects = min(limit, len(sequence))
+    hud = FactoryHud(
+        classifier_mode,
+        os.environ.get("CHEESE_SCENARIO", "default-evaluation"),
+        total_objects,
+    )
     try:
         print("FACTORY_STAGE loading", flush=True)
+        hud.update(phase="LOADING FACTORY")
         runtime_status.update("loading", max_objects=max_objects)
         await sample.load_world_async()
         print("FACTORY_STAGE loaded", flush=True)
@@ -141,6 +152,7 @@ async def run(
         await sample.reset_async()
         print("FACTORY_STAGE reset", flush=True)
         runtime_status.update("reset", max_objects=max_objects)
+        hud.update(phase="READY · CAMERA CALIBRATED")
         app_utils.play(commit=True)
 
         spawn = tuple(float(v) for v in factory_config.section("belt")["spawn_position"])
@@ -167,13 +179,19 @@ async def run(
         )
         annotate_frame(background, None, None, FactoryState.WAITING.name, frames_dir / "empty-interval-000.png")
 
-        sequence = list(factory_config.raw["evaluation_sequence"])
-        limit = max_objects if max_objects is not None else int(factory_config.raw["max_objects"])
-        runtime_status.update("running", completed_objects=0, total_objects=min(limit, len(sequence)))
+        runtime_status.update("running", completed_objects=0, total_objects=total_objects)
         for index, ground_truth in enumerate(sequence[:limit]):
             started = time.perf_counter()
             object_id = f"object-{index:03d}"
             machine = FactoryStateMachine()
+            hud.update(
+                phase="CONVEYOR → INSPECTION",
+                object_id=object_id,
+                ground_truth=ground_truth,
+                prediction="analyzing…",
+                confidence="—",
+                destination="—",
+            )
             scene.set_object(object_id, ground_truth, spawn)
             # The Franka's collision-aware retreat pose is not bit-identical to
             # its initial home pose. Refresh the empty pick-zone reference with
@@ -215,6 +233,12 @@ async def run(
                     }
                 )
                 _print_progress(records)
+                hud.update(
+                    phase="FAULT · DETECTION FAILED",
+                    prediction="no foreground detected",
+                    failures=hud.snapshot.failures + 1,
+                    completed=index + 1,
+                )
                 runtime_status.update(
                     "running",
                     completed_objects=index + 1,
@@ -230,6 +254,17 @@ async def run(
                 else sorter.predict(detection.crop)
             )
             machine.classification(result.status)
+            confidence_text = (
+                "SCRIPTED"
+                if classifier_mode == "showcase"
+                else f"{100.0 * result.bin_confidence:.1f}%"
+            )
+            hud.update(
+                phase="DECISION READY",
+                prediction=f"{result.status} · {result.cheese_type}",
+                confidence=confidence_text,
+                destination=result.bin or "reject",
+            )
             camera_position, camera_orientation = scene.camera_pose()
             estimated = pixel_to_plane(
                 detection.centroid,
@@ -254,6 +289,7 @@ async def run(
                 machine.transition(FactoryState.APPROACHING)
                 timeout_steps = int(factory_config.section("robot")["motion_timeout_s"] * factory_config.raw["physics_hz"])
                 release_gravity_enabled = False
+                last_hud_phase = None
                 for _ in range(timeout_steps):
                     alive = scene.task.step(1.0 / float(factory_config.raw["physics_hz"]))
                     scene.sync_object_visual()
@@ -263,6 +299,10 @@ async def run(
                         scene.set_object_gravity(True)
                         release_gravity_enabled = True
                     phase_target = PHASE_TO_FACTORY_STATE.get(str(status.get("phase")))
+                    controller_phase = str(status.get("phase", "MOVING"))
+                    if controller_phase != last_hud_phase:
+                        hud.update(phase=f"ROBOT · {controller_phase.replace('_', ' ')}")
+                        last_hud_phase = controller_phase
                     if phase_target and (phase_target != "COMPLETE" or scene.task.is_done):
                         _next_state(machine, phase_target)
                     if scene.task.is_done or not alive:
@@ -313,6 +353,13 @@ async def run(
                 }
             )
             _print_progress(records)
+            hud.update(
+                phase="CYCLE COMPLETE" if end_to_end else "CYCLE FAILED",
+                completed=index + 1,
+                successful=hud.snapshot.successful + int(end_to_end),
+                rejected=hud.snapshot.rejected + int(result.status in {"not_cheese", "uncertain", "empty"}),
+                failures=hud.snapshot.failures + int(not end_to_end),
+            )
             runtime_status.update(
                 "running",
                 completed_objects=index + 1,
@@ -341,13 +388,16 @@ async def run(
         report = {"metrics": metrics, "records": records}
         (output / "results.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         runtime_status.update("complete", metrics=metrics)
+        hud.update(phase="RUN COMPLETE")
         print("FACTORY_RESULTS", json.dumps(metrics, sort_keys=True), flush=True)
         return report
     except BaseException as exc:
         runtime_status.update("fatal", error_type=type(exc).__name__, error=str(exc))
+        hud.update(phase=f"FATAL · {type(exc).__name__}", failures=hud.snapshot.failures + 1)
         raise
     finally:
         if cleanup:
+            hud.destroy()
             await sample.clear_async()
 
 

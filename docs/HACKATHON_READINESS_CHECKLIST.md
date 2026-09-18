@@ -40,12 +40,14 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/12-deterministic-showcase.md`](stages/12-deterministic-showcase.md).
 
-- [ ] **P0.4 — Add an operator-visible story.** The live view does not explain the
+- [x] **P0.4 — Add an operator-visible story.** The live view does not explain the
   current item, prediction, confidence, destination, robot state or totals. Add a clear
   factory HUD/scoreboard and legible station labels so judges can understand the full
   perception-to-action loop without reading terminal logs.
   **Accept when:** a WebRTC screenshot alone makes the current decision and accumulated
   outcome understandable, with the active mode visibly labelled.
+  **Completed:** commit documented in
+  [`docs/stages/13-live-operator-hud.md`](stages/13-live-operator-hud.md).
 
 - [ ] **P0.5 — Deliver reliable demo controls.** Starting, stopping, resetting and
   selecting scenarios currently depend on shell knowledge and can leave a healthy but
