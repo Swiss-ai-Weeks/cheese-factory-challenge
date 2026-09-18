@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-import importlib
-import sys
+import io
+import json
+import os
 import time
+import urllib.request
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Protocol
@@ -83,6 +85,67 @@ class DevelopmentSortResult:
 
 class Sorter(Protocol):
     def predict(self, frame: np.ndarray, box: tuple[int, int, int, int] | None = None): ...
+
+
+class RemoteModelSorter:
+    """Fail-closed client for the host-side trained perception service.
+
+    Isaac Sim's runtime intentionally does not carry the PyTorch/timm training
+    stack. Keeping inference on the host also mirrors an industrial deployment:
+    the simulator/controller consumes a small versioned decision contract.
+    """
+
+    development_only = False
+    valid_statuses = {"ok", "empty", "not_cheese", "uncertain"}
+    valid_bins = set(BIN_OF_TYPE.values())
+
+    def __init__(self, base_url: str, timeout_s: float = 60.0):
+        self.base_url = base_url.rstrip("/")
+        self.timeout_s = float(timeout_s)
+        with urllib.request.urlopen(f"{self.base_url}/health", timeout=min(10.0, self.timeout_s)) as response:
+            health = json.loads(response.read())
+        if health.get("ok") is not True:
+            raise RuntimeError(f"perception service is not healthy: {health}")
+        types = set(health.get("types", []))
+        unknown = types - set(BIN_OF_TYPE) - {"empty", "not_cheese"}
+        if unknown or not {"empty", "not_cheese"}.issubset(types):
+            raise RuntimeError(f"perception service has an incompatible label space: {sorted(types)}")
+
+    def predict(
+        self,
+        frame: np.ndarray,
+        box: tuple[int, int, int, int] | None = None,
+    ) -> DevelopmentSortResult:
+        image = Image.fromarray(_rgb(frame))
+        if box is not None:
+            image = image.crop(tuple(int(v) for v in box))
+        payload = io.BytesIO()
+        image.save(payload, format="PNG")
+        request = urllib.request.Request(
+            f"{self.base_url}/predict",
+            data=payload.getvalue(),
+            headers={"Content-Type": "image/png"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=self.timeout_s) as response:
+            result = json.loads(response.read())
+        status = str(result.get("status", ""))
+        target = result.get("bin")
+        if status not in self.valid_statuses:
+            raise RuntimeError(f"perception service returned invalid status: {status!r}")
+        if target is not None and target not in self.valid_bins:
+            raise RuntimeError(f"perception service returned invalid bin: {target!r}")
+        if (status == "ok") != (target is not None):
+            raise RuntimeError(f"unsafe perception decision contract: status={status!r}, bin={target!r}")
+        return DevelopmentSortResult(
+            status=status,
+            bin=target,
+            bin_confidence=float(result["bin_confidence"]),
+            cheese_type=str(result["cheese_type"]),
+            type_confidence=float(result["type_confidence"]),
+            topk_types=[(str(label), float(score)) for label, score in result.get("topk_types", [])],
+            latency_ms=float(result["latency_ms"]),
+        )
 
 
 class ForegroundDetector:
@@ -206,10 +269,9 @@ def make_sorter(config: FactoryConfig, mode: str) -> Sorter:
             f"trained cheese checkpoint is missing: {checkpoint}. "
             "Supply/rebuild it before production use, or explicitly pass --classifier development for integration testing."
         )
-    if str(PROJECT_ROOT) not in sys.path:
-        sys.path.insert(0, str(PROJECT_ROOT))
-    module = importlib.import_module("src.predict")
-    return module.CheeseSorter(checkpoint, min_confidence=threshold)
+    perception = config.section("perception")
+    service_url = os.environ.get("CHEESE_SORTER_URL", perception["service_url"])
+    return RemoteModelSorter(service_url, timeout_s=float(perception.get("service_timeout_s", 60.0)))
 
 
 def annotate_frame(frame: np.ndarray, detection: Detection | None, result, state: str, output: Path) -> None:

@@ -7,18 +7,73 @@ CLASSIFIER=${1:-model}
 MAX_OBJECTS=${CHEESE_MAX_OBJECTS:-11}
 IMAGE=${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0}
 ISAAC_SIM_DATA_DIR=${ISAAC_SIM_DATA:-"$HOME/docker/isaac-sim"}
+SORTER_HOST_URL=${CHEESE_SORTER_HOST_URL:-http://127.0.0.1:8765}
+SORTER_CONTAINER_URL=${CHEESE_SORTER_URL:-http://host.docker.internal:8765}
+ROUTING_CHECKPOINT=${CHEESE_ROUTING_CHECKPOINT:-"$PROJECT_ROOT/runs/sim_bin_adapt_v2/best.pt"}
+SORTER_PID=""
 
 # Isaac's container runs as UID 1234; expose only this ignored output directory
 # for writes instead of making the source tree broadly writable.
 install -d -m 0777 "$PROJECT_ROOT/outputs/factory"
 
-exec docker run --rm --gpus all \
+cleanup() {
+  if [[ -n "$SORTER_PID" ]]; then
+    kill "$SORTER_PID" >/dev/null 2>&1 || true
+    wait "$SORTER_PID" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT INT TERM
+
+if [[ "$CLASSIFIER" == "model" ]]; then
+  CUDNN_LIB="$PROJECT_ROOT/.venv/lib/python3.12/site-packages/nvidia/cudnn/lib"
+  if [[ ! -x "$PROJECT_ROOT/.venv/bin/python" || ! -d "$CUDNN_LIB" ]]; then
+    echo "trained-model runtime is missing (.venv or cuDNN); see docs/stages/04-real-perception.md" >&2
+    exit 1
+  fi
+  if [[ ! -f "$ROUTING_CHECKPOINT" ]]; then
+    echo "target-domain routing checkpoint is missing: $ROUTING_CHECKPOINT" >&2
+    echo "capture and train Stage 5 before running the production classifier" >&2
+    exit 1
+  fi
+  SORTER_HEALTH=$(curl -fsS --max-time 3 "$SORTER_HOST_URL/health" 2>/dev/null || true)
+  if [[ -z "$SORTER_HEALTH" ]]; then
+    env LD_LIBRARY_PATH="$CUDNN_LIB:${LD_LIBRARY_PATH:-}" \
+      "$PROJECT_ROOT/.venv/bin/python" "$PROJECT_ROOT/sim/sort_server.py" \
+        --checkpoint "$PROJECT_ROOT/runs/sim_type13/best.pt" \
+        --routing-checkpoint "$ROUTING_CHECKPOINT" \
+        --host 0.0.0.0 --port 8765 \
+        >"$PROJECT_ROOT/outputs/factory/sort-server.log" 2>&1 &
+    SORTER_PID=$!
+    for _ in $(seq 1 90); do
+      SORTER_HEALTH=$(curl -fsS --max-time 2 "$SORTER_HOST_URL/health" 2>/dev/null || true)
+      [[ -n "$SORTER_HEALTH" ]] && break
+      kill -0 "$SORTER_PID" 2>/dev/null || {
+        cat "$PROJECT_ROOT/outputs/factory/sort-server.log" >&2
+        exit 1
+      }
+      sleep 1
+    done
+    if [[ -z "$SORTER_HEALTH" ]]; then
+      echo "trained perception service did not become healthy within 90 seconds" >&2
+      exit 1
+    fi
+  fi
+  if [[ "$SORTER_HEALTH" != *'"routing": "direct_bin"'* ]]; then
+    echo "perception service on $SORTER_HOST_URL is healthy but is not the Stage 5 direct-bin router" >&2
+    echo "stop the stale service before starting the factory" >&2
+    exit 1
+  fi
+fi
+
+docker run --rm --gpus all \
   -e ACCEPT_EULA=Y \
   -e PRIVACY_CONSENT=Y \
   -e PYTHONPATH=/workspace \
   -e CHEESE_CLASSIFIER="$CLASSIFIER" \
   -e CHEESE_MAX_OBJECTS="$MAX_OBJECTS" \
   -e CHEESE_EXIT_ON_COMPLETE=1 \
+  -e CHEESE_SORTER_URL="$SORTER_CONTAINER_URL" \
+  --add-host host.docker.internal:host-gateway \
   -v "$PROJECT_ROOT:/workspace:rw" \
   -v "$ISAAC_SIM_DATA_DIR/cache/main:/isaac-sim/.cache:rw" \
   -v "$ISAAC_SIM_DATA_DIR/cache/computecache:/isaac-sim/.nv/ComputeCache:rw" \

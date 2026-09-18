@@ -54,6 +54,11 @@ def _validate(data: dict[str, Any]) -> None:
         raise ValueError("belt.object_orientation_wxyz must be [w, x, y, z]")
     if not 0.0 <= float(data["perception"]["min_confidence"]) <= 1.0:
         raise ValueError("perception.min_confidence must be between 0 and 1")
+    service_url = str(data["perception"].get("service_url", ""))
+    if not service_url.startswith(("http://", "https://")):
+        raise ValueError("perception.service_url must be an HTTP(S) URL")
+    if float(data["perception"].get("service_timeout_s", 0.0)) <= 0.0:
+        raise ValueError("perception.service_timeout_s must be positive")
 
 
 def load_config(path: str | Path | None = None) -> FactoryConfig:

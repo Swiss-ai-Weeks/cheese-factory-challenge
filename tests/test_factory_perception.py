@@ -1,10 +1,14 @@
 import numpy as np
+import json
+from io import BytesIO
+from PIL import Image
 
 from sim.factory.perception import (
     BIN_OF_TYPE,
     DEVELOPMENT_PALETTE,
     DevelopmentColorSorter,
     ForegroundDetector,
+    RemoteModelSorter,
 )
 
 
@@ -45,3 +49,83 @@ def test_foreign_object_never_gets_cheese_bin():
     assert result.status == "not_cheese"
     assert result.bin is None
     assert not result.actionable
+
+
+def test_remote_sorter_checks_health_and_posts_pixels(monkeypatch):
+    calls = []
+
+    class Response:
+        def __init__(self, payload):
+            self.payload = json.dumps(payload).encode()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+        def read(self):
+            return self.payload
+
+    def fake_urlopen(request, timeout):
+        url = request if isinstance(request, str) else request.full_url
+        calls.append((url, timeout))
+        if url.endswith("/health"):
+            return Response({
+                "ok": True,
+                "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"],
+            })
+        posted = Image.open(BytesIO(request.data))
+        assert posted.size == (12, 10)
+        return Response({
+            "status": "ok",
+            "bin": "bin_hard",
+            "bin_confidence": 0.91,
+            "cheese_type": "hard_cheese",
+            "type_confidence": 0.82,
+            "topk_types": [["hard_cheese", 0.82]],
+            "latency_ms": 8.4,
+        })
+
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+    sorter = RemoteModelSorter("http://sorter:8765", timeout_s=12)
+    result = sorter.predict(np.full((10, 12, 3), 127, dtype=np.uint8))
+    assert result.actionable
+    assert result.bin == "bin_hard"
+    assert calls[0][0].endswith("/health")
+    assert calls[1][0].endswith("/predict")
+
+
+def test_remote_sorter_rejects_unsafe_contract(monkeypatch):
+    class Response:
+        def __init__(self, payload):
+            self.payload = json.dumps(payload).encode()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+        def read(self):
+            return self.payload
+
+    responses = iter([
+        {"ok": True, "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"]},
+        {
+            "status": "not_cheese",
+            "bin": "bin_hard",
+            "bin_confidence": 0.9,
+            "cheese_type": "not_cheese",
+            "type_confidence": 0.9,
+            "latency_ms": 5.0,
+        },
+    ])
+    monkeypatch.setattr("urllib.request.urlopen", lambda *args, **kwargs: Response(next(responses)))
+    sorter = RemoteModelSorter("http://sorter:8765")
+    try:
+        sorter.predict(np.zeros((8, 8, 3), dtype=np.uint8))
+    except RuntimeError as exc:
+        assert "unsafe perception decision contract" in str(exc)
+    else:
+        raise AssertionError("unsafe service response was accepted")

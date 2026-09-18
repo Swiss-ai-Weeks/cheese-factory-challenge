@@ -5,7 +5,8 @@ dans `.venv`, et la scene l'interroge en HTTP. C'est exactement le decoupage
 attendu sur la ligne reelle : la camera et l'automate d'un cote, la brique de
 perception de l'autre.
 
-    .venv/bin/python sim/sort_server.py --checkpoint runs/sim_type13/best.pt
+    .venv/bin/python sim/sort_server.py --checkpoint runs/sim_type13/best.pt \
+        --routing-checkpoint runs/sim_bin_adapt_v2/best.pt
 
     POST /predict   corps = PNG brut          -> SortResult en JSON
     GET  /health                              -> {"ok": true, ...}
@@ -21,16 +22,25 @@ RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE / "src"))
 
 from PIL import Image                               # noqa: E402
-from predict import CheeseSorter                    # noqa: E402
+from predict import CheeseSorter, HybridCheeseSorter  # noqa: E402
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--checkpoint", default=str(RACINE / "runs/sim_type13/best.pt"))
+ap.add_argument("--routing-checkpoint")
 ap.add_argument("--host", default="0.0.0.0")
 ap.add_argument("--port", type=int, default=8765)
 ap.add_argument("--min-confidence", type=float, default=0.55)
 args = ap.parse_args()
 
-sorter = CheeseSorter(args.checkpoint, min_confidence=args.min_confidence)
+if args.routing_checkpoint:
+    sorter = HybridCheeseSorter(
+        args.checkpoint, args.routing_checkpoint,
+        min_confidence=args.min_confidence,
+    )
+    routing_mode = "direct_bin"
+else:
+    sorter = CheeseSorter(args.checkpoint, min_confidence=args.min_confidence)
+    routing_mode = "fine_type_aggregation"
 sorter.warmup()
 verrou = threading.Lock()
 compteur = {"n": 0}
@@ -52,7 +62,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/health"):
             self._repondre(200, {"ok": True, "types": sorter.types,
-                                 "bins": sorter.bins, "servies": compteur["n"]})
+                                 "bins": sorter.bins, "routing": routing_mode,
+                                 "servies": compteur["n"]})
         else:
             self._repondre(404, {"erreur": "route inconnue"})
 

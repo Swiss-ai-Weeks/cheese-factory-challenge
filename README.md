@@ -250,7 +250,11 @@ infra/isaac-sim/run-gui.sh development
 The explicit `development` mode classifies rendered proxy colours. It is useful
 for testing the complete software and robot-control path, but its results are
 **not trained-model accuracy**. Production mode expects the ignored
-`runs/sim_type13/best.pt` checkpoint and fails closed when it is missing.
+`runs/sim_type13/best.pt` fine-type checkpoint plus
+`runs/sim_bin_adapt_v2/best.pt` for direct routing, and fails closed when either
+model or the host inference service is unavailable. See
+[`docs/stages/05-production-perception.md`](docs/stages/05-production-perception.md)
+for target-camera capture, training, and honest trained-model results.
 
 The three robot paths have different evidence:
 

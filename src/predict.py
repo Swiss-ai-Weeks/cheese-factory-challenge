@@ -296,6 +296,57 @@ class CheeseSorter:
         return [self._decode(p, latency) for p in probs]
 
 
+class HybridCheeseSorter:
+    """Use a fine-type model for display and a target-domain model for routing.
+
+    The fine classifier keeps the useful cheese vocabulary, while the direct
+    bin classifier owns the safety-critical actuator decision.  This avoids
+    forcing a weak fine-type prediction to select a bin.
+    """
+
+    def __init__(self, type_checkpoint, routing_checkpoint, device=None,
+                 min_confidence: float = 0.0, topk: int = 3,
+                 half: bool = True):
+        self._types = CheeseSorter(
+            type_checkpoint, device=device, min_confidence=0.0,
+            topk=topk, half=half,
+        )
+        self._routing = CheeseClassifier(
+            routing_checkpoint, device=device, min_confidence=0.0,
+            topk=topk, half=half,
+        )
+        self.min_confidence = min_confidence
+        self.types = self._types.types
+        allowed = set(self._types.bins) | set(REJECT_STATUS)
+        unexpected = sorted(set(self._routing.classes) - allowed)
+        if unexpected:
+            raise ValueError(f"classes de routage non prises en charge : {unexpected}")
+        self.bins = sorted(c for c in self._routing.classes if c.startswith("bin_"))
+        if not self.bins:
+            raise ValueError("le modele de routage ne contient aucun bac")
+
+    def warmup(self, iterations: int = 3) -> None:
+        self._types.warmup(iterations)
+        self._routing.warmup(iterations)
+
+    def predict(self, frame, box=None) -> SortResult:
+        t0 = time.perf_counter()
+        type_result = self._types.predict(frame, box)
+        route = self._routing.predict(frame, box)
+        latency = (time.perf_counter() - t0) * 1e3
+        if route.confidence < self.min_confidence:
+            status, destination = "uncertain", None
+        elif route.label in REJECT_STATUS:
+            status, destination = REJECT_STATUS[route.label], None
+        else:
+            status, destination = "ok", route.label
+        return SortResult(
+            status, destination, route.confidence,
+            type_result.cheese_type, type_result.type_confidence,
+            type_result.topk_types, latency,
+        )
+
+
 if __name__ == "__main__":
     import argparse, json
 

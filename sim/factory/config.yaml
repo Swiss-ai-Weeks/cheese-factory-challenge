@@ -22,6 +22,8 @@
   },
   "perception": {
     "model_path": "runs/sim_type13/best.pt",
+    "service_url": "http://host.docker.internal:8765",
+    "service_timeout_s": 60.0,
     "min_confidence": 0.55,
     "background_threshold": 32,
     "minimum_area_px": 180,

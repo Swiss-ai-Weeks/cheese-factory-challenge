@@ -56,7 +56,7 @@ def _print_progress(records: list[dict]) -> None:
 class CheeseFactorySample:
     """BaseSample-compatible owner of scene resources."""
 
-    def __init__(self, config: FactoryConfig):
+    def __init__(self, config: FactoryConfig, classifier_mode: str):
         from isaacsim.examples.base import BaseSample
 
         class _Sample(BaseSample):
@@ -65,7 +65,7 @@ class CheeseFactorySample:
         self._sample = _Sample()
         from sim.factory.scene import IsaacFactoryScene
 
-        self.scene = IsaacFactoryScene(config)
+        self.scene = IsaacFactoryScene(config, classifier_mode=classifier_mode)
         self._sample.setup_scene = self.scene.setup_scene
 
         async def post_load():
@@ -107,7 +107,7 @@ async def run(
 ) -> dict:
     import isaacsim.core.experimental.utils.app as app_utils
 
-    sample = CheeseFactorySample(factory_config)
+    sample = CheeseFactorySample(factory_config, classifier_mode)
     scene = sample.scene
     np.random.seed(factory_config.seed)
     output = factory_config.output_root
@@ -232,6 +232,7 @@ async def run(
                 release_gravity_enabled = False
                 for _ in range(timeout_steps):
                     alive = scene.task.step(1.0 / float(factory_config.raw["physics_hz"]))
+                    scene.sync_object_visual()
                     await app_utils.update_app_async()
                     status = scene.task.status()
                     if status.get("phase") == "RELEASE" and not release_gravity_enabled:
