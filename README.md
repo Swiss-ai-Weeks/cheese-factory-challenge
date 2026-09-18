@@ -256,6 +256,12 @@ model or the host inference service is unavailable. See
 [`docs/stages/05-production-perception.md`](docs/stages/05-production-perception.md)
 for target-camera capture, training, and honest trained-model results.
 
+For agent/UI integration, `sim/factory/control_server.py` exposes localhost-only
+health and latest-result reads. A fixed, bounded evaluation start is available
+only with an operator-provided token; NVIDIA's separate `isaacsim_mcp` remains
+a documentation and extension-search service, not a simulator control plane.
+See [`docs/stages/06-agent-ready-control.md`](docs/stages/06-agent-ready-control.md).
+
 The three robot paths have different evidence:
 
 - `sim/pick_line.py --scripte` is the reliable scripted reference state machine

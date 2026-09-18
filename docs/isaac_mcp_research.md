@@ -23,6 +23,12 @@ No API key is stored in this repository. The server's local index searches work
 without a key; an optional `NVIDIA_API_KEY` must be supplied only through the
 runtime environment if NVIDIA-hosted intelligence is desired.
 
+This MCP is a documentation and discovery service; it does not expose live USD
+stage mutation or factory controls. The separate localhost gateway documented
+in [`stages/06-agent-ready-control.md`](stages/06-agent-ready-control.md) keeps
+read-only monitoring open and places the single bounded run action behind an
+operator token.
+
 The required tools were listed and exercised:
 
 - `get_isaac_sim_instructions`
