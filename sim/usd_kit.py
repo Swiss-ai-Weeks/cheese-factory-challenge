@@ -215,6 +215,88 @@ def boite(stage, chemin, taille, centre, materiau=None):
     return c
 
 
+def boite_orientee(stage, chemin, taille, centre, materiau=None,
+                   rotation=(0.0, 0.0, 0.0)):
+    """Boite placee avec une rotation XYZ en degres.
+
+    Ce petit primitive suffit pour les toboggans, renforts et pare-chocs de la
+    ligne sans introduire de maillages lourds. La transformation reste locale
+    au Xform parent, ce qui permet de reorienter un module industriel complet.
+    """
+    c = UsdGeom.Cube.Define(stage, chemin)
+    c.CreateSizeAttr(1.0)
+    rx, ry, rz = rotation
+    rotation_q = (Gf.Rotation(Gf.Vec3d(1, 0, 0), rx) *
+                  Gf.Rotation(Gf.Vec3d(0, 1, 0), ry) *
+                  Gf.Rotation(Gf.Vec3d(0, 0, 1), rz))
+    UsdGeom.Xformable(c).AddTransformOp().Set(
+        Gf.Matrix4d().SetScale(Gf.Vec3d(*taille)) *
+        Gf.Matrix4d().SetRotate(rotation_q) *
+        Gf.Matrix4d().SetTranslate(Gf.Vec3d(*centre)))
+    if materiau is not None:
+        UsdShade.MaterialBindingAPI(c).Bind(materiau)
+    return c
+
+
+def module_reception(stage, chemin, centre, angle, couleur, z_sol,
+                     mat_inox, mat_tote, mat_sombre):
+    """Cree un module de reception alimentaire compact et reutilisable.
+
+    Le repere local pointe dans le sens de sortie du convoyeur (+X). Le bac
+    amovible reste sous le niveau de transfert, tandis qu'un toboggan incline
+    guide la piece depuis le bout du tapis. La couleur de classe n'est qu'un
+    code visuel (rive et bandeau), pas la matiere de tout le bac.
+    """
+    racine = UsdGeom.Xform.Define(stage, chemin)
+    UsdGeom.Xformable(racine).AddTransformOp().Set(
+        Gf.Matrix4d().SetRotate(Gf.Rotation(Gf.Vec3d(0, 0, 1), angle)) *
+        Gf.Matrix4d().SetTranslate(Gf.Vec3d(*centre)))
+
+    mat_accent = materiau_uni(stage, chemin + "/mat_accent", couleur,
+                              rugosite=0.42, metal=0.15)
+
+    # Chassis inox : quatre montants, traverses et pieds reglables.
+    for i, (x, y) in enumerate(((-0.31, -0.31), (-0.31, 0.31),
+                                (0.31, -0.31), (0.31, 0.31))):
+        boite(stage, f"{chemin}/chassis/montant_{i}", (0.045, 0.045, 0.68),
+              (x, y, z_sol + 0.36), mat_inox)
+        boite(stage, f"{chemin}/chassis/pied_{i}", (0.105, 0.105, 0.025),
+              (x, y, z_sol + 0.013), mat_sombre)
+    for i, y in enumerate((-0.31, 0.31)):
+        boite(stage, f"{chemin}/chassis/traverse_{i}", (0.70, 0.045, 0.045),
+              (0.0, y, z_sol + 0.12), mat_inox)
+
+    # Tote amovible, neutre et ouvert. Sa face avant porte le code couleur.
+    z_tote = z_sol + 0.30
+    boite(stage, chemin + "/tote/fond", (0.60, 0.58, 0.035),
+          (0.02, 0.0, z_sol + 0.08), mat_tote)
+    boite(stage, chemin + "/tote/avant", (0.035, 0.58, 0.46),
+          (-0.28, 0.0, z_tote), mat_tote)
+    boite(stage, chemin + "/tote/arriere", (0.035, 0.58, 0.46),
+          (0.32, 0.0, z_tote), mat_tote)
+    for i, y in enumerate((-0.29, 0.29)):
+        boite(stage, f"{chemin}/tote/cote_{i}", (0.60, 0.035, 0.46),
+              (0.02, y, z_tote), mat_tote)
+    boite(stage, chemin + "/tote/bandeau", (0.025, 0.46, 0.075),
+          (-0.301, 0.0, z_sol + 0.38), mat_accent)
+
+    # Entonnoir et rive de transfert, ouverts vers le convoyeur (-X).
+    boite_orientee(stage, chemin + "/chute/plaque", (0.50, 0.64, 0.025),
+                   (-0.43, 0.0, -0.16), mat_inox, rotation=(0, -18, 0))
+    for i, y in enumerate((-0.34, 0.34)):
+        boite_orientee(stage, f"{chemin}/chute/rive_{i}", (0.50, 0.035, 0.16),
+                       (-0.43, y, -0.09), mat_inox, rotation=(0, -18, 0))
+        boite(stage, f"{chemin}/chute/accent_{i}", (0.055, 0.045, 0.11),
+              (-0.68, y, -0.01), mat_accent)
+
+    # Pare-chocs basse energie et poignee du tote.
+    boite(stage, chemin + "/bumper", (0.09, 0.72, 0.13),
+          (0.43, 0.0, z_sol + 0.18), mat_sombre)
+    boite(stage, chemin + "/tote/poignee", (0.035, 0.25, 0.035),
+          (0.345, 0.0, z_sol + 0.43), mat_inox)
+    return racine
+
+
 def viser(op, oeil, cible, haut=Gf.Vec3d(0, 0, 1)):
     """Oriente un prim vers `cible` : la transforme camera est l'inverse de la vue."""
     op.Set(Gf.Matrix4d().SetLookAt(oeil, cible, haut).GetInverse())

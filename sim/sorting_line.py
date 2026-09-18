@@ -54,6 +54,8 @@ parser.add_argument("--max-frames", type=int, default=4000)
 parser.add_argument("--seed", type=int, default=3)
 parser.add_argument("--preview", action="store_true",
                     help="rend une vue d'ensemble et une inspection, classe, et sort")
+parser.add_argument("--usd-only", action="store_true",
+                    help="construit et exporte la scene USD sans rendu ni classifieur")
 parser.add_argument("--cam-azimut", type=float, default=-90.0)
 parser.add_argument("--cam-elevation", type=float, default=42.0)
 parser.add_argument("--cam-distance", type=float, default=9.2)
@@ -73,7 +75,7 @@ from pxr import UsdGeom, UsdShade, UsdLux, Gf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from usd_kit import (Tapis, boite, disque, emettre, materiau_texture, materiau_uni,
-                     orbite, quad, viser)
+                     module_reception, orbite, quad, viser)
 
 # --------------------------------------------------------------------------
 # plan de la ligne
@@ -123,6 +125,10 @@ boite(stage, "/World/sol", (60.0, 60.0, 0.10), (0, 0, Z_SOL - 0.05), mat_sol)
 
 mat_pied = materiau_uni(stage, "/World/mat_pied", (0.26, 0.27, 0.30), rugosite=0.4, metal=0.6)
 mat_assiette = materiau_uni(stage, "/World/mat_assiette", (0.90, 0.90, 0.88), rugosite=0.25)
+mat_inox = materiau_uni(stage, "/World/mat_inox", (0.46, 0.49, 0.52), rugosite=0.28, metal=0.82)
+mat_tote = materiau_uni(stage, "/World/mat_tote", (0.19, 0.22, 0.25), rugosite=0.68, metal=0.05)
+mat_sombre = materiau_uni(stage, "/World/mat_sombre", (0.055, 0.065, 0.075), rugosite=0.72)
+mat_marquage = materiau_uni(stage, "/World/mat_marquage", (0.72, 0.64, 0.18), rugosite=0.82)
 
 
 def pieds(chemin, points, hauteur=0.9):
@@ -173,28 +179,32 @@ for k, (cle, x_station, cote) in enumerate(VOIES):
     lame = boite(stage, f"/World/lame_{cle}", (0.05, LONG_LAME, 0.14), (0, 0, 0), mat_lame)
     op_lame = UsdGeom.Xformable(lame).GetOrderedXformOps()[0]
 
-    # bac de reception, ouvert sur le dessus
+    # module de reception alimentaire : chassis inox, chute, tote amovible.
     cx, cy = point(U_BAC)
-    mat_bac = materiau_uni(stage, f"/World/mat_bac_{cle}", COULEURS[cle], rugosite=0.55)
     base = f"/World/bac_{cle}"
-    UsdGeom.Xform.Define(stage, base)
-    H_BAC = Z_SOL + 0.04          # du sol au bord superieur
-    Z_BAC = (Z_SOL + (-0.06)) / 2
-    boite(stage, base + "/fond", (0.86, 0.86, 0.04), (cx, cy, Z_SOL + 0.02), mat_bac)
-    for j, (sx, sy) in enumerate(((0.43, 0.0), (-0.43, 0.0), (0.0, 0.43), (0.0, -0.43))):
-        taille = (0.04, 0.86, 0.89) if sy == 0 else (0.86, 0.04, 0.89)
-        boite(stage, base + f"/mur_{j}", taille, (cx + sx, cy + sy, Z_BAC), mat_bac)
+    module_reception(stage, base, (cx, cy, 0.0), angle, COULEURS[cle], Z_SOL,
+                     mat_inox, mat_tote, mat_sombre)
+
+    # Marquage au sol discret, aligne sur le module (deux coins de zone).
+    for j, lat in enumerate((-0.48, 0.48)):
+        mx, my = point(U_BAC + 0.18, lat)
+        marque = boite(stage, f"/World/marquage_{cle}_{j}", (0.48, 0.035, 0.008),
+                       (0, 0, 0), mat_marquage)
+        UsdGeom.Xformable(marque).GetOrderedXformOps()[0].Set(
+            Gf.Matrix4d().SetScale(Gf.Vec3d(0.48, 0.035, 0.008)) *
+            Gf.Matrix4d().SetRotate(Gf.Rotation(Gf.Vec3d(0, 0, 1), angle)) *
+            Gf.Matrix4d().SetTranslate(Gf.Vec3d(mx, my, Z_SOL + 0.006)))
 
     # panneau : Isaac Sim ne sait pas ecrire, le texte est une texture. Tous
     # font face a la camera d'ensemble, sinon ceux du fond seraient de dos.
-    panneau = quad(stage, base + "/panneau")
-    mat_p, _ = materiau_texture(stage, base + "/mat_panneau",
+    panneau = quad(stage, f"/World/panneau_{cle}")
+    mat_p, _ = materiau_texture(stage, f"/World/mat_panneau_{cle}",
                                 str(Path(args.panneaux) / f"{cle}.png"))
     UsdShade.MaterialBindingAPI(panneau).Bind(mat_p)
     UsdGeom.Xformable(panneau).AddTransformOp().Set(
-        Gf.Matrix4d().SetScale(Gf.Vec3d(0.92, 0.29, 1.0)) *
+        Gf.Matrix4d().SetScale(Gf.Vec3d(0.76, 0.24, 1.0)) *
         Gf.Matrix4d().SetRotate(Gf.Rotation(Gf.Vec3d(1, 0, 0), 90.0)) *
-        Gf.Matrix4d().SetTranslate(Gf.Vec3d(cx, cy - 0.44, 0.24)))
+        Gf.Matrix4d().SetTranslate(Gf.Vec3d(cx, cy - 0.40, 0.18)))
 
     voies[cle] = {"tapis": tapis, "direction": direction, "angle": angle,
                   "x": x_station, "lame": op_lame, "etat_lame": 0.0,
@@ -304,6 +314,22 @@ for i, info in enumerate(infos):
     pieces[-1]["vis"].MakeInvisible()
 
 print(f"{len(pieces)} pieces chargees, {len(VOIES)} voies de sortie", flush=True)
+
+# Validation rapide des assets : construit exactement le meme stage que la
+# demo, puis sort avant Replicator et le serveur de classification. Ce chemin
+# reste utilisable pendant la mise au point des modeles ou sur une machine sans
+# donnees d'entrainement locales.
+if args.usd_only:
+    sortie = Path(args.out)
+    sortie.mkdir(parents=True, exist_ok=True)
+    chemin_usd = sortie / "sorting_line.usda"
+    if not stage.GetRootLayer().Export(str(chemin_usd)):
+        print(f"echec export USD: {chemin_usd}", flush=True)
+        app.close()
+        raise SystemExit(1)
+    print(f"scene USD exportee: {chemin_usd}", flush=True)
+    app.close()
+    raise SystemExit(0)
 
 # --------------------------------------------------------------------------
 # rendu
