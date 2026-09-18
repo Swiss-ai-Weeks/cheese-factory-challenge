@@ -62,3 +62,20 @@ The robot-control path was reliable when actuated; perception of rare cheese
 families is the limiting factor. See
 [`stages/05-production-perception.md`](stages/05-production-perception.md) for
 the leak-free adaptation protocol and offline metrics.
+
+## Stage 8 validation-only result
+
+Stage 8 evaluated controlled rare-bin training changes against the immutable
+300-image target-camera validation slice. None passed the predeclared yield,
+coverage, and foreign-object safety gate. The accepted checkpoint remains
+`runs/sim_bin_adapt_v2/best.pt`; its validation correct-and-confident rate is
+0.6967, macro-F1 is 0.4010, coverage is 0.8867, and foreign safe rejection is
+0.9425 at threshold 0.55.
+
+Because there was no validation winner, Stage 8 did not inspect the target test
+split and did not rerun either the one-object smoke or the 11-object Isaac
+scenario. The trained-model integration results above are therefore unchanged,
+not superseded. See
+[`stages/08-rare-bin-perception.md`](stages/08-rare-bin-perception.md) for the
+complete experiment table, selection criterion, per-class limitations, and
+reproduction commands.

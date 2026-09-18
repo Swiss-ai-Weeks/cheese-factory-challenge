@@ -28,6 +28,9 @@ sim/_essai_*.py
 runs/**/*.pt
 runs/**/*.onnx
 runs/**/*.onnx.data
+# Validation-only Stage 8 candidates are retained locally, never versioned.
+runs/sim_bin_stage8_*/
+runs/stage8_baselines/
 
 # environnement
 .venv/

@@ -54,6 +54,11 @@ TASKS = {
     "texture": (("cheese_hidb", "food_recognition"), "texture"),
     # rendus Isaac Sim : meme tache que `bin`, mais dans le domaine cible
     "sim_bin": (("sim_belt",), "label"),
+    # Tete fromage-seulement d'un routeur en deux etages. Les lignes de rejet
+    # sont exclues en laissant cette etiquette vide.
+    "sim_bin_cheese": (("sim_belt",), "bin_cheese"),
+    # Premier etage du meme routeur : fromage, objet etranger, ou tapis vide.
+    "sim_gate": (("sim_belt",), "route_gate"),
     # variante sans les classes de rejet, pour mesurer ce que le rejet coute
     # sur la tache fromage a decoupage identique
     "sim_type_cheese": (("sim_belt",), "fr_type_cheese"),
@@ -75,6 +80,9 @@ def load_manifest(manifest: Path | None = None) -> list[dict]:
         row["texture"] = extra.get("texture") or ""
         row["product"] = extra.get("product") or ""
         row["ripeness"] = extra.get("ripeness") or ""
+        # Keep the capture domain available to samplers.  Historical manifests
+        # do not carry this key, so their source name is the stable fallback.
+        row["domain"] = extra.get("domain") or row["source"]
         row["source_label"] = f"{row['source']}/{row['label']}"
         row["bin"] = BIN_OF_FR_LABEL.get(row["label"], "") if row["source"] == "food_recognition" else ""
         # Sur les rendus, `label` est deja le bac et le type fin vit dans extra.
@@ -84,8 +92,12 @@ def load_manifest(manifest: Path | None = None) -> list[dict]:
         if row["source"] == "sim_belt":
             row["fr_type"] = (row["label"] if row["label"] in REJECT_LABELS
                               else extra.get("fr_label", ""))
+            row["bin_cheese"] = "" if row["label"] in REJECT_LABELS else row["label"]
+            row["route_gate"] = row["label"] if row["label"] in REJECT_LABELS else "cheese"
         else:
             row["fr_type"] = ""
+            row["bin_cheese"] = ""
+            row["route_gate"] = ""
         # meme chose, mais vide sur les classes de rejet : build_label_space
         # ecarte les lignes sans etiquette, donc la tache porte sur les fromages seuls
         row["fr_type_cheese"] = ("" if row["fr_type"] in REJECT_LABELS

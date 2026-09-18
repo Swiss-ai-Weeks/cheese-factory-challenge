@@ -19,6 +19,7 @@ import numpy as np
 import timm
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader, WeightedRandomSampler
 
 from dataset import (PROCESSED, CheeseDataset, TASKS, build_label_space,
@@ -41,15 +42,64 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--label-smoothing", type=float, default=0.1)
     p.add_argument("--min-per-class", type=int, default=1,
                    help="ecarte les classes sous ce nombre d'images")
-    p.add_argument("--balanced-sampler", action="store_true",
-                   help="echantillonnage inversement proportionnel a la frequence")
+    sampling = p.add_mutually_exclusive_group()
+    sampling.add_argument("--balanced-sampler", action="store_true",
+                          help="echantillonnage inversement proportionnel a la frequence")
+    sampling.add_argument(
+        "--domain-balanced-sampler", action="store_true",
+        help=("equilibre les classes, puis les domaines presents dans chaque classe "
+              "(ex. rendu source et camera usine)"),
+    )
+    p.add_argument("--loss", choices=("cross_entropy", "focal"),
+                   default="cross_entropy")
+    p.add_argument("--focal-gamma", type=float, default=2.0)
+    p.add_argument("--skip-test", action="store_true",
+                   help="n'evalue pas le split test apres l'entrainement")
     p.add_argument("--workers", type=int, default=16)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--no-pretrained", action="store_true")
+    p.add_argument("--init-checkpoint",
+                   help="initialise depuis un checkpoint compatible avant adaptation")
     p.add_argument("--out", default=None, help="dossier de sortie (defaut: runs/<task>)")
     p.add_argument("--manifest", default=None,
                    help="manifeste alternatif, ex. data/processed/manifest_sim.csv")
     return p.parse_args()
+
+
+class FocalLoss(nn.Module):
+    """Multi-class focal loss with the same label smoothing as the baseline."""
+
+    def __init__(self, gamma: float, label_smoothing: float = 0.0):
+        super().__init__()
+        if gamma < 0:
+            raise ValueError("focal gamma must be non-negative")
+        self.gamma = float(gamma)
+        self.label_smoothing = float(label_smoothing)
+
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        cross_entropy = F.cross_entropy(
+            logits, targets, reduction="none", label_smoothing=self.label_smoothing,
+        )
+        target_probability = torch.softmax(logits, dim=1).gather(1, targets[:, None]).squeeze(1)
+        return (((1.0 - target_probability) ** self.gamma) * cross_entropy).mean()
+
+
+def domain_balanced_weights(dataset: CheeseDataset, n_classes: int) -> np.ndarray:
+    """Give every class equal mass, split equally across its observed domains."""
+    targets = np.asarray(dataset.targets)
+    domains = np.asarray([row["domain"] for row in dataset.rows], dtype=object)
+    weights = np.zeros(len(targets), dtype=np.float64)
+    for target in range(n_classes):
+        class_mask = targets == target
+        class_domains = sorted(set(domains[class_mask]))
+        if not class_domains:
+            continue
+        for domain in class_domains:
+            stratum = class_mask & (domains == domain)
+            weights[stratum] = 1.0 / (len(class_domains) * int(stratum.sum()))
+    if not np.all(weights > 0):
+        raise ValueError("domain-balanced sampler found an empty training stratum")
+    return weights
 
 
 @torch.no_grad()
@@ -122,6 +172,11 @@ def main() -> int:
         sampler = WeightedRandomSampler(torch.as_tensor(weights, dtype=torch.double),
                                         num_samples=len(weights), replacement=True)
         shuffle = False
+    elif args.domain_balanced_sampler:
+        weights = domain_balanced_weights(sets["train"], len(classes))
+        sampler = WeightedRandomSampler(torch.as_tensor(weights, dtype=torch.double),
+                                        num_samples=len(weights), replacement=True)
+        shuffle = False
 
     loaders = {
         "train": DataLoader(sets["train"], batch_size=args.batch_size, shuffle=shuffle,
@@ -134,11 +189,28 @@ def main() -> int:
            for s in ("val", "test") if len(sets[s])},
     }
 
-    model = timm.create_model(args.model, pretrained=not args.no_pretrained,
+    model = timm.create_model(args.model,
+                              pretrained=not args.no_pretrained and not args.init_checkpoint,
                               num_classes=len(classes))
+    if args.init_checkpoint:
+        initial = torch.load(args.init_checkpoint, map_location="cpu", weights_only=False)
+        expected = {
+            "model_name": args.model,
+            "classes": classes,
+            "img_size": args.img_size,
+        }
+        observed = {key: initial.get(key) for key in expected}
+        if observed != expected:
+            raise ValueError(
+                f"incompatible initial checkpoint: expected {expected}, observed {observed}"
+            )
+        model.load_state_dict(initial["state_dict"])
     model = model.to(device, memory_format=torch.channels_last)
 
-    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
+    if args.loss == "focal":
+        criterion = FocalLoss(args.focal_gamma, args.label_smoothing)
+    else:
+        criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr,
                                   weight_decay=args.weight_decay)
 
@@ -209,7 +281,7 @@ def main() -> int:
             }, out_dir / "best.pt")
 
     result = {"best_val": best, "history": history}
-    if "test" in loaders and len(sets["test"]):
+    if not args.skip_test and "test" in loaders and len(sets["test"]):
         ckpt = torch.load(out_dir / "best.pt", map_location=device, weights_only=False)
         model.load_state_dict(ckpt["state_dict"])
         test = evaluate(model, loaders["test"], device, len(classes), criterion)

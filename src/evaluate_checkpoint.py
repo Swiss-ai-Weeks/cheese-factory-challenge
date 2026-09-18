@@ -58,6 +58,50 @@ def main() -> int:
     confidence = probabilities.max(axis=1)
     covered = confidence >= args.min_confidence
     names = classifier.classes
+    correct = predictions == labels
+
+    def quantiles(values: np.ndarray) -> dict[str, float] | None:
+        if not len(values):
+            return None
+        points = (0.1, 0.25, 0.5, 0.75, 0.9)
+        return {
+            f"q{int(point * 100):02d}": float(value)
+            for point, value in zip(points, np.quantile(values, points), strict=True)
+        }
+
+    per_class_confidence = {}
+    for index, name in enumerate(names):
+        mask = labels == index
+        class_covered = mask & covered
+        per_class_confidence[name] = {
+            "support": int(mask.sum()),
+            "coverage": float(covered[mask].mean()) if mask.any() else None,
+            "covered_accuracy": (
+                float(correct[class_covered].mean()) if class_covered.any() else None
+            ),
+            "correct_and_confident_rate": (
+                float((correct[mask] & covered[mask]).mean()) if mask.any() else None
+            ),
+            "confidence_quantiles": quantiles(confidence[mask]),
+        }
+
+    foreign_mask = labels == names.index("not_cheese") if "not_cheese" in names else None
+    if foreign_mask is not None and foreign_mask.any():
+        reject_indices = {
+            index for index, name in enumerate(names) if name in {"empty", "not_cheese"}
+        }
+        actionable = covered & np.asarray(
+            [prediction not in reject_indices for prediction in predictions]
+        )
+        unsafe_foreign = foreign_mask & actionable
+        foreign_safety = {
+            "support": int(foreign_mask.sum()),
+            "unsafe_actionable": int(unsafe_foreign.sum()),
+            "safe_rejection_rate": float(1.0 - unsafe_foreign.sum() / foreign_mask.sum()),
+        }
+    else:
+        foreign_safety = None
+
     result = {
         "checkpoint": str(args.checkpoint),
         "manifest": str(args.manifest),
@@ -71,6 +115,14 @@ def main() -> int:
         "covered_accuracy": (
             float((predictions[covered] == labels[covered]).mean()) if covered.any() else None
         ),
+        "correct_and_confident_rate": float((correct & covered).mean()),
+        "confidence_quantiles": {
+            "all": quantiles(confidence),
+            "correct": quantiles(confidence[correct]),
+            "incorrect": quantiles(confidence[~correct]),
+        },
+        "per_class_confidence": per_class_confidence,
+        "foreign_object_safety": foreign_safety,
         "classes": names,
         "confusion_matrix": confusion_matrix(
             labels, predictions, labels=list(range(len(names)))
