@@ -11,6 +11,7 @@ import numpy as np
 
 from .config import PROJECT_ROOT, FactoryConfig
 from .controller import create_perception_pick_place_task
+from .layout import BELT_CENTER_XY, BELT_SIZE_XY, RECEIVER_SIZE_XY
 from .perception import DEVELOPMENT_PALETTE
 
 
@@ -46,6 +47,7 @@ class IsaacFactoryScene:
         self._carrier_piece_transform = None
         self._held_out_textures: dict[str, list[Path]] = {}
         self._texture_indices: dict[str, int] = defaultdict(int)
+        self._overview_camera_path = "/World/OverviewCamera"
 
     def setup_scene(self) -> None:
         from isaacsim.core.experimental.objects import Cube
@@ -57,44 +59,38 @@ class IsaacFactoryScene:
         self.task.setup_scene()
         print("FACTORY_SCENE robot_reference_done", flush=True)
         belt = self.config.section("belt")
+        stage = stage_utils.get_current_stage()
+        self._create_factory_shell(stage)
         self._authored.append(
             Cube(
                 "/World/Conveyor",
-                positions=[0.50, -0.30, float(belt["plane_z"]) / 2.0],
+                positions=[*BELT_CENTER_XY, float(belt["plane_z"]) / 2.0],
                 sizes=1.0,
-                scales=[0.38, 1.45, float(belt["plane_z"])],
-                colors=[0.12, 0.16, 0.19],
+                scales=[*BELT_SIZE_XY, float(belt["plane_z"])],
+                colors=[0.055, 0.075, 0.09],
             )
         )
-        # The rendered belt is wider than the cargo lane and visually passes
-        # under two bins. Use a narrow invisible collider under only the cargo
-        # path so cuMotion does not interpret remote bin approaches as blocked.
+        # Keep collision confined to the cargo lane so the arm has a feasible
+        # descent corridor to every receiver. The visible belt uses the same
+        # non-overlapping footprint; there is no hidden visual/physics mismatch.
         self._authored.append(
             Cube(
                 "/World/ConveyorCollider",
-                positions=[0.50, -0.30, float(belt["plane_z"]) / 2.0],
+                positions=[*BELT_CENTER_XY, float(belt["plane_z"]) / 2.0],
                 sizes=1.0,
-                scales=[0.14, 1.45, float(belt["plane_z"])],
+                scales=[0.12, BELT_SIZE_XY[1], float(belt["plane_z"])],
             )
         )
-        conveyor_collider = stage_utils.get_current_stage().GetPrimAtPath("/World/ConveyorCollider")
+        conveyor_collider = stage.GetPrimAtPath("/World/ConveyorCollider")
         UsdPhysics.CollisionAPI.Apply(conveyor_collider)
         UsdGeom.Imageable(conveyor_collider).MakeInvisible()
         for name, position in self.config.bins.items():
-            self._create_bin(name, position, BIN_COLORS[name])
+            self._create_bin(stage, name, position, BIN_COLORS[name])
         reject = tuple(float(v) for v in self.config.raw["reject_position"])
-        self._authored.append(
-            Cube(
-                "/World/RejectChute",
-                positions=[reject[0], reject[1], 0.015],
-                sizes=1.0,
-                scales=[0.20, 0.22, 0.03],
-                colors=[0.42, 0.08, 0.08],
-            )
-        )
-        UsdPhysics.CollisionAPI.Apply(stage_utils.get_current_stage().GetPrimAtPath("/World/RejectChute"))
+        self._create_bin(stage, "reject", reject, (0.72, 0.10, 0.08))
+        UsdPhysics.CollisionAPI.Apply(stage.GetPrimAtPath("/World/Bins/reject/Floor"))
         if self.classifier_mode == "model":
-            self._create_model_visual(stage_utils.get_current_stage())
+            self._create_model_visual(stage)
         camera = self.config.section("camera")
         authoring = RtxCamera(
             camera["prim_path"],
@@ -113,6 +109,115 @@ class IsaacFactoryScene:
         self._camera_authoring = authoring
         self._camera_resolution = tuple(int(v) for v in camera["resolution"])
         print("FACTORY_SCENE authored", flush=True)
+
+    def _create_factory_shell(self, stage) -> None:
+        """Author the shared industrial cell around the physics-critical task."""
+        from pxr import Gf, UsdGeom, UsdLux
+        from sim.usd_kit import boite, boite_orientee, materiau_uni, viser
+
+        dark = materiau_uni(stage, "/World/FactoryMaterials/Dark", (0.055, 0.065, 0.078), 0.72, 0.18)
+        steel = materiau_uni(stage, "/World/FactoryMaterials/Steel", (0.36, 0.40, 0.44), 0.27, 0.82)
+        safety = materiau_uni(stage, "/World/FactoryMaterials/Safety", (0.98, 0.63, 0.04), 0.48, 0.08)
+        floor = materiau_uni(stage, "/World/FactoryMaterials/Floor", (0.105, 0.12, 0.14), 0.92, 0.02)
+        lens = materiau_uni(stage, "/World/FactoryMaterials/Lens", (0.04, 0.16, 0.24), 0.18, 0.55)
+
+        # A thin visual deck sits just above the default task ground plane so
+        # the live viewport reads as one machine cell instead of the editor grid.
+        boite(stage, "/World/Factory/Floor", (3.2, 3.0, 0.03), (0.35, -0.05, -0.01), floor)
+        for side, x in (("west", -1.18), ("east", 1.88)):
+            boite(stage, f"/World/Factory/SafetyBoundary/{side}", (0.035, 2.55, 0.008), (x, -0.05, 0.009), safety)
+        for side, y in (("south", -1.31), ("north", 1.21)):
+            boite(stage, f"/World/Factory/SafetyBoundary/{side}", (3.1, 0.035, 0.008), (0.35, y, 0.009), safety)
+
+        belt_x, belt_y = BELT_CENTER_XY
+        belt_w, belt_l = BELT_SIZE_XY
+        for side, x in (("left", belt_x - belt_w / 2 + 0.012), ("right", belt_x + belt_w / 2 - 0.012)):
+            boite(stage, f"/World/Factory/Conveyor/{side}_rail", (0.018, belt_l, 0.075), (x, belt_y, 0.055), steel)
+        for index in range(11):
+            y = belt_y - belt_l / 2 + 0.055 + index * ((belt_l - 0.11) / 10)
+            boite(stage, f"/World/Factory/Conveyor/slat_{index:02d}", (belt_w - 0.035, 0.009, 0.008), (belt_x, y, 0.034), steel)
+        for index, y in enumerate((belt_y - belt_l / 2 + 0.08, belt_y + belt_l / 2 - 0.08)):
+            for side, x in (("left", belt_x - 0.12), ("right", belt_x + 0.12)):
+                boite(stage, f"/World/Factory/Conveyor/leg_{index}_{side}", (0.035, 0.035, 0.24), (x, y, -0.10), steel)
+                boite(stage, f"/World/Factory/Conveyor/foot_{index}_{side}", (0.09, 0.09, 0.018), (x, y, -0.215), dark)
+
+        # Inspection portal: camera housing, work lights and guarded pick zone.
+        for side, x in (("left", 0.31), ("right", 0.69)):
+            boite(stage, f"/World/Factory/Inspection/{side}_post", (0.045, 0.055, 1.18), (x, 0.08, 0.57), steel)
+            boite(stage, f"/World/Factory/Inspection/{side}_guard", (0.025, 0.34, 0.20), (x, -0.08, 0.13), safety)
+        boite(stage, "/World/Factory/Inspection/crossbeam", (0.45, 0.06, 0.065), (0.50, 0.08, 1.13), steel)
+        # The housing is intentionally offset behind the virtual calibrated
+        # camera. Placing decoration on the optical axis occludes perception.
+        boite(stage, "/World/Factory/Inspection/camera_body", (0.16, 0.13, 0.10), (0.50, 0.22, 1.03), dark)
+        boite(stage, "/World/Factory/Inspection/camera_lens", (0.065, 0.065, 0.035), (0.50, 0.15, 0.99), lens)
+        for side, x in (("left", 0.38), ("right", 0.62)):
+            lamp = UsdLux.SphereLight.Define(stage, f"/World/Factory/Inspection/{side}_light")
+            lamp.CreateRadiusAttr(0.035)
+            lamp.CreateIntensityAttr(600.0)
+            lamp.CreateColorAttr(Gf.Vec3f(1.0, 0.94, 0.82))
+            UsdGeom.Xformable(lamp).AddTranslateOp().Set(Gf.Vec3d(x, -0.03, 0.96))
+
+        # A raised operator beacon makes the running cell readable from the overview.
+        boite(stage, "/World/Factory/Beacon/post", (0.045, 0.045, 0.72), (-0.30, -0.58, 0.32), steel)
+        for index, (z, color) in enumerate(((0.72, (0.08, 0.75, 0.28)), (0.80, (0.98, 0.66, 0.05)), (0.88, (0.86, 0.08, 0.05)))):
+            material = materiau_uni(stage, f"/World/Factory/Beacon/mat_{index}", color, 0.25, 0.12)
+            boite(stage, f"/World/Factory/Beacon/lamp_{index}", (0.09, 0.09, 0.065), (-0.30, -0.58, z), material)
+
+        dome = UsdLux.DomeLight.Define(stage, "/World/Factory/DomeLight")
+        dome.CreateIntensityAttr(180.0)
+        key = UsdLux.RectLight.Define(stage, "/World/Factory/KeyLight")
+        key.CreateIntensityAttr(4000.0)
+        key.CreateWidthAttr(1.6)
+        key.CreateHeightAttr(1.1)
+        UsdGeom.Xformable(key).AddTranslateOp().Set(Gf.Vec3d(0.45, -0.35, 2.45))
+
+        camera = UsdGeom.Camera.Define(stage, self._overview_camera_path)
+        camera.CreateFocalLengthAttr(31.0)
+        camera.CreateClippingRangeAttr(Gf.Vec2f(0.05, 100.0))
+        viser(
+            UsdGeom.Xformable(camera).AddTransformOp(),
+            Gf.Vec3d(2.35, -2.55, 1.85),
+            Gf.Vec3d(0.30, -0.02, 0.30),
+        )
+
+    def _create_bin(self, stage, name: str, position: tuple[float, float, float], color: tuple[float, float, float]) -> None:
+        from isaacsim.core.experimental.objects import Cube
+        from pxr import Gf, UsdGeom, UsdShade
+        from sim.usd_kit import boite, materiau_texture, materiau_uni, quad
+
+        x, y, _ = position
+        root = f"/World/Bins/{name}"
+        tray_color = tuple(max(0.045, component * 0.28) for component in color)
+        accent = materiau_uni(stage, f"{root}/AccentMaterial", color, 0.38, 0.18)
+        steel = materiau_uni(stage, f"{root}/SteelMaterial", (0.32, 0.35, 0.38), 0.32, 0.72)
+        dark = materiau_uni(stage, f"{root}/DarkMaterial", (0.07, 0.08, 0.095), 0.78, 0.06)
+
+        self._authored.append(Cube(f"{root}/Floor", positions=[x, y, 0.012], sizes=1.0, scales=[0.14, 0.14, 0.024], colors=tray_color))
+        for suffix, offset, scale in (
+            ("Left", (-0.075, 0.0, 0.065), (0.015, 0.16, 0.13)),
+            ("Right", (0.075, 0.0, 0.065), (0.015, 0.16, 0.13)),
+            ("Back", (0.0, 0.075, 0.065), (0.16, 0.015, 0.13)),
+        ):
+            self._authored.append(Cube(f"{root}/{suffix}", positions=[x + offset[0], y + offset[1], offset[2]], sizes=1.0, scales=scale, colors=tray_color))
+
+        # Compact stainless receiver frame with a replaceable dark tote.
+        boite(stage, f"{root}/Station/base", (RECEIVER_SIZE_XY[0], RECEIVER_SIZE_XY[1], 0.026), (x, y, -0.015), steel)
+        for index, (dx, dy) in enumerate(((-0.072, -0.072), (-0.072, 0.072), (0.072, -0.072), (0.072, 0.072))):
+            boite(stage, f"{root}/Station/leg_{index}", (0.018, 0.018, 0.16), (x + dx, y + dy, -0.095), steel)
+            boite(stage, f"{root}/Station/foot_{index}", (0.042, 0.042, 0.012), (x + dx, y + dy, -0.18), dark)
+        boite(stage, f"{root}/Station/accent", (0.155, 0.018, 0.035), (x, y - 0.084, 0.045), accent)
+        boite(stage, f"{root}/Station/sign_post", (0.018, 0.018, 0.31), (x, y + 0.095, 0.19), steel)
+
+        label_path = PROJECT_ROOT / "sim" / "labels" / f"{name}.png"
+        label = quad(stage, f"{root}/Station/label")
+        label_material, _ = materiau_texture(stage, f"{root}/Station/LabelMaterial", str(label_path))
+        UsdShade.MaterialBindingAPI(label).Bind(label_material)
+        UsdGeom.Xformable(label).AddTransformOp().Set(
+            Gf.Matrix4d().SetScale(Gf.Vec3d(0.17, 0.055, 1.0))
+            * Gf.Matrix4d().SetRotate(Gf.Rotation(Gf.Vec3d(1, 0, 0), 90.0))
+            * Gf.Matrix4d().SetTranslate(Gf.Vec3d(x, y + 0.087, 0.30))
+        )
+        stage.GetPrimAtPath(f"{root}/Floor").SetCustomDataByKey("factory_bin", name)
 
     def _create_model_visual(self, stage) -> None:
         """Author the same carrier/cutout representation used for training."""
@@ -197,30 +302,6 @@ class IsaacFactoryScene:
         )
         UsdGeom.Imageable(self._carrier_root).MakeVisible()
 
-    def _create_bin(self, name: str, position: tuple[float, float, float], color: tuple[float, float, float]) -> None:
-        from isaacsim.core.experimental.objects import Cube
-        from isaacsim.core.experimental.utils import stage as stage_utils
-
-        x, y, _ = position
-        root = f"/World/Bins/{name}"
-        self._authored.append(Cube(f"{root}/Floor", positions=[x, y, 0.012], sizes=1.0, scales=[0.18, 0.18, 0.024], colors=color))
-        for suffix, offset, scale in (
-            ("Left", (-0.10, 0.0, 0.07), (0.02, 0.22, 0.14)),
-            ("Right", (0.10, 0.0, 0.07), (0.02, 0.22, 0.14)),
-            ("Back", (0.0, 0.10, 0.07), (0.22, 0.02, 0.14)),
-        ):
-            self._authored.append(
-                Cube(
-                    f"{root}/{suffix}",
-                    positions=[x + offset[0], y + offset[1], offset[2]],
-                    sizes=1.0,
-                    scales=scale,
-                    colors=color,
-                )
-            )
-        stage = stage_utils.get_current_stage()
-        stage.GetPrimAtPath(f"{root}/Floor").SetCustomDataByKey("factory_bin", name)
-
     async def initialize(self) -> None:
         # The cargo lane and reject chute have static collision geometry. Bin
         # walls stay visual so the maintained Franka task has a feasible
@@ -246,6 +327,12 @@ class IsaacFactoryScene:
             eye=self.config.section("camera")["position"],
             target=[0.50, 0.00, float(self.config.section("belt")["plane_z"])],
         )
+        from omni.kit.viewport.utility import get_active_viewport
+
+        viewport = get_active_viewport()
+        if viewport is not None:
+            viewport.set_active_camera(self._overview_camera_path)
+            print(f"FACTORY_OVERVIEW camera={self._overview_camera_path}", flush=True)
         app_utils.play(commit=True)
         await app_utils.update_app_async()
         camera_position, camera_orientation = self.camera_pose()

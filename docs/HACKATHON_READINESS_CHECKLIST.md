@@ -19,7 +19,7 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/10-runtime-identity.md`](stages/10-runtime-identity.md).
 
-- [ ] **P0.2 — Replace the overlapping canonical layout.** The live `sim/factory`
+- [x] **P0.2 — Replace the overlapping canonical layout.** The live `sim/factory`
   scene places two receiving bins inside the conveyor footprint and looks materially
   less complete than `sim/sorting_line.py`. Rebuild the canonical scene with a clear
   inspection zone, non-overlapping transfer/output lanes, industrial receiving
@@ -28,6 +28,8 @@ not evidence of model accuracy.
   disconnected design.
   **Accept when:** geometry tests prove clearance; overview and inspection renders show
   every station clearly; no bin, robot or cheese intersects the conveyor at rest.
+  **Completed:** commit documented in
+  [`docs/stages/11-industrial-live-cell.md`](stages/11-industrial-live-cell.md).
 
 - [ ] **P0.3 — Make robot work unmistakable.** In trained-model mode, rejected or
   uncertain decisions suppress most picks, so the arm appears idle even when control is
