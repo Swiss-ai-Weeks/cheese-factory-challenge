@@ -27,6 +27,9 @@ else:
 
 ## 📖 Documentation
 
+The corrective integration and demo acceptance plan is tracked in
+[`docs/HACKATHON_READINESS_CHECKLIST.md`](docs/HACKATHON_READINESS_CHECKLIST.md).
+
 **The full documentation is an Obsidian vault in [`vault/`](vault/).**
 Open that folder in Obsidian (*Open folder as vault*) — 52 linked notes, 11 figures and a
 visual canvas. It also reads fine as plain Markdown on GitHub.
