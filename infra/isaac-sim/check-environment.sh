@@ -45,9 +45,9 @@ else
 fi
 
 if curl -fsS --max-time 5 http://127.0.0.1:18000/health >/dev/null 2>&1; then
-  pass "H200 Qwen model endpoint: healthy"
+  pass "optional H200 Qwen endpoint: healthy"
 else
-  fail "H200 Qwen model endpoint: unavailable at 127.0.0.1:18000"
+  warn "optional H200 Qwen endpoint is offline (not required by the factory)"
 fi
 
 if [[ -x "$PROJECT_ROOT/.venv/bin/python" ]]; then
@@ -62,6 +62,25 @@ if [[ -f "$PROJECT_ROOT/runs/sim_type13/best.pt" ]]; then
   pass "trained checkpoint present: runs/sim_type13/best.pt"
 else
   warn "trained checkpoint missing: runs/sim_type13/best.pt"
+fi
+
+if [[ -f "$PROJECT_ROOT/runs/sim_bin_adapt_v2/best.pt" ]]; then
+  pass "routing checkpoint present: runs/sim_bin_adapt_v2/best.pt"
+else
+  warn "routing checkpoint missing: runs/sim_bin_adapt_v2/best.pt"
+fi
+
+SORTER_HEALTH=$(curl -fsS --max-time 5 http://127.0.0.1:8765/health 2>/dev/null || true)
+if [[ "$SORTER_HEALTH" == *'"routing": "direct_bin"'* ]]; then
+  pass "production perception service: healthy"
+else
+  warn "production perception service is stopped (run-gui.sh model starts it)"
+fi
+
+if curl -fsS --max-time 5 http://127.0.0.1:8766/health >/dev/null 2>&1; then
+  pass "optional factory control gateway: healthy"
+else
+  warn "optional factory control gateway is stopped"
 fi
 
 if [[ -d "$PROJECT_ROOT/data" ]]; then

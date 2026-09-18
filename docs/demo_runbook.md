@@ -6,9 +6,9 @@
    `nvcr.io/nvidia/isaac-sim:6.1.0`.
 2. Start the MCP server and restart the coding-agent session after first adding
    it. See [Isaac MCP research](isaac_mcp_research.md).
-3. For production, put the trained checkpoint at
-   `runs/sim_type13/best.pt`. It is intentionally Git-ignored and is not present
-   on this workstation.
+3. For production, restore or rebuild both ignored checkpoints:
+   `runs/sim_type13/best.pt` and `runs/sim_bin_adapt_v2/best.pt`. Both are
+   present on the evaluation workstation.
 
 The `development` classifier is an explicit integration aid: it classifies
 rendered crop colors and never reads spawn labels, but it is not a substitute
@@ -19,14 +19,14 @@ for the trained 13-class model.
 Headless one-object smoke test:
 
 ```bash
-CHEESE_MAX_OBJECTS=1 infra/isaac-sim/run-headless.sh development
+infra/isaac-sim/run-evaluation.sh development 1
 ```
 
 Deterministic 11-object evaluation (ten cheeses, two per bin, one foreign
 object, plus an empty-belt interval):
 
 ```bash
-infra/isaac-sim/run-headless.sh development
+infra/isaac-sim/run-evaluation.sh development 11
 ```
 
 Streamed GUI on the existing SSH/Brev noVNC stack:
@@ -39,14 +39,21 @@ Open the authenticated noVNC endpoint already provisioned for port 6080, or
 forward it locally with `ssh -N -L 6080:127.0.0.1:6080 <host>` and open
 `http://localhost:6080`.
 
-Production commands omit `development`:
+Production commands use the trained hybrid service:
 
 ```bash
-infra/isaac-sim/run-headless.sh
-infra/isaac-sim/run-gui.sh
+infra/isaac-sim/run-evaluation.sh model 11
+infra/isaac-sim/run-gui.sh model
 ```
 
-They fail closed with the exact missing checkpoint path if the model is absent.
+`run-evaluation.sh` stops and restores the persistent WebRTC service around a
+disposable run. `run-gui.sh model` starts the host perception service if needed.
+Both fail closed if either checkpoint is absent or the service contract is
+incompatible. Stop the streamed demo and its repository-owned sorter with:
+
+```bash
+infra/isaac-sim/stop-gui.sh
+```
 
 ## Expected outputs
 
@@ -84,8 +91,7 @@ status is `empty`, `not_cheese`, or `uncertain` has `pick_attempted=false`.
 - Robot stage load appears frozen on the first run: the Franka USD is fetched
   from NVIDIA's Isaac 6.1 asset service. Verify outbound access and reuse the
   mounted Hub/cache paths.
-- Production command says checkpoint missing: restore or rebuild
-  `runs/sim_type13/best.pt`; do not silently switch a public demo to the
-  development classifier.
+- Production command says checkpoint missing: restore or rebuild both Stage 5
+  checkpoints; do not silently switch a public demo to the development classifier.
 - Stream busy or blank: restart the three compose services as documented in
   `infra/isaac-sim/README.md`.

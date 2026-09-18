@@ -81,3 +81,21 @@ docker compose -p isim up -d
 
 The cache and user data live under `ISAAC_SIM_DATA`; recreating the containers
 does not remove them.
+
+## Factory demo launchers
+
+Use the repository launchers instead of invoking the evaluation container next
+to the persistent stream:
+
+```bash
+# browser-streamed trained-model demo; starts host perception when needed
+infra/isaac-sim/run-gui.sh model
+
+# bounded disposable evaluation; restores the stream afterward
+infra/isaac-sim/run-evaluation.sh model 11
+
+# stop the stream and only the sorter process started by this repository
+infra/isaac-sim/stop-gui.sh
+```
+
+The H200/Qwen endpoint is optional and is not used by the runtime factory.

@@ -15,6 +15,7 @@ services:
       ISAACSIM_STREAM_PORT: ${ISAACSIM_STREAM_PORT:-47998}
       CHEESE_CLASSIFIER: ${CHEESE_CLASSIFIER:-model}
       CHEESE_MAX_OBJECTS: ${CHEESE_MAX_OBJECTS:-}
+      CHEESE_SORTER_URL: ${CHEESE_SORTER_URL:-http://127.0.0.1:8765}
     volumes:
       - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/cache/main:/isaac-sim/.cache:rw
       - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
