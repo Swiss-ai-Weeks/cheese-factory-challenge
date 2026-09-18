@@ -10,12 +10,14 @@ not evidence of model accuracy.
 
 ## P0 — demo blockers
 
-- [ ] **P0.1 — Prove which application WebRTC is showing.** The current health check
+- [x] **P0.1 — Prove which application WebRTC is showing.** The current health check
   can report healthy when plain Isaac Sim is running without the factory entry point.
   Add a factory-owned runtime status/heartbeat, make service readiness depend on it,
   and ensure every restart path restores the canonical factory command.
   **Accept when:** the status identifies branch/commit, mode, scenario and phase; a
   plain Isaac process fails readiness; restart and recovery tests pass.
+  **Completed:** commit documented in
+  [`docs/stages/10-runtime-identity.md`](stages/10-runtime-identity.md).
 
 - [ ] **P0.2 — Replace the overlapping canonical layout.** The live `sim/factory`
   scene places two receiving bins inside the conveyor footprint and looks materially

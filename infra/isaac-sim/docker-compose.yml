@@ -16,6 +16,9 @@ services:
       CHEESE_CLASSIFIER: ${CHEESE_CLASSIFIER:-model}
       CHEESE_MAX_OBJECTS: ${CHEESE_MAX_OBJECTS:-}
       CHEESE_SORTER_URL: ${CHEESE_SORTER_URL:-http://127.0.0.1:8765}
+      CHEESE_RUNTIME_ID: ${CHEESE_RUNTIME_ID:-}
+      CHEESE_GIT_COMMIT: ${CHEESE_GIT_COMMIT:-unknown}
+      CHEESE_SCENARIO: ${CHEESE_SCENARIO:-default-evaluation}
     volumes:
       - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/cache/main:/isaac-sim/.cache:rw
       - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
@@ -32,7 +35,7 @@ services:
       timeout: 10s
       start_period: 180s
       retries: 3
-      test: ["CMD-SHELL", "logdir=/isaac-sim/.nvidia-omniverse/logs/Kit; [ -d \"$$logdir\" ] && latest=$$(ls -t \"$$logdir\"/*/*/kit_*.log 2>/dev/null | head -1) && [ -n \"$$latest\" ] && grep -q AppReady \"$$latest\""]
+      test: ["CMD-SHELL", "status=/workspace/outputs/factory/runtime-status.json; [ -n \"$$CHEESE_RUNTIME_ID\" ] && [ -f \"$$status\" ] && grep -Fq \"\\\"application\\\": \\\"cheese_factory\\\"\" \"$$status\" && grep -Fq \"\\\"runtime_id\\\": \\\"$$CHEESE_RUNTIME_ID\\\"\" \"$$status\" && grep -Eq '\"phase\": \"(loaded|reset|running|complete)\"' \"$$status\""]
     restart: unless-stopped
 
   web-viewer:

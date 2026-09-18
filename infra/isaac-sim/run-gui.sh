@@ -8,6 +8,9 @@ SORTER_URL=${CHEESE_SORTER_HOST_URL:-http://127.0.0.1:8765}
 SORTER_PID_FILE="$PROJECT_ROOT/outputs/factory/sort-server.pid"
 ROUTING_CHECKPOINT=${CHEESE_ROUTING_CHECKPOINT:-"$PROJECT_ROOT/runs/sim_bin_adapt_v2/best.pt"}
 SORTER_PID=""
+GIT_COMMIT=$(git -C "$PROJECT_ROOT" rev-parse --verify HEAD)
+RUNTIME_ID="${GIT_COMMIT:0:12}-$(date -u +%Y%m%dT%H%M%SZ)-$$-$RANDOM"
+SCENARIO=${CHEESE_SCENARIO:-default-evaluation}
 
 install -d -m 0777 "$PROJECT_ROOT/outputs/factory"
 
@@ -61,6 +64,10 @@ fi
 cd "$SCRIPT_DIR"
 CHEESE_CLASSIFIER="$CLASSIFIER" \
 CHEESE_SORTER_URL="$SORTER_URL" \
+CHEESE_RUNTIME_ID="$RUNTIME_ID" \
+CHEESE_GIT_COMMIT="$GIT_COMMIT" \
+CHEESE_SCENARIO="$SCENARIO" \
 ISAAC_SIM_ARGS="--exec /workspace/sim/factory/kit_entry.py" \
 docker compose -p isim up -d --build --force-recreate isaac-sim web-viewer remote-desktop
 docker compose -p isim ps
+echo "FACTORY_RUNTIME_ID=$RUNTIME_ID"

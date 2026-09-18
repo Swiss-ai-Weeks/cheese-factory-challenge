@@ -14,6 +14,7 @@ from sim.factory.config import FactoryConfig, load_config
 from sim.factory.controller import PHASE_TO_FACTORY_STATE
 from sim.factory.geometry import pixel_to_plane
 from sim.factory.perception import BIN_OF_TYPE, ForegroundDetector, annotate_frame, make_sorter
+from sim.factory.runtime_status import RuntimeStatus
 from sim.factory.state_machine import FactoryState, FactoryStateMachine
 
 
@@ -113,6 +114,8 @@ async def run(
     output = factory_config.output_root
     frames_dir = output / "frames"
     output.mkdir(parents=True, exist_ok=True)
+    runtime_status = RuntimeStatus.from_environment(output, classifier_mode)
+    runtime_status.update("starting", max_objects=max_objects)
     sorter = make_sorter(factory_config, classifier_mode)
     perception = factory_config.section("perception")
     camera_config = factory_config.section("camera")
@@ -125,10 +128,13 @@ async def run(
     records: list[dict] = []
     try:
         print("FACTORY_STAGE loading", flush=True)
+        runtime_status.update("loading", max_objects=max_objects)
         await sample.load_world_async()
         print("FACTORY_STAGE loaded", flush=True)
+        runtime_status.update("loaded", max_objects=max_objects)
         await sample.reset_async()
         print("FACTORY_STAGE reset", flush=True)
+        runtime_status.update("reset", max_objects=max_objects)
         app_utils.play(commit=True)
 
         spawn = tuple(float(v) for v in factory_config.section("belt")["spawn_position"])
@@ -157,6 +163,7 @@ async def run(
 
         sequence = list(factory_config.raw["evaluation_sequence"])
         limit = max_objects if max_objects is not None else int(factory_config.raw["max_objects"])
+        runtime_status.update("running", completed_objects=0, total_objects=min(limit, len(sequence)))
         for index, ground_truth in enumerate(sequence[:limit]):
             started = time.perf_counter()
             object_id = f"object-{index:03d}"
@@ -202,6 +209,13 @@ async def run(
                     }
                 )
                 _print_progress(records)
+                runtime_status.update(
+                    "running",
+                    completed_objects=index + 1,
+                    total_objects=min(limit, len(sequence)),
+                    current_object=object_id,
+                    last_status="detection_failed",
+                )
                 continue
             machine.begin(object_id)
             result = sorter.predict(detection.crop)
@@ -289,6 +303,13 @@ async def run(
                 }
             )
             _print_progress(records)
+            runtime_status.update(
+                "running",
+                completed_objects=index + 1,
+                total_objects=min(limit, len(sequence)),
+                current_object=object_id,
+                last_status=result.status,
+            )
 
         object_records = [record for record in records if record["ground_truth"] != "empty"]
         detected_records = [record for record in object_records if record.get("detected")]
@@ -307,8 +328,12 @@ async def run(
         }
         report = {"metrics": metrics, "records": records}
         (output / "results.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        runtime_status.update("complete", metrics=metrics)
         print("FACTORY_RESULTS", json.dumps(metrics, sort_keys=True), flush=True)
         return report
+    except BaseException as exc:
+        runtime_status.update("fatal", error_type=type(exc).__name__, error=str(exc))
+        raise
     finally:
         if cleanup:
             await sample.clear_async()

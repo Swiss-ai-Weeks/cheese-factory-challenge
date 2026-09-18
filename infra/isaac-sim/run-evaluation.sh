@@ -17,10 +17,14 @@ if [[ ! "$MAX_OBJECTS" =~ ^[0-9]+$ ]] || ((MAX_OBJECTS < 1 || MAX_OBJECTS > 11))
 fi
 
 restore_service() {
-  docker compose -p isim -f "$COMPOSE" up -d isaac-sim >/dev/null
+  "$SCRIPT_DIR/run-gui.sh" "$CLASSIFIER" >/dev/null
 }
 trap restore_service EXIT
 trap 'exit 130' INT TERM
 
 docker compose -p isim -f "$COMPOSE" stop isaac-sim >/dev/null
-CHEESE_MAX_OBJECTS="$MAX_OBJECTS" "$SCRIPT_DIR/run-headless.sh" "$CLASSIFIER"
+EVALUATION_STATUS=0
+CHEESE_MAX_OBJECTS="$MAX_OBJECTS" "$SCRIPT_DIR/run-headless.sh" "$CLASSIFIER" || EVALUATION_STATUS=$?
+restore_service
+trap - EXIT
+exit "$EVALUATION_STATUS"

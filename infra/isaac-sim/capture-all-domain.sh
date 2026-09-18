@@ -11,10 +11,11 @@ VIEW_START=${CHEESE_CAPTURE_VIEW_START:-0}
 SPLITS=${CHEESE_CAPTURE_SPLITS:-}
 BINS=${CHEESE_CAPTURE_BINS:-}
 RESTORE_REQUIRED=0
+RESTORE_CLASSIFIER=${CHEESE_RESTORE_CLASSIFIER:-model}
 
 restore_service() {
   if ((RESTORE_REQUIRED)); then
-    docker compose -p isim -f "$COMPOSE" up -d isaac-sim >/dev/null
+    "$SCRIPT_DIR/run-gui.sh" "$RESTORE_CLASSIFIER" >/dev/null
   fi
 }
 trap restore_service EXIT
@@ -63,3 +64,5 @@ for ((offset = START_OFFSET; offset < TOTAL; offset += CHUNK_SIZE)); do
   CHEESE_CAPTURE_BINS="$BINS" \
     "$SCRIPT_DIR/capture-domain.sh"
 done
+restore_service
+RESTORE_REQUIRED=0

@@ -11,6 +11,9 @@ SORTER_HOST_URL=${CHEESE_SORTER_HOST_URL:-http://127.0.0.1:8765}
 SORTER_CONTAINER_URL=${CHEESE_SORTER_URL:-http://host.docker.internal:8765}
 ROUTING_CHECKPOINT=${CHEESE_ROUTING_CHECKPOINT:-"$PROJECT_ROOT/runs/sim_bin_adapt_v2/best.pt"}
 SORTER_PID=""
+GIT_COMMIT=$(git -C "$PROJECT_ROOT" rev-parse --verify HEAD)
+RUNTIME_ID="headless-${GIT_COMMIT:0:12}-$(date -u +%Y%m%dT%H%M%SZ)-$$-$RANDOM"
+SCENARIO=${CHEESE_SCENARIO:-default-evaluation}
 
 # Isaac's container runs as UID 1234; expose only this ignored output directory
 # for writes instead of making the source tree broadly writable.
@@ -73,6 +76,9 @@ docker run --rm --gpus all \
   -e CHEESE_MAX_OBJECTS="$MAX_OBJECTS" \
   -e CHEESE_EXIT_ON_COMPLETE=1 \
   -e CHEESE_SORTER_URL="$SORTER_CONTAINER_URL" \
+  -e CHEESE_RUNTIME_ID="$RUNTIME_ID" \
+  -e CHEESE_GIT_COMMIT="$GIT_COMMIT" \
+  -e CHEESE_SCENARIO="$SCENARIO" \
   --add-host host.docker.internal:host-gateway \
   -v "$PROJECT_ROOT:/workspace:rw" \
   -v "$ISAAC_SIM_DATA_DIR/cache/main:/isaac-sim/.cache:rw" \
