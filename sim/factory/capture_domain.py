@@ -20,6 +20,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
+from sim.factory.capture_filters import VALID_BINS, VALID_SPLITS, filter_records, selection
 from sim.factory.config import PROJECT_ROOT, load_config
 from sim.factory.perception import ForegroundDetector
 from sim.factory.run_factory import CheeseFactorySample, _wait_frames
@@ -80,9 +81,15 @@ async def capture(
         pick = list(spawn)
         pick[1] = float(config.section("belt")["pick_line_y"])
         all_source_records = _records()
-        source_records = all_source_records[offset:offset + limit]
+        selected_splits = selection("CHEESE_CAPTURE_SPLITS", VALID_SPLITS)
+        selected_bins = selection("CHEESE_CAPTURE_BINS", VALID_BINS)
+        eligible_records = filter_records(
+            all_source_records, selected_splits, selected_bins,
+        )
+        source_records = eligible_records[offset:offset + limit]
         print(
-            f"FACTORY_CAPTURE total_sources={len(all_source_records)} views={views} "
+            f"FACTORY_CAPTURE total_sources={len(all_source_records)} "
+            f"eligible_sources={len(eligible_records)} views={views} "
             f"view_start={view_start} "
             f"offset={offset} batch={len(source_records)}",
             flush=True,

@@ -79,3 +79,20 @@ not superseded. See
 [`stages/08-rare-bin-perception.md`](stages/08-rare-bin-perception.md) for the
 complete experiment table, selection criterion, per-class limitations, and
 reproduction commands.
+
+## Stage 9 targeted-data result
+
+Stage 9 added a fail-closed capture filter for split and bin selection, then
+tested two validation-only data changes. Neither candidate passed the unchanged
+Stage 8 gate, so production still uses `runs/sim_bin_adapt_v2/best.pt`.
+
+The additional-view candidate scored 0.6433 correct-and-confident, 0.8333
+coverage, and 0.8736 foreign safe rejection. A second candidate added 36
+training-only, model-curated blue-cheese photographs to the original three-view
+baseline; it scored 0.6633 correct-and-confident, 0.8300 coverage, and 0.9253
+foreign safe rejection. Both left blue recall at 0/3.
+
+The locked target test split and deterministic Isaac scenario were not run.
+The production integration results above remain unchanged. See
+[`stages/09-targeted-data.md`](stages/09-targeted-data.md) for the capture
+integrity evidence, experiment details, and diagnosis.

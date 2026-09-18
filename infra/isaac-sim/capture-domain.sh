@@ -9,6 +9,8 @@ VIEWS=${CHEESE_CAPTURE_VIEWS:-2}
 OFFSET=${CHEESE_CAPTURE_OFFSET:-0}
 LIMIT=${CHEESE_CAPTURE_LIMIT:-100}
 VIEW_START=${CHEESE_CAPTURE_VIEW_START:-0}
+SPLITS=${CHEESE_CAPTURE_SPLITS:-}
+BINS=${CHEESE_CAPTURE_BINS:-}
 
 # Isaac Sim runs as UID 1234 in the NVIDIA image, while the repository mount is
 # normally owned by the host user. Limit shared write access to generated data.
@@ -24,6 +26,7 @@ exec docker run --rm --gpus all \
   -e PYTHONPATH=/workspace -e CHEESE_CAPTURE_VIEWS="$VIEWS" \
   -e CHEESE_CAPTURE_OFFSET="$OFFSET" -e CHEESE_CAPTURE_LIMIT="$LIMIT" \
   -e CHEESE_CAPTURE_VIEW_START="$VIEW_START" \
+  -e CHEESE_CAPTURE_SPLITS="$SPLITS" -e CHEESE_CAPTURE_BINS="$BINS" \
   -v "$PROJECT_ROOT:/workspace:rw" \
   -v "$ISAAC_SIM_DATA_DIR/cache/main:/isaac-sim/.cache:rw" \
   -v "$ISAAC_SIM_DATA_DIR/cache/computecache:/isaac-sim/.nv/ComputeCache:rw" \
