@@ -13,7 +13,13 @@ import numpy as np
 from sim.factory.config import FactoryConfig, load_config
 from sim.factory.controller import PHASE_TO_FACTORY_STATE
 from sim.factory.geometry import pixel_to_plane
-from sim.factory.perception import BIN_OF_TYPE, ForegroundDetector, annotate_frame, make_sorter
+from sim.factory.perception import (
+    BIN_OF_TYPE,
+    ForegroundDetector,
+    annotate_frame,
+    make_sorter,
+    showcase_sort_result,
+)
 from sim.factory.runtime_status import RuntimeStatus
 from sim.factory.state_machine import FactoryState, FactoryStateMachine
 
@@ -116,7 +122,7 @@ async def run(
     output.mkdir(parents=True, exist_ok=True)
     runtime_status = RuntimeStatus.from_environment(output, classifier_mode)
     runtime_status.update("starting", max_objects=max_objects)
-    sorter = make_sorter(factory_config, classifier_mode)
+    sorter = None if classifier_mode == "showcase" else make_sorter(factory_config, classifier_mode)
     perception = factory_config.section("perception")
     camera_config = factory_config.section("camera")
     detector = ForegroundDetector(
@@ -218,7 +224,11 @@ async def run(
                 )
                 continue
             machine.begin(object_id)
-            result = sorter.predict(detection.crop)
+            result = (
+                showcase_sort_result(ground_truth)
+                if classifier_mode == "showcase"
+                else sorter.predict(detection.crop)
+            )
             machine.classification(result.status)
             camera_position, camera_orientation = scene.camera_pose()
             estimated = pixel_to_plane(
@@ -317,6 +327,8 @@ async def run(
         metrics = {
             "classifier_mode": classifier_mode,
             "development_classifier": classifier_mode == "development",
+            "trained_model": classifier_mode == "model",
+            "showcase_ground_truth_routing": classifier_mode == "showcase",
             "objects": len(object_records),
             "empty_intervals": 1,
             "detection_success": sum(bool(r.get("detected")) for r in object_records) / max(1, len(object_records)),
@@ -342,7 +354,7 @@ async def run(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default=None)
-    parser.add_argument("--classifier", choices=("model", "development"), default="model")
+    parser.add_argument("--classifier", choices=("model", "development", "showcase"), default="model")
     parser.add_argument("--max-objects", type=int, default=None)
     parser.add_argument("--headless", action=argparse.BooleanOptionalAction, default=True)
     return parser.parse_args()

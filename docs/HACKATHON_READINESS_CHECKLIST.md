@@ -31,12 +31,14 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/11-industrial-live-cell.md`](stages/11-industrial-live-cell.md).
 
-- [ ] **P0.3 — Make robot work unmistakable.** In trained-model mode, rejected or
+- [x] **P0.3 — Make robot work unmistakable.** In trained-model mode, rejected or
   uncertain decisions suppress most picks, so the arm appears idle even when control is
   functioning. Add an explicitly labelled deterministic `showcase` mode that exercises
   every destination plus rejection, while preserving the honest `model` mode.
   **Accept when:** a repeatable showcase visibly completes all intended pick/place
   cycles with no timeouts, and model mode remains fail-closed.
+  **Completed:** commit documented in
+  [`docs/stages/12-deterministic-showcase.md`](stages/12-deterministic-showcase.md).
 
 - [ ] **P0.4 — Add an operator-visible story.** The live view does not explain the
   current item, prediction, confidence, destination, robot state or totals. Add a clear

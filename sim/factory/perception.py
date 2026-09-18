@@ -83,6 +83,25 @@ class DevelopmentSortResult:
         return asdict(self)
 
 
+def showcase_sort_result(ground_truth: str) -> DevelopmentSortResult:
+    """Return the scripted demo route with an explicit evidence boundary.
+
+    Showcase mode still exercises rendered detection, camera localization and
+    physical manipulation. Only class/bin selection is supplied by the known
+    scripted scenario, so this result must never be reported as model inference.
+    """
+    if ground_truth == "not_cheese":
+        return DevelopmentSortResult(
+            "not_cheese", None, 1.0, "not_cheese", 1.0, [("not_cheese", 1.0)], 0.0
+        )
+    target = BIN_OF_TYPE.get(ground_truth)
+    if target is None:
+        raise ValueError(f"showcase scenario has no route for {ground_truth!r}")
+    return DevelopmentSortResult(
+        "ok", target, 1.0, ground_truth, 1.0, [(ground_truth, 1.0)], 0.0
+    )
+
+
 class Sorter(Protocol):
     def predict(self, frame: np.ndarray, box: tuple[int, int, int, int] | None = None): ...
 

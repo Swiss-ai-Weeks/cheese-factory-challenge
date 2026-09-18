@@ -19,6 +19,11 @@ SCENARIO=${CHEESE_SCENARIO:-default-evaluation}
 # for writes instead of making the source tree broadly writable.
 install -d -m 0777 "$PROJECT_ROOT/outputs/factory"
 
+if [[ "$CLASSIFIER" != "model" && "$CLASSIFIER" != "development" && "$CLASSIFIER" != "showcase" ]]; then
+  echo "classifier must be model, development, or showcase" >&2
+  exit 2
+fi
+
 cleanup() {
   if [[ -n "$SORTER_PID" ]]; then
     kill "$SORTER_PID" >/dev/null 2>&1 || true

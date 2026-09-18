@@ -1,6 +1,6 @@
 import pytest
 
-from sim.factory.control_server import RunManager, _parse_run_request
+from sim.factory.control_server import RUN_SCRIPT, RunManager, _parse_run_request
 
 
 class FakeProcess:
@@ -37,6 +37,14 @@ def test_start_uses_fixed_script_and_allowlisted_arguments(tmp_path, monkeypatch
     assert calls[0][1]["start_new_session"] is True
     with pytest.raises(RuntimeError):
         manager.start("secret", "model", 1)
+
+
+def test_showcase_is_an_explicit_allowlisted_mode(tmp_path, monkeypatch):
+    monkeypatch.setattr("sim.factory.control_server.RUN_LOG", tmp_path / "run.log")
+    calls = []
+    manager = RunManager("secret", popen=lambda command, **kwargs: calls.append(command) or FakeProcess())
+    manager.start("secret", "showcase", 11)
+    assert calls == [[str(RUN_SCRIPT), "showcase", "11"]]
 
 
 @pytest.mark.parametrize(

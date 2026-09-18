@@ -40,6 +40,31 @@ Runs made with the development classifier carry
 `development_classifier: true`; they validate the camera-to-controller
 integration only and must never be presented as trained-model accuracy.
 
+## Judge-facing deterministic showcase
+
+After the canonical cell redesign, the old pixel-color development classifier became
+lighting-sensitive. It is retained for diagnostic compatibility, but the reliable live
+demonstration now has a separate `showcase` mode. The mode uses the rendered camera for
+foreground detection and calibrated pick localization, then supplies the route from the
+known scripted scenario so judges can observe every physical destination.
+
+The 11-object acceptance run completed on 2026-09-18:
+
+| Metric | Result |
+|---|---:|
+| detection success | 11/11 (100%) |
+| physical cheese pick/place | 10/10 (100%) |
+| correct scripted destination | 10/10 (100%) |
+| scripted foreign-object rejection | 1/1 (100%) |
+| empty-frame handling | 1/1 (100%) |
+| end-to-end scripted outcome | 11/11 (100%) |
+| mean cycle time | 15.61 s |
+
+Every artifact carries `classifier_mode: showcase`,
+`showcase_ground_truth_routing: true`, and `trained_model: false`. These results prove
+the camera/localization/manipulation integration and presentation sequence; they are not
+classifier accuracy. Trained-model evidence remains in the next section.
+
 ## Trained-model run
 
 The production path was evaluated on 2026-09-18 with the host-side

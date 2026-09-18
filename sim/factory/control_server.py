@@ -21,7 +21,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RESULTS_PATH = PROJECT_ROOT / "outputs" / "factory" / "results.json"
 RUN_LOG = PROJECT_ROOT / "outputs" / "factory" / "control-run.log"
 RUN_SCRIPT = PROJECT_ROOT / "infra" / "isaac-sim" / "run-evaluation.sh"
-CLASSIFIERS = {"model", "development"}
+CLASSIFIERS = {"model", "development", "showcase"}
 
 
 class RunManager:
@@ -66,7 +66,7 @@ class RunManager:
         if not self.token or not _constant_time_equal(token, self.token):
             raise PermissionError("factory controls are disabled or the token is invalid")
         if classifier not in CLASSIFIERS:
-            raise ValueError("classifier must be model or development")
+            raise ValueError("classifier must be model, development, or showcase")
         if not isinstance(max_objects, int) or isinstance(max_objects, bool) or not 1 <= max_objects <= 11:
             raise ValueError("max_objects must be an integer from 1 through 11")
         with self._lock:

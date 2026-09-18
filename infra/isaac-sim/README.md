@@ -91,6 +91,10 @@ to the persistent stream:
 # browser-streamed trained-model demo; starts host perception when needed
 infra/isaac-sim/run-gui.sh model
 
+# judge-facing deterministic motion showcase; camera detection/localization,
+# scripted ground-truth routing, visibly labelled as non-model evidence
+infra/isaac-sim/run-gui.sh showcase
+
 # bounded disposable evaluation; restores the stream afterward
 infra/isaac-sim/run-evaluation.sh model 11
 

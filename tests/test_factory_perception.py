@@ -9,6 +9,7 @@ from sim.factory.perception import (
     DevelopmentColorSorter,
     ForegroundDetector,
     RemoteModelSorter,
+    showcase_sort_result,
 )
 
 
@@ -49,6 +50,24 @@ def test_foreign_object_never_gets_cheese_bin():
     assert result.status == "not_cheese"
     assert result.bin is None
     assert not result.actionable
+
+
+def test_showcase_routes_every_bin_and_reject_without_claiming_latency():
+    observed_bins = {showcase_sort_result(label).bin for label in BIN_OF_TYPE}
+    assert observed_bins == set(BIN_OF_TYPE.values())
+    rejected = showcase_sort_result("not_cheese")
+    assert rejected.status == "not_cheese"
+    assert rejected.bin is None
+    assert rejected.latency_ms == 0.0
+
+
+def test_showcase_rejects_unknown_scenario_label():
+    try:
+        showcase_sort_result("mystery_cheese")
+    except ValueError as exc:
+        assert "no route" in str(exc)
+    else:
+        raise AssertionError("unknown showcase label was accepted")
 
 
 def test_remote_sorter_checks_health_and_posts_pixels(monkeypatch):

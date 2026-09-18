@@ -14,8 +14,8 @@ SCENARIO=${CHEESE_SCENARIO:-default-evaluation}
 
 install -d -m 0777 "$PROJECT_ROOT/outputs/factory"
 
-if [[ "$CLASSIFIER" != "model" && "$CLASSIFIER" != "development" ]]; then
-  echo "classifier must be model or development" >&2
+if [[ "$CLASSIFIER" != "model" && "$CLASSIFIER" != "development" && "$CLASSIFIER" != "showcase" ]]; then
+  echo "classifier must be model, development, or showcase" >&2
   exit 2
 fi
 

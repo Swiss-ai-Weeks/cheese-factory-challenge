@@ -7,8 +7,8 @@ COMPOSE="$PROJECT_ROOT/infra/isaac-sim/docker-compose.yml"
 CLASSIFIER=${1:-model}
 MAX_OBJECTS=${2:-11}
 
-if [[ "$CLASSIFIER" != "model" && "$CLASSIFIER" != "development" ]]; then
-  echo "classifier must be model or development" >&2
+if [[ "$CLASSIFIER" != "model" && "$CLASSIFIER" != "development" && "$CLASSIFIER" != "showcase" ]]; then
+  echo "classifier must be model, development, or showcase" >&2
   exit 2
 fi
 if [[ ! "$MAX_OBJECTS" =~ ^[0-9]+$ ]] || ((MAX_OBJECTS < 1 || MAX_OBJECTS > 11)); then
