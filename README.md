@@ -283,6 +283,20 @@ Generated images and manifests remain ignored. See
 [`docs/stages/17-camera-domain-dataset.md`](docs/stages/17-camera-domain-dataset.md)
 for the source review boundary and measured coverage.
 
+The P1.3 capture path uses Omniverse Replicator in the canonical factory to
+randomize cheese pose and size, camera calibration, materials, illumination,
+clutter, and partial occlusion. This command captures the same seeded plan
+twice, audits every crop/full-frame hash and provenance field, and restores the
+streamed factory even if validation fails:
+
+```bash
+infra/isaac-sim/replicator-smoke.sh
+```
+
+Generated captures stay ignored. The accepted smoke evidence and the RTX pixel
+nondeterminism boundary are recorded in
+[`docs/stages/18-replicator-domain-randomization.md`](docs/stages/18-replicator-domain-randomization.md).
+
 For agent/UI integration, `sim/factory/control_server.py` exposes localhost-only
 health and latest-result reads. A fixed, bounded evaluation start is available
 only with an operator-provided token; NVIDIA's separate `isaacsim_mcp` remains

@@ -87,12 +87,14 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/17-camera-domain-dataset.md`](stages/17-camera-domain-dataset.md).
 
-- [ ] **P1.3 — Use Omniverse Replicator as a real data engine.** Current Isaac rendering
+- [x] **P1.3 — Use Omniverse Replicator as a real data engine.** Current Isaac rendering
   varies some parameters but underuses Replicator. Add reproducible randomization for
   pose, material, illumination, clutter, occlusion and camera calibration around the
   canonical scene, plus metadata for every render.
   **Accept when:** a seeded smoke batch reproduces; visual QA demonstrates meaningful
   variation; labels and transforms are machine-verifiable.
+  **Completed:** commit documented in
+  [`docs/stages/18-replicator-domain-randomization.md`](stages/18-replicator-domain-randomization.md).
 
 - [ ] **P1.4 — Retrain only behind fixed gates.** Earlier candidates consumed compute
   but did not beat the production checkpoint. Freeze validation before training and
