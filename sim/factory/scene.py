@@ -13,6 +13,7 @@ from .config import PROJECT_ROOT, FactoryConfig
 from .controller import create_perception_pick_place_task
 from .layout import BELT_CENTER_XY, BELT_SIZE_XY, RECEIVER_SIZE_XY
 from .perception import DEVELOPMENT_PALETTE
+from .scene_layout import load_scene_layout
 
 
 BIN_COLORS = {
@@ -47,7 +48,8 @@ class IsaacFactoryScene:
         self._carrier_piece_transform = None
         self._held_out_textures: dict[str, list[Path]] = {}
         self._texture_indices: dict[str, int] = defaultdict(int)
-        self._overview_camera_path = "/World/OverviewCamera"
+        self.scene_layout = load_scene_layout()
+        self._overview_camera_path = str(self.scene_layout.overview_camera["path"])
 
     def setup_scene(self) -> None:
         from isaacsim.core.experimental.objects import Cube
@@ -111,74 +113,69 @@ class IsaacFactoryScene:
         print("FACTORY_SCENE authored", flush=True)
 
     def _create_factory_shell(self, stage) -> None:
-        """Author the shared industrial cell around the physics-critical task."""
-        from pxr import Gf, UsdGeom, UsdLux
-        from sim.usd_kit import boite, boite_orientee, materiau_uni, viser
+        """Author human-editable declarations as a stable OpenUSD hierarchy."""
+        from pxr import Gf, UsdGeom, UsdLux, UsdPhysics
+        from sim.usd_kit import boite_orientee, materiau_uni, viser
 
-        dark = materiau_uni(stage, "/World/FactoryMaterials/Dark", (0.055, 0.065, 0.078), 0.72, 0.18)
-        steel = materiau_uni(stage, "/World/FactoryMaterials/Steel", (0.36, 0.40, 0.44), 0.27, 0.82)
-        safety = materiau_uni(stage, "/World/FactoryMaterials/Safety", (0.98, 0.63, 0.04), 0.48, 0.08)
-        floor = materiau_uni(stage, "/World/FactoryMaterials/Floor", (0.105, 0.12, 0.14), 0.92, 0.02)
-        lens = materiau_uni(stage, "/World/FactoryMaterials/Lens", (0.04, 0.16, 0.24), 0.18, 0.55)
+        materials = {}
+        for name, declaration in self.scene_layout.materials.items():
+            materials[name] = materiau_uni(
+                stage,
+                f"/World/FactoryMaterials/{name}",
+                tuple(float(value) for value in declaration["color"]),
+                float(declaration.get("roughness", 0.5)),
+                float(declaration.get("metallic", 0.0)),
+            )
 
-        # A thin visual deck sits just above the default task ground plane so
-        # the live viewport reads as one machine cell instead of the editor grid.
-        boite(stage, "/World/Factory/Floor", (3.2, 3.0, 0.03), (0.35, -0.05, -0.01), floor)
-        for side, x in (("west", -1.18), ("east", 1.88)):
-            boite(stage, f"/World/Factory/SafetyBoundary/{side}", (0.035, 2.55, 0.008), (x, -0.05, 0.009), safety)
-        for side, y in (("south", -1.31), ("north", 1.21)):
-            boite(stage, f"/World/Factory/SafetyBoundary/{side}", (3.1, 0.035, 0.008), (0.35, y, 0.009), safety)
+        for declaration in self.scene_layout.boxes:
+            box = boite_orientee(
+                stage,
+                declaration["path"],
+                tuple(float(value) for value in declaration["size"]),
+                tuple(float(value) for value in declaration["position"]),
+                materials[declaration["material"]],
+                tuple(float(value) for value in declaration.get("rotation_xyz_deg", (0.0, 0.0, 0.0))),
+            )
+            prim = box.GetPrim()
+            prim.SetCustomDataByKey("factory_role", declaration["role"])
+            prim.SetCustomDataByKey("factory_source", str(self.scene_layout.source))
+            prim.SetCustomDataByKey("factory_collision", declaration.get("collision", "none"))
+            if declaration.get("collision", "none") == "static":
+                UsdPhysics.CollisionAPI.Apply(prim)
 
-        belt_x, belt_y = BELT_CENTER_XY
-        belt_w, belt_l = BELT_SIZE_XY
-        for side, x in (("left", belt_x - belt_w / 2 + 0.012), ("right", belt_x + belt_w / 2 - 0.012)):
-            boite(stage, f"/World/Factory/Conveyor/{side}_rail", (0.018, belt_l, 0.075), (x, belt_y, 0.055), steel)
-        for index in range(11):
-            y = belt_y - belt_l / 2 + 0.055 + index * ((belt_l - 0.11) / 10)
-            boite(stage, f"/World/Factory/Conveyor/slat_{index:02d}", (belt_w - 0.035, 0.009, 0.008), (belt_x, y, 0.034), steel)
-        for index, y in enumerate((belt_y - belt_l / 2 + 0.08, belt_y + belt_l / 2 - 0.08)):
-            for side, x in (("left", belt_x - 0.12), ("right", belt_x + 0.12)):
-                boite(stage, f"/World/Factory/Conveyor/leg_{index}_{side}", (0.035, 0.035, 0.24), (x, y, -0.10), steel)
-                boite(stage, f"/World/Factory/Conveyor/foot_{index}_{side}", (0.09, 0.09, 0.018), (x, y, -0.215), dark)
+        for declaration in self.scene_layout.lights:
+            light_type = declaration["type"]
+            if light_type == "sphere":
+                light = UsdLux.SphereLight.Define(stage, declaration["path"])
+                light.CreateRadiusAttr(float(declaration["radius"]))
+            elif light_type == "rect":
+                light = UsdLux.RectLight.Define(stage, declaration["path"])
+                light.CreateWidthAttr(float(declaration["width"]))
+                light.CreateHeightAttr(float(declaration["height"]))
+            else:
+                light = UsdLux.DomeLight.Define(stage, declaration["path"])
+            light.CreateIntensityAttr(float(declaration["intensity"]))
+            if "color" in declaration:
+                light.CreateColorAttr(Gf.Vec3f(*[float(value) for value in declaration["color"]]))
+            if "position" in declaration:
+                UsdGeom.Xformable(light).AddTranslateOp().Set(
+                    Gf.Vec3d(*[float(value) for value in declaration["position"]])
+                )
+            light.GetPrim().SetCustomDataByKey("factory_role", declaration["role"])
+            light.GetPrim().SetCustomDataByKey("factory_source", str(self.scene_layout.source))
 
-        # Inspection portal: camera housing, work lights and guarded pick zone.
-        for side, x in (("left", 0.31), ("right", 0.69)):
-            boite(stage, f"/World/Factory/Inspection/{side}_post", (0.045, 0.055, 1.18), (x, 0.08, 0.57), steel)
-            boite(stage, f"/World/Factory/Inspection/{side}_guard", (0.025, 0.34, 0.20), (x, -0.08, 0.13), safety)
-        boite(stage, "/World/Factory/Inspection/crossbeam", (0.45, 0.06, 0.065), (0.50, 0.08, 1.13), steel)
-        # The housing is intentionally offset behind the virtual calibrated
-        # camera. Placing decoration on the optical axis occludes perception.
-        boite(stage, "/World/Factory/Inspection/camera_body", (0.16, 0.13, 0.10), (0.50, 0.22, 1.03), dark)
-        boite(stage, "/World/Factory/Inspection/camera_lens", (0.065, 0.065, 0.035), (0.50, 0.15, 0.99), lens)
-        for side, x in (("left", 0.38), ("right", 0.62)):
-            lamp = UsdLux.SphereLight.Define(stage, f"/World/Factory/Inspection/{side}_light")
-            lamp.CreateRadiusAttr(0.035)
-            lamp.CreateIntensityAttr(600.0)
-            lamp.CreateColorAttr(Gf.Vec3f(1.0, 0.94, 0.82))
-            UsdGeom.Xformable(lamp).AddTranslateOp().Set(Gf.Vec3d(x, -0.03, 0.96))
-
-        # A raised operator beacon makes the running cell readable from the overview.
-        boite(stage, "/World/Factory/Beacon/post", (0.045, 0.045, 0.72), (-0.30, -0.58, 0.32), steel)
-        for index, (z, color) in enumerate(((0.72, (0.08, 0.75, 0.28)), (0.80, (0.98, 0.66, 0.05)), (0.88, (0.86, 0.08, 0.05)))):
-            material = materiau_uni(stage, f"/World/Factory/Beacon/mat_{index}", color, 0.25, 0.12)
-            boite(stage, f"/World/Factory/Beacon/lamp_{index}", (0.09, 0.09, 0.065), (-0.30, -0.58, z), material)
-
-        dome = UsdLux.DomeLight.Define(stage, "/World/Factory/DomeLight")
-        dome.CreateIntensityAttr(180.0)
-        key = UsdLux.RectLight.Define(stage, "/World/Factory/KeyLight")
-        key.CreateIntensityAttr(4000.0)
-        key.CreateWidthAttr(1.6)
-        key.CreateHeightAttr(1.1)
-        UsdGeom.Xformable(key).AddTranslateOp().Set(Gf.Vec3d(0.45, -0.35, 2.45))
-
-        camera = UsdGeom.Camera.Define(stage, self._overview_camera_path)
-        camera.CreateFocalLengthAttr(31.0)
-        camera.CreateClippingRangeAttr(Gf.Vec2f(0.05, 100.0))
+        declaration = self.scene_layout.overview_camera
+        camera = UsdGeom.Camera.Define(stage, declaration["path"])
+        camera.CreateFocalLengthAttr(float(declaration["focal_length_mm"]))
+        camera.CreateClippingRangeAttr(Gf.Vec2f(*[float(value) for value in declaration["clipping_range"]]))
         viser(
             UsdGeom.Xformable(camera).AddTransformOp(),
-            Gf.Vec3d(2.35, -2.55, 1.85),
-            Gf.Vec3d(0.30, -0.02, 0.30),
+            Gf.Vec3d(*[float(value) for value in declaration["position"]]),
+            Gf.Vec3d(*[float(value) for value in declaration["look_at"]]),
         )
+        camera.GetPrim().SetCustomDataByKey("factory_role", declaration["role"])
+        camera.GetPrim().SetCustomDataByKey("factory_source", str(self.scene_layout.source))
+        print(f"FACTORY_LAYOUT source={self.scene_layout.source}", flush=True)
 
     def _create_bin(self, stage, name: str, position: tuple[float, float, float], color: tuple[float, float, float]) -> None:
         from isaacsim.core.experimental.objects import Cube

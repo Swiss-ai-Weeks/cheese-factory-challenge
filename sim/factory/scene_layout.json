@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "units": "metres",
+  "coordinate_system": "OpenUSD/Isaac right-handed, Z up",
+  "editing_note": "Static presentation geometry only. Runtime-critical belt, robot, bins, inspection camera and active object remain in config.yaml and Python.",
+  "materials": {
+    "dark": {"color": [0.055, 0.065, 0.078], "roughness": 0.72, "metallic": 0.18},
+    "steel": {"color": [0.36, 0.40, 0.44], "roughness": 0.27, "metallic": 0.82},
+    "safety": {"color": [0.98, 0.63, 0.04], "roughness": 0.48, "metallic": 0.08},
+    "floor": {"color": [0.105, 0.12, 0.14], "roughness": 0.92, "metallic": 0.02},
+    "lens": {"color": [0.04, 0.16, 0.24], "roughness": 0.18, "metallic": 0.55},
+    "beacon_green": {"color": [0.08, 0.75, 0.28], "roughness": 0.25, "metallic": 0.12},
+    "beacon_amber": {"color": [0.98, 0.66, 0.05], "roughness": 0.25, "metallic": 0.12},
+    "beacon_red": {"color": [0.86, 0.08, 0.05], "roughness": 0.25, "metallic": 0.12}
+  },
+  "boxes": [
+    {"path": "/World/Factory/Floor", "size": [3.2, 3.0, 0.03], "position": [0.35, -0.05, -0.01], "material": "floor", "collision": "none", "role": "visual cell deck"},
+    {"path": "/World/Factory/SafetyBoundary/west", "size": [0.035, 2.55, 0.008], "position": [-1.18, -0.05, 0.009], "material": "safety", "collision": "none", "role": "floor marking"},
+    {"path": "/World/Factory/SafetyBoundary/east", "size": [0.035, 2.55, 0.008], "position": [1.88, -0.05, 0.009], "material": "safety", "collision": "none", "role": "floor marking"},
+    {"path": "/World/Factory/SafetyBoundary/south", "size": [3.1, 0.035, 0.008], "position": [0.35, -1.31, 0.009], "material": "safety", "collision": "none", "role": "floor marking"},
+    {"path": "/World/Factory/SafetyBoundary/north", "size": [3.1, 0.035, 0.008], "position": [0.35, 1.21, 0.009], "material": "safety", "collision": "none", "role": "floor marking"},
+
+    {"path": "/World/Factory/Conveyor/left_rail", "size": [0.018, 1.11, 0.075], "position": [0.432, -0.395, 0.055], "material": "steel", "collision": "none", "role": "visual conveyor rail"},
+    {"path": "/World/Factory/Conveyor/right_rail", "size": [0.018, 1.11, 0.075], "position": [0.568, -0.395, 0.055], "material": "steel", "collision": "none", "role": "visual conveyor rail"},
+    {"path": "/World/Factory/Conveyor/slat_00", "size": [0.125, 0.009, 0.008], "position": [0.5, -0.895, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_01", "size": [0.125, 0.009, 0.008], "position": [0.5, -0.795, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_02", "size": [0.125, 0.009, 0.008], "position": [0.5, -0.695, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_03", "size": [0.125, 0.009, 0.008], "position": [0.5, -0.595, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_04", "size": [0.125, 0.009, 0.008], "position": [0.5, -0.495, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_05", "size": [0.125, 0.009, 0.008], "position": [0.5, -0.395, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_06", "size": [0.125, 0.009, 0.008], "position": [0.5, -0.295, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_07", "size": [0.125, 0.009, 0.008], "position": [0.5, -0.195, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_08", "size": [0.125, 0.009, 0.008], "position": [0.5, -0.095, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_09", "size": [0.125, 0.009, 0.008], "position": [0.5, 0.005, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/slat_10", "size": [0.125, 0.009, 0.008], "position": [0.5, 0.105, 0.034], "material": "steel", "collision": "none", "role": "visual conveyor slat"},
+    {"path": "/World/Factory/Conveyor/leg_0_left", "size": [0.035, 0.035, 0.24], "position": [0.38, -0.87, -0.10], "material": "steel", "collision": "none", "role": "visual conveyor support"},
+    {"path": "/World/Factory/Conveyor/leg_0_right", "size": [0.035, 0.035, 0.24], "position": [0.62, -0.87, -0.10], "material": "steel", "collision": "none", "role": "visual conveyor support"},
+    {"path": "/World/Factory/Conveyor/leg_1_left", "size": [0.035, 0.035, 0.24], "position": [0.38, 0.08, -0.10], "material": "steel", "collision": "none", "role": "visual conveyor support"},
+    {"path": "/World/Factory/Conveyor/leg_1_right", "size": [0.035, 0.035, 0.24], "position": [0.62, 0.08, -0.10], "material": "steel", "collision": "none", "role": "visual conveyor support"},
+    {"path": "/World/Factory/Conveyor/foot_0_left", "size": [0.09, 0.09, 0.018], "position": [0.38, -0.87, -0.215], "material": "dark", "collision": "none", "role": "visual conveyor foot"},
+    {"path": "/World/Factory/Conveyor/foot_0_right", "size": [0.09, 0.09, 0.018], "position": [0.62, -0.87, -0.215], "material": "dark", "collision": "none", "role": "visual conveyor foot"},
+    {"path": "/World/Factory/Conveyor/foot_1_left", "size": [0.09, 0.09, 0.018], "position": [0.38, 0.08, -0.215], "material": "dark", "collision": "none", "role": "visual conveyor foot"},
+    {"path": "/World/Factory/Conveyor/foot_1_right", "size": [0.09, 0.09, 0.018], "position": [0.62, 0.08, -0.215], "material": "dark", "collision": "none", "role": "visual conveyor foot"},
+
+    {"path": "/World/Factory/Inspection/left_post", "size": [0.045, 0.055, 1.18], "position": [0.31, 0.08, 0.57], "material": "steel", "collision": "none", "role": "visual-only inspection portal; known robot-clearance defect"},
+    {"path": "/World/Factory/Inspection/right_post", "size": [0.045, 0.055, 1.18], "position": [0.69, 0.08, 0.57], "material": "steel", "collision": "none", "role": "visual-only inspection portal; known robot-clearance defect"},
+    {"path": "/World/Factory/Inspection/left_guard", "size": [0.025, 0.34, 0.20], "position": [0.31, -0.08, 0.13], "material": "safety", "collision": "none", "role": "visual inspection guard"},
+    {"path": "/World/Factory/Inspection/right_guard", "size": [0.025, 0.34, 0.20], "position": [0.69, -0.08, 0.13], "material": "safety", "collision": "none", "role": "visual inspection guard"},
+    {"path": "/World/Factory/Inspection/crossbeam", "size": [0.45, 0.06, 0.065], "position": [0.50, 0.08, 1.13], "material": "steel", "collision": "none", "role": "visual-only inspection portal; known robot-clearance defect"},
+    {"path": "/World/Factory/Inspection/camera_body", "size": [0.16, 0.13, 0.10], "position": [0.50, 0.22, 1.03], "material": "dark", "collision": "none", "role": "visual camera housing; not the calibrated sensor"},
+    {"path": "/World/Factory/Inspection/camera_lens", "size": [0.065, 0.065, 0.035], "position": [0.50, 0.15, 0.99], "material": "lens", "collision": "none", "role": "visual camera lens; not the calibrated sensor"},
+
+    {"path": "/World/Factory/Beacon/post", "size": [0.045, 0.045, 0.72], "position": [-0.30, -0.58, 0.32], "material": "steel", "collision": "none", "role": "visual status beacon support"},
+    {"path": "/World/Factory/Beacon/lamp_0", "size": [0.09, 0.09, 0.065], "position": [-0.30, -0.58, 0.72], "material": "beacon_green", "collision": "none", "role": "visual status beacon lamp"},
+    {"path": "/World/Factory/Beacon/lamp_1", "size": [0.09, 0.09, 0.065], "position": [-0.30, -0.58, 0.80], "material": "beacon_amber", "collision": "none", "role": "visual status beacon lamp"},
+    {"path": "/World/Factory/Beacon/lamp_2", "size": [0.09, 0.09, 0.065], "position": [-0.30, -0.58, 0.88], "material": "beacon_red", "collision": "none", "role": "visual status beacon lamp"}
+  ],
+  "lights": [
+    {"path": "/World/Factory/Inspection/left_light", "type": "sphere", "position": [0.38, -0.03, 0.96], "radius": 0.035, "intensity": 600.0, "color": [1.0, 0.94, 0.82], "role": "inspection work light"},
+    {"path": "/World/Factory/Inspection/right_light", "type": "sphere", "position": [0.62, -0.03, 0.96], "radius": 0.035, "intensity": 600.0, "color": [1.0, 0.94, 0.82], "role": "inspection work light"},
+    {"path": "/World/Factory/DomeLight", "type": "dome", "intensity": 180.0, "role": "ambient presentation light"},
+    {"path": "/World/Factory/KeyLight", "type": "rect", "position": [0.45, -0.35, 2.45], "width": 1.6, "height": 1.1, "intensity": 4000.0, "role": "presentation key light"}
+  ],
+  "overview_camera": {
+    "path": "/World/OverviewCamera",
+    "position": [2.35, -2.55, 1.85],
+    "look_at": [0.30, -0.02, 0.30],
+    "focal_length_mm": 31.0,
+    "clipping_range": [0.05, 100.0],
+    "role": "operator viewport only; perception uses /World/InspectionCamera"
+  }
+}
