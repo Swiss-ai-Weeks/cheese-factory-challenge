@@ -22,7 +22,7 @@ RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE / "src"))
 
 from PIL import Image                               # noqa: E402
-from predict import CheeseSorter, HybridCheeseSorter  # noqa: E402
+from predict import CheeseSorter, HybridCheeseSorter, HYBRID_DECISION_POLICY  # noqa: E402
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--checkpoint", default=str(RACINE / "runs/sim_type13/best.pt"))
@@ -63,6 +63,8 @@ class Handler(BaseHTTPRequestHandler):
         if self.path.startswith("/health"):
             self._repondre(200, {"ok": True, "types": sorter.types,
                                  "bins": sorter.bins, "routing": routing_mode,
+                                 "contract_version": 2,
+                                 "decision_policy": HYBRID_DECISION_POLICY if routing_mode == "direct_bin" else "fine_type_aggregation_v1",
                                  "servies": compteur["n"]})
         else:
             self._repondre(404, {"erreur": "route inconnue"})

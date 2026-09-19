@@ -172,6 +172,34 @@ REJECT_STATUS = {
     "not_cheese": "not_cheese",  # un objet, mais pas du fromage
 }
 
+HYBRID_DECISION_POLICY = "route_authoritative_fail_closed_v1"
+
+
+def resolve_hybrid_decision(route_label: str, route_confidence: float,
+                            type_label: str, min_confidence: float):
+    """Resolve independent type and route outputs into one safe actuator decision.
+
+    The target-domain routing model owns rejection. A confident cheese-bin route
+    becomes actionable only when the fine type implies that same bin. Cross-bin
+    disagreement is therefore visible but fail-closed.
+    """
+    allowed_routes = set(BIN_OF_TYPE.values()) | set(REJECT_STATUS)
+    if route_label not in allowed_routes:
+        raise ValueError(f"route inconnue : {route_label}")
+    type_implied_bin = BIN_OF_TYPE.get(type_label)
+    agreement = (
+        route_label == type_label
+        if route_label in REJECT_STATUS
+        else route_label == type_implied_bin
+    )
+    if route_confidence < min_confidence:
+        return "uncertain", None, type_implied_bin, agreement, "route_below_confidence_threshold"
+    if route_label in REJECT_STATUS:
+        return REJECT_STATUS[route_label], None, type_implied_bin, agreement, "routing_reject_authoritative"
+    if not agreement:
+        return "uncertain", None, type_implied_bin, False, "cross_model_destination_conflict"
+    return "ok", route_label, type_implied_bin, True, "models_agree"
+
 
 @dataclass(frozen=True)
 class SortResult:
@@ -198,6 +226,11 @@ class SortResult:
     type_confidence: float
     topk_types: list
     latency_ms: float
+    route_label: str | None = None
+    type_implied_bin: str | None = None
+    decision_policy: str = "fine_type_aggregation_v1"
+    agreement: bool = True
+    decision_reason: str = "fine_type_aggregation"
 
     @property
     def actionable(self) -> bool:
@@ -269,12 +302,20 @@ class CheeseSorter:
 
         if p_cible < self.min_confidence:
             return SortResult("uncertain", None, p_cible, self.types[i_type],
-                              p_type, top, latency_ms)
+                              p_type, top, latency_ms, route_label=cible,
+                              type_implied_bin=BIN_OF_TYPE.get(self.types[i_type]),
+                              agreement=True,
+                              decision_reason="aggregate_below_confidence_threshold")
         if cible in REJECT_STATUS:
             return SortResult(REJECT_STATUS[cible], None, p_cible, cible,
-                              p_type, top, latency_ms)
+                              p_type, top, latency_ms, route_label=cible,
+                              type_implied_bin=None, agreement=True,
+                              decision_reason="aggregate_reject")
         return SortResult("ok", cible, p_cible, self.types[i_type],
-                          p_type, top, latency_ms)
+                          p_type, top, latency_ms, route_label=cible,
+                          type_implied_bin=BIN_OF_TYPE.get(self.types[i_type]),
+                          agreement=True,
+                          decision_reason="fine_type_probability_aggregation")
 
     def predict(self, frame, box=None) -> SortResult:
         t0 = time.perf_counter()
@@ -334,16 +375,21 @@ class HybridCheeseSorter:
         type_result = self._types.predict(frame, box)
         route = self._routing.predict(frame, box)
         latency = (time.perf_counter() - t0) * 1e3
-        if route.confidence < self.min_confidence:
-            status, destination = "uncertain", None
-        elif route.label in REJECT_STATUS:
-            status, destination = REJECT_STATUS[route.label], None
-        else:
-            status, destination = "ok", route.label
+        status, destination, type_implied_bin, agreement, reason = resolve_hybrid_decision(
+            route.label,
+            route.confidence,
+            type_result.cheese_type,
+            self.min_confidence,
+        )
         return SortResult(
             status, destination, route.confidence,
             type_result.cheese_type, type_result.type_confidence,
             type_result.topk_types, latency,
+            route_label=route.label,
+            type_implied_bin=type_implied_bin,
+            decision_policy=HYBRID_DECISION_POLICY,
+            agreement=agreement,
+            decision_reason=reason,
         )
 
 

@@ -261,11 +261,16 @@ async def run(
                 if classifier_mode == "showcase"
                 else f"{100.0 * result.bin_confidence:.1f}%"
             )
+            decision_text = f"{result.status} · {result.cheese_type}"
+            destination_text = result.bin or "reject"
+            if classifier_mode == "model" and not result.agreement:
+                decision_text = f"{result.status} · type {result.cheese_type} · route {result.route_label}"
+                destination_text = "SAFE HOLD · MODEL DISAGREEMENT"
             hud.update(
                 phase="DECISION READY",
-                prediction=f"{result.status} · {result.cheese_type}",
+                prediction=decision_text,
                 confidence=confidence_text,
-                destination=result.bin or "reject",
+                destination=destination_text,
             )
             camera_position, camera_orientation = scene.camera_pose()
             estimated = pixel_to_plane(
@@ -340,6 +345,11 @@ async def run(
                     "status": result.status,
                     "predicted_type": result.cheese_type,
                     "predicted_bin": result.bin,
+                    "raw_route_label": result.route_label,
+                    "type_implied_bin": result.type_implied_bin,
+                    "decision_policy": result.decision_policy,
+                    "cross_model_agreement": result.agreement,
+                    "decision_reason": result.decision_reason,
                     "confidence": result.bin_confidence,
                     "inference_latency_ms": result.latency_ms,
                     "localization_error_m": localization_error,

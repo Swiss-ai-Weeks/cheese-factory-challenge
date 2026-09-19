@@ -93,6 +93,8 @@ def test_remote_sorter_checks_health_and_posts_pixels(monkeypatch):
             return Response({
                 "ok": True,
                 "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"],
+                "contract_version": 2,
+                "decision_policy": "route_authoritative_fail_closed_v1",
             })
         posted = Image.open(BytesIO(request.data))
         assert posted.size == (12, 10)
@@ -104,6 +106,11 @@ def test_remote_sorter_checks_health_and_posts_pixels(monkeypatch):
             "type_confidence": 0.82,
             "topk_types": [["hard_cheese", 0.82]],
             "latency_ms": 8.4,
+            "route_label": "bin_hard",
+            "type_implied_bin": "bin_hard",
+            "decision_policy": "route_authoritative_fail_closed_v1",
+            "agreement": True,
+            "decision_reason": "models_agree",
         })
 
     monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
@@ -130,7 +137,12 @@ def test_remote_sorter_rejects_unsafe_contract(monkeypatch):
             return self.payload
 
     responses = iter([
-        {"ok": True, "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"]},
+        {
+            "ok": True,
+            "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"],
+            "contract_version": 2,
+            "decision_policy": "route_authoritative_fail_closed_v1",
+        },
         {
             "status": "not_cheese",
             "bin": "bin_hard",
@@ -138,6 +150,11 @@ def test_remote_sorter_rejects_unsafe_contract(monkeypatch):
             "cheese_type": "not_cheese",
             "type_confidence": 0.9,
             "latency_ms": 5.0,
+            "route_label": "not_cheese",
+            "type_implied_bin": None,
+            "decision_policy": "route_authoritative_fail_closed_v1",
+            "agreement": True,
+            "decision_reason": "routing_reject_authoritative",
         },
     ])
     monkeypatch.setattr("urllib.request.urlopen", lambda *args, **kwargs: Response(next(responses)))
@@ -148,3 +165,50 @@ def test_remote_sorter_rejects_unsafe_contract(monkeypatch):
         assert "unsafe perception decision contract" in str(exc)
     else:
         raise AssertionError("unsafe service response was accepted")
+
+
+def test_remote_sorter_rejects_actionable_cross_model_conflict(monkeypatch):
+    class Response:
+        def __init__(self, payload):
+            self.payload = json.dumps(payload).encode()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+        def read(self):
+            return self.payload
+
+    responses = iter([
+        {
+            "ok": True,
+            "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"],
+            "contract_version": 2,
+            "decision_policy": "route_authoritative_fail_closed_v1",
+        },
+        {
+            "status": "ok",
+            "bin": "bin_hard",
+            "bin_confidence": 0.91,
+            "cheese_type": "blue_mould_cheese",
+            "type_confidence": 0.82,
+            "topk_types": [["blue_mould_cheese", 0.82]],
+            "latency_ms": 5.0,
+            "route_label": "bin_hard",
+            "type_implied_bin": "bin_blue",
+            "decision_policy": "route_authoritative_fail_closed_v1",
+            "agreement": False,
+            "decision_reason": "cross_model_destination_conflict",
+        },
+    ])
+    monkeypatch.setattr("urllib.request.urlopen", lambda *args, **kwargs: Response(next(responses)))
+    sorter = RemoteModelSorter("http://sorter:8765")
+
+    try:
+        sorter.predict(np.zeros((8, 8, 3), dtype=np.uint8))
+    except RuntimeError as exc:
+        assert "actionable cross-model conflict" in str(exc)
+    else:
+        raise AssertionError("actionable route/type conflict was accepted")

@@ -30,6 +30,23 @@ if [[ "$CLASSIFIER" == "model" ]]; then
     exit 1
   fi
   SORTER_HEALTH=$(curl -fsS --max-time 3 "$SORTER_URL/health" 2>/dev/null || true)
+  if [[ -n "$SORTER_HEALTH" && (
+        "$SORTER_HEALTH" != *'"routing": "direct_bin"'* ||
+        "$SORTER_HEALTH" != *'"contract_version": 2'* ||
+        "$SORTER_HEALTH" != *'"decision_policy": "route_authoritative_fail_closed_v1"'*
+      ) ]]; then
+    if [[ -f "$SORTER_PID_FILE" ]]; then
+      STALE_SORTER_PID=$(cat "$SORTER_PID_FILE")
+      STALE_SORTER_COMMAND=$(tr '\0' ' ' <"/proc/$STALE_SORTER_PID/cmdline" 2>/dev/null || true)
+      if kill -0 "$STALE_SORTER_PID" 2>/dev/null &&
+         [[ "$STALE_SORTER_COMMAND" == *"$PROJECT_ROOT/sim/sort_server.py"* ]]; then
+        kill "$STALE_SORTER_PID"
+        wait "$STALE_SORTER_PID" 2>/dev/null || true
+        rm -f "$SORTER_PID_FILE"
+        SORTER_HEALTH=""
+      fi
+    fi
+  fi
   if [[ -z "$SORTER_HEALTH" ]]; then
     nohup env LD_LIBRARY_PATH="$CUDNN_LIB:${LD_LIBRARY_PATH:-}" \
       "$PROJECT_ROOT/.venv/bin/python" "$PROJECT_ROOT/sim/sort_server.py" \
@@ -50,13 +67,15 @@ if [[ "$CLASSIFIER" == "model" ]]; then
       sleep 1
     done
   fi
-  if [[ "$SORTER_HEALTH" != *'"routing": "direct_bin"'* ]]; then
+  if [[ "$SORTER_HEALTH" != *'"routing": "direct_bin"'* ||
+        "$SORTER_HEALTH" != *'"contract_version": 2'* ||
+        "$SORTER_HEALTH" != *'"decision_policy": "route_authoritative_fail_closed_v1"'* ]]; then
     if [[ -n "$SORTER_PID" ]]; then
       kill "$SORTER_PID" >/dev/null 2>&1 || true
       wait "$SORTER_PID" 2>/dev/null || true
       rm -f "$SORTER_PID_FILE"
     fi
-    echo "service on $SORTER_URL is not the Stage 5 direct-bin router" >&2
+    echo "service on $SORTER_URL does not implement the safe perception contract v2" >&2
     exit 1
   fi
 fi

@@ -68,12 +68,14 @@ not evidence of model accuracy.
 
 ## P1 — integrated intelligence
 
-- [ ] **P1.1 — Unify the perception contract.** Fine-type classification and direct-bin
+- [x] **P1.1 — Unify the perception contract.** Fine-type classification and direct-bin
   routing can disagree (for example, a blue-cheese type paired with `not_cheese`). Define
   one authoritative decision, preserve both raw outputs for diagnosis, and make policy
   precedence explicit and tested.
   **Accept when:** contradictory outputs cannot silently produce an unexplained action;
   unit and scenario tests cover every status and bin.
+  **Completed:** commit documented in
+  [`docs/stages/16-perception-contract.md`](stages/16-perception-contract.md).
 
 - [ ] **P1.2 — Match training data to the canonical camera.** The production classifier
   was trained on a different rendered domain; the tiny target validation set is heavily

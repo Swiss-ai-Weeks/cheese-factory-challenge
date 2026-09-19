@@ -74,6 +74,11 @@ class DevelopmentSortResult:
     type_confidence: float
     topk_types: list[tuple[str, float]]
     latency_ms: float
+    route_label: str | None = None
+    type_implied_bin: str | None = None
+    decision_policy: str = "fine_type_aggregation_v1"
+    agreement: bool = True
+    decision_reason: str = "fine_type_aggregation"
 
     @property
     def actionable(self) -> bool:
@@ -92,13 +97,17 @@ def showcase_sort_result(ground_truth: str) -> DevelopmentSortResult:
     """
     if ground_truth == "not_cheese":
         return DevelopmentSortResult(
-            "not_cheese", None, 1.0, "not_cheese", 1.0, [("not_cheese", 1.0)], 0.0
+            "not_cheese", None, 1.0, "not_cheese", 1.0, [("not_cheese", 1.0)], 0.0,
+            route_label="not_cheese", decision_policy="scripted_showcase_v1",
+            decision_reason="scripted_reject",
         )
     target = BIN_OF_TYPE.get(ground_truth)
     if target is None:
         raise ValueError(f"showcase scenario has no route for {ground_truth!r}")
     return DevelopmentSortResult(
-        "ok", target, 1.0, ground_truth, 1.0, [(ground_truth, 1.0)], 0.0
+        "ok", target, 1.0, ground_truth, 1.0, [(ground_truth, 1.0)], 0.0,
+        route_label=target, type_implied_bin=target,
+        decision_policy="scripted_showcase_v1", decision_reason="scripted_route",
     )
 
 
@@ -125,6 +134,9 @@ class RemoteModelSorter:
             health = json.loads(response.read())
         if health.get("ok") is not True:
             raise RuntimeError(f"perception service is not healthy: {health}")
+        if health.get("contract_version") != 2:
+            raise RuntimeError(f"perception service contract version is incompatible: {health.get('contract_version')!r}")
+        self.decision_policy = str(health.get("decision_policy", ""))
         types = set(health.get("types", []))
         unknown = types - set(BIN_OF_TYPE) - {"empty", "not_cheese"}
         if unknown or not {"empty", "not_cheese"}.issubset(types):
@@ -156,14 +168,39 @@ class RemoteModelSorter:
             raise RuntimeError(f"perception service returned invalid bin: {target!r}")
         if (status == "ok") != (target is not None):
             raise RuntimeError(f"unsafe perception decision contract: status={status!r}, bin={target!r}")
+        cheese_type = str(result["cheese_type"])
+        if cheese_type not in BIN_OF_TYPE and cheese_type not in {"empty", "not_cheese"}:
+            raise RuntimeError(f"perception service returned invalid cheese type: {cheese_type!r}")
+        route_label = str(result["route_label"])
+        if route_label not in self.valid_bins | {"empty", "not_cheese"}:
+            raise RuntimeError(f"perception service returned invalid raw route: {route_label!r}")
+        type_implied_bin = result.get("type_implied_bin")
+        expected_type_bin = BIN_OF_TYPE.get(cheese_type)
+        if type_implied_bin != expected_type_bin:
+            raise RuntimeError("perception service returned inconsistent type-implied bin")
+        agreement = bool(result["agreement"])
+        decision_policy = str(result["decision_policy"])
+        if (
+            decision_policy == "route_authoritative_fail_closed_v1"
+            and status == "ok"
+            and (not agreement or target != route_label or target != type_implied_bin)
+        ):
+            raise RuntimeError("unsafe perception decision contract: actionable cross-model conflict")
+        if decision_policy != self.decision_policy:
+            raise RuntimeError("perception service changed decision policy")
         return DevelopmentSortResult(
             status=status,
             bin=target,
             bin_confidence=float(result["bin_confidence"]),
-            cheese_type=str(result["cheese_type"]),
+            cheese_type=cheese_type,
             type_confidence=float(result["type_confidence"]),
             topk_types=[(str(label), float(score)) for label, score in result.get("topk_types", [])],
             latency_ms=float(result["latency_ms"]),
+            route_label=route_label,
+            type_implied_bin=type_implied_bin,
+            decision_policy=decision_policy,
+            agreement=agreement,
+            decision_reason=str(result["decision_reason"]),
         )
 
 
