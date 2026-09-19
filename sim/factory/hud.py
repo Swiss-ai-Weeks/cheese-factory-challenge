@@ -11,6 +11,32 @@ MODE_BANNERS = {
     "showcase": "SHOWCASE · SCRIPTED ROUTING (NOT MODEL ACCURACY)",
 }
 
+PRESENTATION_WINDOW_TITLES = (
+    "Stage",
+    "Layer",
+    "Render Settings",
+    "Robot Inspector",
+    "Property",
+    "Console",
+    "Content",
+)
+
+
+def configure_presentation_workspace(workspace=None) -> tuple[str, ...]:
+    """Hide editor-only panes so the streamed viewport is the primary surface."""
+    if workspace is None:
+        import omni.ui as ui
+
+        workspace = ui.Workspace
+
+    hidden = []
+    for title in PRESENTATION_WINDOW_TITLES:
+        window = workspace.get_window(title)
+        if window is not None and window.visible:
+            window.visible = False
+            hidden.append(title)
+    return tuple(hidden)
+
 
 @dataclass(frozen=True)
 class HudSnapshot:

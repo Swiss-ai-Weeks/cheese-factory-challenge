@@ -14,7 +14,7 @@ import numpy as np
 from sim.factory.config import FactoryConfig, load_config
 from sim.factory.controller import PHASE_TO_FACTORY_STATE
 from sim.factory.geometry import pixel_to_plane
-from sim.factory.hud import FactoryHud
+from sim.factory.hud import FactoryHud, configure_presentation_workspace
 from sim.factory.perception import (
     BIN_OF_TYPE,
     ForegroundDetector,
@@ -152,6 +152,8 @@ async def run(
         await sample.reset_async()
         print("FACTORY_STAGE reset", flush=True)
         runtime_status.update("reset", max_objects=max_objects)
+        hidden_windows = configure_presentation_workspace()
+        print(f"FACTORY_PRESENTATION hidden_windows={','.join(hidden_windows)}", flush=True)
         hud.update(phase="READY · CAMERA CALIBRATED")
         app_utils.play(commit=True)
 

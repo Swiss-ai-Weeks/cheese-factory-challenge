@@ -58,11 +58,13 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/14-operator-controls.md`](stages/14-operator-controls.md).
 
-- [ ] **P0.6 — Pass a live visual and physics acceptance run.** Automated tests did not
+- [x] **P0.6 — Pass a live visual and physics acceptance run.** Automated tests did not
   catch the poor camera composition, overlapping bins or apparently idle robot. Add
   saved evidence from the canonical WebRTC-equivalent camera and inspect the full run.
   **Accept when:** the factory is visually stronger than the perception-branch demo,
   the arm completes its showcase, and the evidence records commit and configuration.
+  **Completed:** commit documented in
+  [`docs/stages/15-live-acceptance.md`](stages/15-live-acceptance.md).
 
 ## P1 — integrated intelligence
 
