@@ -84,6 +84,16 @@ does not remove them.
 
 ## Factory demo launchers
 
+The supported operator entry point is:
+
+```bash
+infra/isaac-sim/factory-demo.sh help
+infra/isaac-sim/factory-demo.sh showcase
+```
+
+It exposes only allowlisted actions and uses the canonical runtime launcher for
+start, replay and recovery. See [`docs/demo_runbook.md`](../../docs/demo_runbook.md).
+
 Use the repository launchers instead of invoking the evaluation container next
 to the persistent stream:
 

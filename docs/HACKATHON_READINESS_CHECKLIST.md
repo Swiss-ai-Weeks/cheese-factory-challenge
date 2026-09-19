@@ -49,12 +49,14 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/13-live-operator-hud.md`](stages/13-live-operator-hud.md).
 
-- [ ] **P0.5 — Deliver reliable demo controls.** Starting, stopping, resetting and
+- [x] **P0.5 — Deliver reliable demo controls.** Starting, stopping, resetting and
   selecting scenarios currently depend on shell knowledge and can leave a healthy but
   wrong Isaac process behind. Provide safe idempotent commands/API controls, one-click
   scenario reset, and a recovery path that does not corrupt metrics.
   **Accept when:** a fresh operator can launch either mode, replay the showcase and
   recover the service using the runbook only.
+  **Completed:** commit documented in
+  [`docs/stages/14-operator-controls.md`](stages/14-operator-controls.md).
 
 - [ ] **P0.6 — Pass a live visual and physics acceptance run.** Automated tests did not
   catch the poor camera composition, overlapping bins or apparently idle robot. Add

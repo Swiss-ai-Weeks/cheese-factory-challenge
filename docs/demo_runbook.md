@@ -10,49 +10,60 @@
    `runs/sim_type13/best.pt` and `runs/sim_bin_adapt_v2/best.pt`. Both are
    present on the evaluation workstation.
 
-The `development` classifier is an explicit integration aid: it classifies
-rendered crop colors and never reads spawn labels, but it is not a substitute
-for the trained 13-class model.
+The live runtime has three deliberately separate modes:
+
+| Mode | What it proves | What it does not prove |
+|---|---|---|
+| `showcase` | camera detection/localization and repeatable physical manipulation | classifier accuracy; routing is scripted from the known scenario |
+| `model` | honest trained-perception behavior, including fail-closed rejects | reliable motion on items the model rejects |
+| `development` | pixel proxy diagnostics | trained perception or lighting invariance |
 
 ## Commands
 
-Headless one-object smoke test:
+Use one allowlisted operator command for the live demo:
 
 ```bash
-infra/isaac-sim/run-evaluation.sh development 1
+infra/isaac-sim/factory-demo.sh preflight
+infra/isaac-sim/factory-demo.sh showcase
+infra/isaac-sim/factory-demo.sh status
 ```
 
-Deterministic 11-object evaluation (ten cheeses, two per bin, one foreign
-object, plus an empty-belt interval):
+`showcase` is the recommended judge-facing experience. The on-screen HUD labels
+it `SCRIPTED ROUTING (NOT MODEL ACCURACY)`. Reset it to object 1 at any time:
 
 ```bash
-infra/isaac-sim/run-evaluation.sh development 11
+infra/isaac-sim/factory-demo.sh replay
 ```
 
-Streamed GUI on the existing SSH/Brev noVNC stack:
+Start honest trained perception separately:
 
 ```bash
-infra/isaac-sim/run-gui.sh development
+infra/isaac-sim/factory-demo.sh model
 ```
 
 Open the authenticated noVNC endpoint already provisioned for port 6080, or
 forward it locally with `ssh -N -L 6080:127.0.0.1:6080 <host>` and open
 `http://localhost:6080`.
 
-Production commands use the trained hybrid service:
+If the viewer is blank, stale, or showing the wrong app, recreate the complete
+stack with its canonical entry point:
 
 ```bash
-infra/isaac-sim/run-evaluation.sh model 11
-infra/isaac-sim/run-gui.sh model
+infra/isaac-sim/factory-demo.sh recover showcase
 ```
 
-`run-evaluation.sh` stops and restores the persistent WebRTC service around a
-disposable run. `run-gui.sh model` starts the host perception service if needed.
-Both fail closed if either checkpoint is absent or the service contract is
-incompatible. Stop the streamed demo and its repository-owned sorter with:
+For reproducible headless evidence, the lower-level bounded command remains:
 
 ```bash
-infra/isaac-sim/stop-gui.sh
+infra/isaac-sim/run-evaluation.sh showcase 11
+infra/isaac-sim/run-evaluation.sh model 11
+```
+
+The model commands fail closed if either checkpoint is absent or the service
+contract is incompatible. Stop the stream and repository-owned sorter with:
+
+```bash
+infra/isaac-sim/factory-demo.sh stop
 ```
 
 ## Expected outputs
@@ -69,13 +80,13 @@ status is `empty`, `not_cheese`, or `uncertain` has `pick_attempted=false`.
 
 ## Operator checklist
 
-- Confirm all three `isim` services are healthy and the camera view is visible.
-- Confirm the terminal says which classifier is active; do not present the
-  development classifier as model accuracy.
-- Verify belt, pick line, camera framing, five colored bins, reject chute, and
-  Franka reach before starting the full run.
-- Watch the displayed state, object ID, predicted type/bin, confidence, and
-  cumulative result.
+- Run `factory-demo.sh status`; confirm all three services are healthy and the
+  runtime commit matches the branch HEAD.
+- Confirm the HUD mode before speaking about evidence. Never call showcase or
+  development output trained-model accuracy.
+- Verify the industrial belt, inspection portal, five labelled cheese receivers,
+  red reject receiver and Franka are visible without overlap.
+- Watch the HUD state, item, decision, destination, confidence/evidence type and totals.
 - Keep the emergency action simple: stop the Isaac container. The loop has
   motion timeouts and fail-closed rejection, but a hackathon operator should
   still monitor it.
@@ -93,5 +104,5 @@ status is `empty`, `not_cheese`, or `uncertain` has `pick_attempted=false`.
   mounted Hub/cache paths.
 - Production command says checkpoint missing: restore or rebuild both Stage 5
   checkpoints; do not silently switch a public demo to the development classifier.
-- Stream busy or blank: restart the three compose services as documented in
-  `infra/isaac-sim/README.md`.
+- Stream busy, blank, stale, or wrong app: run
+  `infra/isaac-sim/factory-demo.sh recover showcase`.
