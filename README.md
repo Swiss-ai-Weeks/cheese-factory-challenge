@@ -297,6 +297,21 @@ Generated captures stay ignored. The accepted smoke evidence and the RTX pixel
 nondeterminism boundary are recorded in
 [`docs/stages/18-replicator-domain-randomization.md`](docs/stages/18-replicator-domain-randomization.md).
 
+Model candidates cannot be promoted by an attractive single metric. The P1.4
+gate pins both validation-manifest hashes and requires balanced rare-bin gains,
+the original operational performance, confidence coverage, and foreign-object
+safety simultaneously:
+
+```bash
+.venv/bin/python src/check_candidate_gate.py \
+  --balanced runs/candidate/balanced_val.json \
+  --operational runs/candidate/operational_val.json
+```
+
+Both bounded P1.4 candidates were rejected, so production deliberately remains
+on `runs/sim_bin_adapt_v2/best.pt`. See
+[`docs/stages/19-frozen-model-gate.md`](docs/stages/19-frozen-model-gate.md).
+
 For agent/UI integration, `sim/factory/control_server.py` exposes localhost-only
 health and latest-result reads. A fixed, bounded evaluation start is available
 only with an operator-provided token; NVIDIA's separate `isaacsim_mcp` remains

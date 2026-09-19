@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "threshold": 0.55,
+  "production_checkpoint": {
+    "path": "runs/sim_bin_adapt_v2/best.pt",
+    "sha256": "0b02bb00096d6735c7700c4657fc2f853c615a027cf04513698dccccc609b16f"
+  },
+  "locked_until_validation_passes": [
+    "factory test split",
+    "final Isaac 11-object scenario"
+  ],
+  "suites": {
+    "balanced": {
+      "manifest": "data/processed/manifest_factory_balanced_v2.csv",
+      "manifest_sha256": "b4ea1fea431f4b7e95ac59ba444bb9f98eca0da501b37a59cbe18ea8beaad4d0",
+      "split": "val",
+      "samples": 90,
+      "baseline": {
+        "top1": 0.36666666666666664,
+        "macro_f1": 0.3036297852474323,
+        "correct_and_confident_rate": 0.32222222222222224
+      },
+      "minimums": {
+        "top1": 0.44666666666666666,
+        "macro_f1": 0.3836297852474323,
+        "correct_and_confident_rate": 0.40222222222222226,
+        "foreign_object_safety.safe_rejection_rate": 0.8,
+        "per_class.bin_blue.recall": 0.2,
+        "per_class.bin_fresh.recall": 0.2,
+        "per_class.bin_semi_hard.recall": 0.3333333333333333,
+        "per_class.bin_soft.recall": 0.2,
+        "per_class_confidence.bin_blue.correct_and_confident_rate": 0.2,
+        "per_class_confidence.bin_fresh.correct_and_confident_rate": 0.2,
+        "per_class_confidence.bin_semi_hard.correct_and_confident_rate": 0.3333333333333333,
+        "per_class_confidence.bin_soft.correct_and_confident_rate": 0.2
+      }
+    },
+    "operational": {
+      "manifest": "data/processed/manifest_factory_only.csv",
+      "manifest_sha256": "8ec6268ce77b8fda4f85e188eb132aadc3459f13df6fadbb67725f08c8e89871",
+      "split": "val",
+      "samples": 300,
+      "baseline": {
+        "top1": 0.7433333333333333,
+        "macro_f1": 0.40097139271427445,
+        "coverage": 0.8866666666666667,
+        "correct_and_confident_rate": 0.6966666666666667,
+        "foreign_object_safety.safe_rejection_rate": 0.9425287356321839
+      },
+      "minimums": {
+        "top1": 0.7433333333333333,
+        "macro_f1": 0.40097139271427445,
+        "coverage": 0.85,
+        "correct_and_confident_rate": 0.6966666666666667,
+        "foreign_object_safety.safe_rejection_rate": 0.9425287356321839
+      }
+    }
+  }
+}

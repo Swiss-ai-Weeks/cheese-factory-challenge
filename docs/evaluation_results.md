@@ -121,3 +121,23 @@ The locked target test split and deterministic Isaac scenario were not run.
 The production integration results above remain unchanged. See
 [`stages/09-targeted-data.md`](stages/09-targeted-data.md) for the capture
 integrity evidence, experiment details, and diagnosis.
+
+## Stage 19 frozen-gate result
+
+P1.4 froze a two-suite validation gate before training. The new balanced suite
+uses 90 canonical-camera images from 30 independent source groups; the original
+300-image factory validation suite remains the operational guardrail. The
+production baseline scored 0.3667 top-1 and 0.3036 macro-F1 on the balanced
+suite.
+
+Two low-learning-rate candidates improved balanced aggregate performance, but
+neither met the predeclared per-bin requirements for fresh and soft cheese.
+Candidate v1 also improved the operational validation metrics, but was still
+rejected because promotion is all-or-nothing. Candidate v2 additionally
+regressed operational top-1 and macro-F1. Production remains on
+`runs/sim_bin_adapt_v2/best.pt`.
+
+No P1.4 candidate was evaluated on the test split or final Isaac scenario. See
+[`stages/19-frozen-model-gate.md`](stages/19-frozen-model-gate.md) for the
+thresholds, manifest hashes, complete result table, and machine-readable gate
+reports.

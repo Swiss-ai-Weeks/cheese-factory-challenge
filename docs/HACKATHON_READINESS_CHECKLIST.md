@@ -96,12 +96,14 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/18-replicator-domain-randomization.md`](stages/18-replicator-domain-randomization.md).
 
-- [ ] **P1.4 — Retrain only behind fixed gates.** Earlier candidates consumed compute
+- [x] **P1.4 — Retrain only behind fixed gates.** Earlier candidates consumed compute
   but did not beat the production checkpoint. Freeze validation before training and
   require improvements in both aggregate and rare-bin metrics without regressing reject
   safety or live-scenario behavior.
   **Accept when:** a candidate passes documented gates before promotion; otherwise the
   baseline stays in production and rejection is recorded honestly.
+  **Completed without promotion:** commit documented in
+  [`docs/stages/19-frozen-model-gate.md`](stages/19-frozen-model-gate.md).
 
 - [ ] **P1.5 — Harden camera-to-control timing.** Couple observations, decisions and
   actions with item IDs and timestamps so stale responses cannot move the arm for the

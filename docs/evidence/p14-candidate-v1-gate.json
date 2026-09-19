@@ -1,0 +1,187 @@
+{
+  "checks": [
+    {
+      "check": "manifest",
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "check": "manifest_sha256",
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "check": "split",
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "check": "samples",
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "check": "threshold",
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.5111111111111111,
+      "check": "top1",
+      "minimum": 0.44666666666666666,
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.445120365457218,
+      "check": "macro_f1",
+      "minimum": 0.3836297852474323,
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.4777777777777778,
+      "check": "correct_and_confident_rate",
+      "minimum": 0.40222222222222226,
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.8,
+      "check": "foreign_object_safety.safe_rejection_rate",
+      "minimum": 0.8,
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.8,
+      "check": "per_class.bin_blue.recall",
+      "minimum": 0.2,
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.06666666666666667,
+      "check": "per_class.bin_fresh.recall",
+      "minimum": 0.2,
+      "passed": false,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.4666666666666667,
+      "check": "per_class.bin_semi_hard.recall",
+      "minimum": 0.3333333333333333,
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.0,
+      "check": "per_class.bin_soft.recall",
+      "minimum": 0.2,
+      "passed": false,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.8,
+      "check": "per_class_confidence.bin_blue.correct_and_confident_rate",
+      "minimum": 0.2,
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.0,
+      "check": "per_class_confidence.bin_fresh.correct_and_confident_rate",
+      "minimum": 0.2,
+      "passed": false,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.4,
+      "check": "per_class_confidence.bin_semi_hard.correct_and_confident_rate",
+      "minimum": 0.3333333333333333,
+      "passed": true,
+      "suite": "balanced"
+    },
+    {
+      "actual": 0.0,
+      "check": "per_class_confidence.bin_soft.correct_and_confident_rate",
+      "minimum": 0.2,
+      "passed": false,
+      "suite": "balanced"
+    },
+    {
+      "check": "manifest",
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "check": "manifest_sha256",
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "check": "split",
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "check": "samples",
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "check": "threshold",
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "actual": 0.7566666666666667,
+      "check": "top1",
+      "minimum": 0.7433333333333333,
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "actual": 0.42520350020350023,
+      "check": "macro_f1",
+      "minimum": 0.40097139271427445,
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "actual": 0.8566666666666667,
+      "check": "coverage",
+      "minimum": 0.85,
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "actual": 0.7033333333333334,
+      "check": "correct_and_confident_rate",
+      "minimum": 0.6966666666666667,
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "actual": 0.9482758620689655,
+      "check": "foreign_object_safety.safe_rejection_rate",
+      "minimum": 0.9425287356321839,
+      "passed": true,
+      "suite": "operational"
+    },
+    {
+      "actual": [
+        "runs/sim_bin_p14_balanced_v1/best.pt"
+      ],
+      "check": "same_candidate_checkpoint",
+      "passed": true,
+      "suite": "cross_suite"
+    }
+  ],
+  "gate_version": 1,
+  "locked_evaluations": [
+    "factory test split",
+    "final Isaac 11-object scenario"
+  ],
+  "passed": false
+}
