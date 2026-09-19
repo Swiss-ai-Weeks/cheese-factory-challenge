@@ -1,0 +1,55 @@
+{
+  "dataset_manifest": {
+    "camera_config_sha256": "08998514510d994bb5c9ce5be0f054ba21fa473f98518d9ce6b8d86449086e92",
+    "duplicate_uids": 0,
+    "group_counts": {
+      "train": {
+        "bin_blue": 26,
+        "bin_fresh": 26,
+        "bin_hard": 26,
+        "bin_semi_hard": 26,
+        "bin_soft": 26,
+        "not_cheese": 26
+      },
+      "val": {
+        "bin_blue": 5,
+        "bin_fresh": 5,
+        "bin_hard": 5,
+        "bin_semi_hard": 5,
+        "bin_soft": 5,
+        "not_cheese": 5
+      }
+    },
+    "group_leaks": 0,
+    "missing_or_mismatched_files": 0,
+    "row_counts": {
+      "train": {
+        "bin_blue": 78,
+        "bin_fresh": 78,
+        "bin_hard": 78,
+        "bin_semi_hard": 78,
+        "bin_soft": 78,
+        "not_cheese": 78
+      },
+      "val": {
+        "bin_blue": 15,
+        "bin_fresh": 15,
+        "bin_hard": 15,
+        "bin_semi_hard": 15,
+        "bin_soft": 15,
+        "not_cheese": 15
+      }
+    },
+    "rows": 558,
+    "splits": ["train", "val"],
+    "test_rows": 0,
+    "views_per_group": 3
+  },
+  "source_manifest": {
+    "rows": 24,
+    "split_counts": {
+      "train": 19,
+      "val": 5
+    }
+  }
+}

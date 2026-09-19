@@ -34,6 +34,7 @@ runs/stage8_baselines/
 
 # environnement
 .venv/
+.venv-segmentation/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/

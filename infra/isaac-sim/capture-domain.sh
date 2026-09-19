@@ -11,12 +11,19 @@ LIMIT=${CHEESE_CAPTURE_LIMIT:-100}
 VIEW_START=${CHEESE_CAPTURE_VIEW_START:-0}
 SPLITS=${CHEESE_CAPTURE_SPLITS:-}
 BINS=${CHEESE_CAPTURE_BINS:-}
+DATASET=${CHEESE_CAPTURE_DATASET:-factory_adapt}
+SOURCE_MANIFEST=${CHEESE_CAPTURE_SOURCE_MANIFEST:-}
+
+if [[ ! "$DATASET" =~ ^[a-z0-9_]+$ ]]; then
+  echo "CHEESE_CAPTURE_DATASET must match [a-z0-9_]+" >&2
+  exit 2
+fi
 
 # Isaac Sim runs as UID 1234 in the NVIDIA image, while the repository mount is
 # normally owned by the host user. Limit shared write access to generated data.
-CAPTURE_DIR="$PROJECT_ROOT/data/processed/images/factory_adapt"
-CAPTURE_MANIFEST="$PROJECT_ROOT/data/processed/manifest_factory_adapt.csv"
-FACTORY_MANIFEST="$PROJECT_ROOT/data/processed/manifest_factory_only.csv"
+CAPTURE_DIR="$PROJECT_ROOT/data/processed/images/$DATASET"
+CAPTURE_MANIFEST="$PROJECT_ROOT/data/processed/manifest_${DATASET}.csv"
+FACTORY_MANIFEST="$PROJECT_ROOT/data/processed/manifest_${DATASET}_only.csv"
 install -d -m 0777 "$CAPTURE_DIR"
 touch "$CAPTURE_MANIFEST" "$FACTORY_MANIFEST"
 chmod 0666 "$CAPTURE_MANIFEST" "$FACTORY_MANIFEST"
@@ -27,6 +34,8 @@ exec docker run --rm --gpus all \
   -e CHEESE_CAPTURE_OFFSET="$OFFSET" -e CHEESE_CAPTURE_LIMIT="$LIMIT" \
   -e CHEESE_CAPTURE_VIEW_START="$VIEW_START" \
   -e CHEESE_CAPTURE_SPLITS="$SPLITS" -e CHEESE_CAPTURE_BINS="$BINS" \
+  -e CHEESE_CAPTURE_DATASET="$DATASET" \
+  -e CHEESE_CAPTURE_SOURCE_MANIFEST="$SOURCE_MANIFEST" \
   -v "$PROJECT_ROOT:/workspace:rw" \
   -v "$ISAAC_SIM_DATA_DIR/cache/main:/isaac-sim/.cache:rw" \
   -v "$ISAAC_SIM_DATA_DIR/cache/computecache:/isaac-sim/.nv/ComputeCache:rw" \

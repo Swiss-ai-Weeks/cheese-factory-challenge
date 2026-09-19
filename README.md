@@ -259,6 +259,30 @@ model or the host inference service is unavailable. See
 [`docs/stages/05-production-perception.md`](docs/stages/05-production-perception.md)
 for target-camera capture, training, and honest trained-model results.
 
+The P1.2 dataset pipeline closes the largest remaining domain/coverage gap
+without touching the locked test set. It segments only reviewed, independently
+split blue-cheese sources, captures them through the canonical factory camera,
+then emits an exactly group-balanced train/validation manifest with hashes for
+every source, render and camera configuration:
+
+```bash
+python -m venv --system-site-packages .venv-segmentation
+.venv-segmentation/bin/pip install -r requirements-segmentation.txt
+.venv-segmentation/bin/python src/prepare_camera_sources.py
+
+CHEESE_CAPTURE_SOURCE_MANIFEST=data/processed/camera_sources_v2/manifest.csv \
+CHEESE_CAPTURE_DATASET=factory_blue_v2 \
+CHEESE_CAPTURE_SPLITS=train,val CHEESE_CAPTURE_BINS=bin_blue \
+CHEESE_CAPTURE_VIEWS=3 infra/isaac-sim/capture-all-domain.sh
+
+.venv/bin/python src/build_camera_dataset.py
+.venv/bin/python src/audit_camera_dataset.py
+```
+
+Generated images and manifests remain ignored. See
+[`docs/stages/17-camera-domain-dataset.md`](docs/stages/17-camera-domain-dataset.md)
+for the source review boundary and measured coverage.
+
 For agent/UI integration, `sim/factory/control_server.py` exposes localhost-only
 health and latest-result reads. A fixed, bounded evaluation start is available
 only with an operator-provided token; NVIDIA's separate `isaacsim_mcp` remains

@@ -77,13 +77,15 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/16-perception-contract.md`](stages/16-perception-contract.md).
 
-- [ ] **P1.2 — Match training data to the canonical camera.** The production classifier
+- [x] **P1.2 — Match training data to the canonical camera.** The production classifier
   was trained on a different rendered domain; the tiny target validation set is heavily
   imbalanced and contains almost no blue cheese diversity. Use the final inspection
   camera and geometry to generate group-safe, independently varied data with balanced
   coverage and provenance.
   **Accept when:** manifests prove source/group separation, per-class coverage and no
   test leakage; generated data is not committed unless repository/LFS policy permits.
+  **Completed:** commit documented in
+  [`docs/stages/17-camera-domain-dataset.md`](stages/17-camera-domain-dataset.md).
 
 - [ ] **P1.3 — Use Omniverse Replicator as a real data engine.** Current Isaac rendering
   varies some parameters but underuses Replicator. Add reproducible randomization for

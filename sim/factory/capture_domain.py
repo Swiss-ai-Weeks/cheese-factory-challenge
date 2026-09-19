@@ -10,6 +10,7 @@ import asyncio
 import csv
 import json
 import os
+import re
 import sys
 import traceback
 from pathlib import Path
@@ -26,8 +27,33 @@ from sim.factory.perception import ForegroundDetector
 from sim.factory.run_factory import CheeseFactorySample, _wait_frames
 
 
-def _records() -> list[dict]:
+def _resolve_texture(processed: Path, value: str) -> Path:
+    path = Path(value)
+    if path.is_absolute():
+        return path
+    return processed / path
+
+
+def _records(source_manifest: Path | None = None) -> list[dict]:
     processed = PROJECT_ROOT / "data" / "processed"
+    if source_manifest is not None:
+        records = []
+        for row in csv.DictReader(source_manifest.open()):
+            if row["split"] not in {"train", "val"}:
+                raise ValueError(
+                    f"external camera source {row['uid']} has forbidden split {row['split']!r}"
+                )
+            records.append({
+                "uid": row["uid"],
+                "label": row.get("fr_label") or row["label"],
+                "bin": row["bin"],
+                "split": row["split"],
+                "texture": _resolve_texture(processed, row["path"]),
+                "source_sha256": row.get("content_hash", ""),
+                "source_manifest": str(source_manifest),
+            })
+        return sorted(records, key=lambda row: (row["split"], row["bin"], row["uid"]))
+
     group_split = {}
     for row in csv.DictReader((processed / "manifest_sim.csv").open()):
         group_split[row["group"]] = row["split"]
@@ -43,6 +69,8 @@ def _records() -> list[dict]:
             "bin": row["bin"],
             "split": split,
             "texture": processed / row["path"],
+            "source_sha256": "",
+            "source_manifest": "cutouts/manifest.csv",
         })
     return sorted(records, key=lambda row: (row["split"], row["bin"], row["uid"]))
 
@@ -58,9 +86,22 @@ async def capture(
     config = load_config()
     sample = CheeseFactorySample(config, "model")
     scene = sample.scene
-    output = PROJECT_ROOT / "data" / "processed" / "images" / "factory_adapt"
-    manifest_path = PROJECT_ROOT / "data" / "processed" / "manifest_factory_adapt.csv"
-    factory_manifest_path = PROJECT_ROOT / "data" / "processed" / "manifest_factory_only.csv"
+    dataset_name = os.environ.get("CHEESE_CAPTURE_DATASET", "factory_adapt")
+    if not re.fullmatch(r"[a-z0-9_]+", dataset_name):
+        raise ValueError("CHEESE_CAPTURE_DATASET must match [a-z0-9_]+")
+    source_manifest_value = os.environ.get("CHEESE_CAPTURE_SOURCE_MANIFEST", "").strip()
+    source_manifest = None
+    if source_manifest_value:
+        source_manifest = Path(source_manifest_value)
+        if not source_manifest.is_absolute():
+            source_manifest = PROJECT_ROOT / source_manifest
+        source_manifest = source_manifest.resolve()
+        processed_root = (PROJECT_ROOT / "data" / "processed").resolve()
+        if processed_root not in source_manifest.parents:
+            raise ValueError("external source manifest must be under data/processed")
+    output = PROJECT_ROOT / "data" / "processed" / "images" / dataset_name
+    manifest_path = PROJECT_ROOT / "data" / "processed" / f"manifest_{dataset_name}.csv"
+    factory_manifest_path = PROJECT_ROOT / "data" / "processed" / f"manifest_{dataset_name}_only.csv"
     output.mkdir(parents=True, exist_ok=True)
     rows = []
     try:
@@ -80,7 +121,7 @@ async def capture(
         detector.set_background(background)
         pick = list(spawn)
         pick[1] = float(config.section("belt")["pick_line_y"])
-        all_source_records = _records()
+        all_source_records = _records(source_manifest)
         selected_splits = selection("CHEESE_CAPTURE_SPLITS", VALID_SPLITS)
         selected_bins = selection("CHEESE_CAPTURE_BINS", VALID_BINS)
         eligible_records = filter_records(
@@ -130,7 +171,13 @@ async def capture(
                     "crop_box": json.dumps(detection.box),
                     "group": source["uid"],
                     "split_label": source["bin"],
-                    "extra": json.dumps({"fr_label": source["label"], "domain": "factory_camera"}),
+                    "extra": json.dumps({
+                        "fr_label": source["label"],
+                        "domain": "factory_camera",
+                        "capture_dataset": dataset_name,
+                        "source_sha256": source["source_sha256"],
+                        "source_manifest": source["source_manifest"],
+                    }, sort_keys=True),
                 })
             if (index - offset + 1) % 50 == 0:
                 print(

@@ -1,0 +1,3 @@
+# Reproducible, offline-after-model-cache source preparation for P1.2.
+rembg==2.0.84
+onnxruntime-gpu==1.23.2
