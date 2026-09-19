@@ -27,6 +27,14 @@ else:
 
 ## 📖 Documentation
 
+**Taking over development?** Start with the
+[`Developer handoff`](docs/DEVELOPER_HANDOFF.md), then read
+[`Isaac Sim for Unity developers`](docs/ISAAC_SIM_FOR_UNITY_DEVELOPERS.md),
+[`Workstation operations and Git`](docs/OPERATIONS_AND_GIT.md), and the candid
+[`Known issues`](docs/KNOWN_ISSUES.md). Static presentation objects are declared
+in [`sim/factory/scene_layout.json`](sim/factory/scene_layout.json), which maps
+directly to stable paths in Isaac's Stage hierarchy.
+
 The corrective integration and demo acceptance plan is tracked in
 [`docs/HACKATHON_READINESS_CHECKLIST.md`](docs/HACKATHON_READINESS_CHECKLIST.md).
 
