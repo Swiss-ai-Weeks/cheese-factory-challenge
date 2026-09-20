@@ -24,6 +24,7 @@ from sim.factory.perception import (
 )
 from sim.factory.runtime_status import RuntimeStatus
 from sim.factory.state_machine import FactoryState, FactoryStateMachine
+from sim.factory.timing import DecisionValidationError, ObservationContext, validate_decision
 
 
 def _next_state(machine: FactoryStateMachine, target_name: str) -> None:
@@ -193,6 +194,8 @@ async def run(
                 prediction="analyzing…",
                 confidence="—",
                 destination="—",
+                timing="awaiting camera observation",
+                safety="ARM INHIBITED · awaiting valid decision",
             )
             scene.set_object(object_id, ground_truth, spawn)
             # The Franka's collision-aware retreat pose is not bit-identical to
@@ -238,6 +241,8 @@ async def run(
                 hud.update(
                     phase="FAULT · DETECTION FAILED",
                     prediction="no foreground detected",
+                    timing="no observation issued",
+                    safety="ARM INHIBITED · detection failure",
                     failures=hud.snapshot.failures + 1,
                     completed=index + 1,
                 )
@@ -247,14 +252,106 @@ async def run(
                     total_objects=min(limit, len(sequence)),
                     current_object=object_id,
                     last_status="detection_failed",
+                    cycle_state="DETECTION_FAILED",
+                    arm_action_authorized=False,
                 )
                 continue
             machine.begin(object_id)
-            result = (
-                showcase_sort_result(ground_truth)
-                if classifier_mode == "showcase"
-                else sorter.predict(detection.crop)
+            machine.transition(FactoryState.CLASSIFYING)
+            observation = ObservationContext.capture(object_id, index + 1, detection.crop)
+            decision_deadline_s = float(perception["decision_max_age_s"])
+            hud.update(
+                phase="CLASSIFYING · DEADLINE ARMED",
+                timing=f"obs #{observation.sequence} · max {decision_deadline_s:.1f}s",
+                safety="ARM INHIBITED · decision pending",
             )
+            runtime_status.update(
+                "running",
+                cycle_state="CLASSIFYING",
+                completed_objects=index,
+                total_objects=total_objects,
+                current_object=object_id,
+                observation_sequence=observation.sequence,
+                request_id=observation.request_id,
+                frame_sha256=observation.frame_sha256,
+                observed_at_epoch=observation.captured_at_epoch,
+                arm_action_authorized=False,
+            )
+            try:
+                result = (
+                    showcase_sort_result(ground_truth, observation)
+                    if classifier_mode == "showcase"
+                    else sorter.predict(detection.crop, observation=observation)
+                )
+                decision_timing = validate_decision(
+                    observation,
+                    result,
+                    current_item_id=machine.object_id,
+                    max_age_s=decision_deadline_s,
+                )
+            except Exception as exc:
+                fault_code = exc.code if isinstance(exc, DecisionValidationError) else type(exc).__name__
+                fault = f"{fault_code}: {exc}"
+                machine.transition(FactoryState.RECOVERY, fault)
+                annotate_frame(
+                    frame,
+                    detection,
+                    None,
+                    "PERCEPTION_FAULT_ARM_INHIBITED",
+                    frames_dir / f"{object_id}-perception-fault.png",
+                )
+                # This is an explicit simulated quarantine diversion. The robot
+                # is never given a target for a missing, malformed, or stale decision.
+                scene.move_object(tuple(float(v) for v in factory_config.raw["reject_position"]))
+                await app_utils.update_app_async(steps=5)
+                records.append(
+                    {
+                        "object_id": object_id,
+                        "ground_truth": ground_truth,
+                        "status": "perception_fault",
+                        "detected": True,
+                        "pick_attempted": False,
+                        "pick_success": False,
+                        "correct_bin": False,
+                        "end_to_end_success": False,
+                        "failure_reason": fault,
+                        "fault_code": fault_code,
+                        "observation_sequence": observation.sequence,
+                        "request_id": observation.request_id,
+                        "observed_at_epoch": observation.captured_at_epoch,
+                        "frame_sha256": observation.frame_sha256,
+                        "arm_action_authorized": False,
+                        "actuation_kind": "simulated_quarantine_diversion",
+                        "state_history": machine.history,
+                        "cycle_time_s": time.perf_counter() - started,
+                    }
+                )
+                _print_progress(records)
+                hud.update(
+                    phase="PERCEPTION FAULT · ITEM QUARANTINED",
+                    prediction="no valid decision",
+                    confidence="—",
+                    destination="reject / manual review",
+                    timing=f"obs #{observation.sequence} rejected",
+                    safety=f"ARM INHIBITED · {fault_code}"[:90],
+                    failures=hud.snapshot.failures + 1,
+                    completed=index + 1,
+                )
+                runtime_status.update(
+                    "running",
+                    cycle_state="PERCEPTION_FAULT",
+                    completed_objects=index + 1,
+                    total_objects=total_objects,
+                    current_object=object_id,
+                    observation_sequence=observation.sequence,
+                    request_id=observation.request_id,
+                    frame_sha256=observation.frame_sha256,
+                    fault_code=fault_code,
+                    fault=fault,
+                    arm_action_authorized=False,
+                    disposition="simulated_quarantine_diversion",
+                )
+                continue
             machine.classification(result.status)
             confidence_text = (
                 "SCRIPTED"
@@ -271,6 +368,12 @@ async def run(
                 prediction=decision_text,
                 confidence=confidence_text,
                 destination=destination_text,
+                timing=f"obs #{decision_timing.sequence} · {decision_timing.age_ms:.1f} ms",
+                safety=(
+                    "ARM AUTHORIZED · item-bound decision"
+                    if result.status == "ok"
+                    else "ARM INHIBITED · reject decision"
+                ),
             )
             camera_position, camera_orientation = scene.camera_pose()
             estimated = pixel_to_plane(
@@ -289,6 +392,66 @@ async def run(
             pick_attempted = False
             pick_success = False
             failure_reason = None
+            # Revalidate immediately before any actuator command. This closes
+            # the gap between inference validation and command authorization.
+            try:
+                authorization_timing = validate_decision(
+                    observation,
+                    result,
+                    current_item_id=machine.object_id,
+                    max_age_s=decision_deadline_s,
+                )
+            except DecisionValidationError as exc:
+                fault = f"{exc.code}: {exc}"
+                machine.transition(FactoryState.RECOVERY, fault)
+                scene.move_object(tuple(float(v) for v in factory_config.raw["reject_position"]))
+                await app_utils.update_app_async(steps=5)
+                records.append(
+                    {
+                        "object_id": object_id,
+                        "ground_truth": ground_truth,
+                        "status": "authorization_fault",
+                        "detected": True,
+                        "pick_attempted": False,
+                        "pick_success": False,
+                        "correct_bin": False,
+                        "end_to_end_success": False,
+                        "failure_reason": fault,
+                        "fault_code": exc.code,
+                        "observation_sequence": observation.sequence,
+                        "request_id": observation.request_id,
+                        "observed_at_epoch": observation.captured_at_epoch,
+                        "frame_sha256": observation.frame_sha256,
+                        "arm_action_authorized": False,
+                        "actuation_kind": "simulated_quarantine_diversion",
+                        "state_history": machine.history,
+                        "cycle_time_s": time.perf_counter() - started,
+                    }
+                )
+                _print_progress(records)
+                hud.update(
+                    phase="AUTHORIZATION EXPIRED · ITEM QUARANTINED",
+                    destination="reject / manual review",
+                    timing=f"obs #{observation.sequence} expired",
+                    safety=f"ARM INHIBITED · {exc.code}",
+                    failures=hud.snapshot.failures + 1,
+                    completed=index + 1,
+                )
+                runtime_status.update(
+                    "running",
+                    cycle_state="AUTHORIZATION_FAULT",
+                    completed_objects=index + 1,
+                    total_objects=total_objects,
+                    current_object=object_id,
+                    request_id=observation.request_id,
+                    fault_code=exc.code,
+                    fault=fault,
+                    arm_action_authorized=False,
+                )
+                continue
+            action_started_at_epoch = time.time()
+            arm_action_authorized = result.status == "ok"
+            actuation_kind = "robot_pick_place" if arm_action_authorized else "simulated_reject_diversion"
             if result.status == "ok":
                 pick_attempted = True
                 scene.task.set_camera_goal(estimated, factory_config.bins[result.bin])
@@ -333,6 +496,8 @@ async def run(
                 await app_utils.update_app_async(steps=5)
                 machine.transition(FactoryState.COMPLETE)
 
+            action_completed_at_epoch = time.time()
+
             expected_bin = BIN_OF_TYPE.get(ground_truth)
             correct_classification = result.cheese_type == ground_truth
             correct_bin = (result.bin == expected_bin and pick_success) if expected_bin else result.status != "ok" and not pick_attempted
@@ -352,6 +517,21 @@ async def run(
                     "decision_reason": result.decision_reason,
                     "confidence": result.bin_confidence,
                     "inference_latency_ms": result.latency_ms,
+                    "observation_sequence": observation.sequence,
+                    "request_id": observation.request_id,
+                    "frame_sha256": observation.frame_sha256,
+                    "observed_at_epoch": observation.captured_at_epoch,
+                    "server_received_at_epoch": decision_timing.server_received_at_epoch,
+                    "decision_at_epoch": decision_timing.decided_at_epoch,
+                    "decision_validated_at_epoch": decision_timing.validated_at_epoch,
+                    "decision_age_ms": decision_timing.age_ms,
+                    "authorization_age_ms": authorization_timing.age_ms,
+                    "action_started_at_epoch": action_started_at_epoch,
+                    "action_completed_at_epoch": action_completed_at_epoch,
+                    "observation_to_action_ms": (action_started_at_epoch - observation.captured_at_epoch) * 1000.0,
+                    "action_duration_ms": (action_completed_at_epoch - action_started_at_epoch) * 1000.0,
+                    "arm_action_authorized": arm_action_authorized,
+                    "actuation_kind": actuation_kind,
                     "localization_error_m": localization_error,
                     "depth_m_at_centroid": None if depth is None else float(depth[int(detection.centroid[1]), int(detection.centroid[0]), 0]),
                     "classification_correct": correct_classification,
@@ -367,6 +547,7 @@ async def run(
             _print_progress(records)
             hud.update(
                 phase="CYCLE COMPLETE" if end_to_end else "CYCLE FAILED",
+                safety="ARM INHIBITED · cycle closed",
                 completed=index + 1,
                 successful=hud.snapshot.successful + int(end_to_end),
                 rejected=hud.snapshot.rejected + int(result.status in {"not_cheese", "uncertain", "empty"}),
@@ -378,11 +559,24 @@ async def run(
                 total_objects=min(limit, len(sequence)),
                 current_object=object_id,
                 last_status=result.status,
+                cycle_state="CYCLE_COMPLETE" if end_to_end else "CYCLE_FAILED",
+                observation_sequence=observation.sequence,
+                request_id=observation.request_id,
+                frame_sha256=observation.frame_sha256,
+                observed_at_epoch=observation.captured_at_epoch,
+                decision_at_epoch=decision_timing.decided_at_epoch,
+                decision_age_ms=decision_timing.age_ms,
+                authorization_age_ms=authorization_timing.age_ms,
+                action_started_at_epoch=action_started_at_epoch,
+                action_completed_at_epoch=action_completed_at_epoch,
+                arm_action_authorized=arm_action_authorized,
+                actuation_kind=actuation_kind,
             )
 
         object_records = [record for record in records if record["ground_truth"] != "empty"]
         detected_records = [record for record in object_records if record.get("detected")]
         cheese_records = [record for record in object_records if record["ground_truth"] in BIN_OF_TYPE]
+        timed_records = [record for record in object_records if record.get("decision_age_ms") is not None]
         metrics = {
             "classifier_mode": classifier_mode,
             "development_classifier": classifier_mode == "development",
@@ -396,11 +590,14 @@ async def run(
             "correct_bin_rate": sum(bool(r.get("correct_bin")) for r in cheese_records) / max(1, len(cheese_records)),
             "end_to_end_success": sum(bool(r.get("end_to_end_success")) for r in object_records) / max(1, len(object_records)),
             "mean_cycle_time_s": sum(float(r.get("cycle_time_s", 0.0)) for r in object_records) / max(1, len(object_records)),
+            "perception_faults": sum(r.get("status") in {"perception_fault", "authorization_fault"} for r in object_records),
+            "mean_decision_age_ms": sum(float(r["decision_age_ms"]) for r in timed_records) / max(1, len(timed_records)),
+            "max_authorization_age_ms": max((float(r["authorization_age_ms"]) for r in timed_records), default=None),
         }
         report = {"metrics": metrics, "records": records}
         (output / "results.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         runtime_status.update("complete", metrics=metrics)
-        hud.update(phase="RUN COMPLETE")
+        hud.update(phase="RUN COMPLETE", safety="ARM INHIBITED · run complete")
         print("FACTORY_RESULTS", json.dumps(metrics, sort_keys=True), flush=True)
         return report
     except BaseException as exc:

@@ -59,6 +59,8 @@ def _validate(data: dict[str, Any]) -> None:
         raise ValueError("perception.service_url must be an HTTP(S) URL")
     if float(data["perception"].get("service_timeout_s", 0.0)) <= 0.0:
         raise ValueError("perception.service_timeout_s must be positive")
+    if float(data["perception"].get("decision_max_age_s", 0.0)) <= 0.0:
+        raise ValueError("perception.decision_max_age_s must be positive")
 
 
 def load_config(path: str | Path | None = None) -> FactoryConfig:

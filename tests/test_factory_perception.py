@@ -11,6 +11,11 @@ from sim.factory.perception import (
     RemoteModelSorter,
     showcase_sort_result,
 )
+from sim.factory.timing import ObservationContext
+
+
+def observation(item_id="object-001", sequence=1):
+    return ObservationContext.capture(item_id, sequence, np.zeros((2, 2, 3), dtype=np.uint8))
 
 
 def test_detector_extracts_crop_and_empty_frame_is_safe():
@@ -94,10 +99,13 @@ def test_remote_sorter_checks_health_and_posts_pixels(monkeypatch):
                 "ok": True,
                 "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"],
                 "contract_version": 2,
+                "timing_contract_version": 1,
                 "decision_policy": "route_authoritative_fail_closed_v1",
             })
         posted = Image.open(BytesIO(request.data))
         assert posted.size == (12, 10)
+        assert request.headers["X-cheese-item-id"] == current.item_id
+        assert request.headers["X-cheese-frame-sha256"] == current.frame_sha256
         return Response({
             "status": "ok",
             "bin": "bin_hard",
@@ -111,15 +119,49 @@ def test_remote_sorter_checks_health_and_posts_pixels(monkeypatch):
             "decision_policy": "route_authoritative_fail_closed_v1",
             "agreement": True,
             "decision_reason": "models_agree",
+            "item_id": current.item_id,
+            "observation_sequence": current.sequence,
+            "request_id": current.request_id,
+            "frame_sha256": current.frame_sha256,
+            "observed_at_epoch": current.captured_at_epoch,
+            "server_received_at_epoch": current.captured_at_epoch + 0.005,
+            "decision_at_epoch": current.captured_at_epoch + 0.01,
         })
 
     monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
     sorter = RemoteModelSorter("http://sorter:8765", timeout_s=12)
-    result = sorter.predict(np.full((10, 12, 3), 127, dtype=np.uint8))
+    current = observation()
+    result = sorter.predict(np.full((10, 12, 3), 127, dtype=np.uint8), observation=current)
     assert result.actionable
     assert result.bin == "bin_hard"
     assert calls[0][0].endswith("/health")
     assert calls[1][0].endswith("/predict")
+    assert calls[1][1] == 5.0
+
+
+def test_remote_sorter_rejects_service_without_timing_contract(monkeypatch):
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+        def read(self):
+            return json.dumps({
+                "ok": True,
+                "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"],
+                "contract_version": 2,
+                "decision_policy": "route_authoritative_fail_closed_v1",
+            }).encode()
+
+    monkeypatch.setattr("urllib.request.urlopen", lambda *args, **kwargs: Response())
+    try:
+        RemoteModelSorter("http://sorter:8765")
+    except RuntimeError as exc:
+        assert "timing contract" in str(exc)
+    else:
+        raise AssertionError("service without timing contract was accepted")
 
 
 def test_remote_sorter_rejects_unsafe_contract(monkeypatch):
@@ -141,6 +183,7 @@ def test_remote_sorter_rejects_unsafe_contract(monkeypatch):
             "ok": True,
             "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"],
             "contract_version": 2,
+            "timing_contract_version": 1,
             "decision_policy": "route_authoritative_fail_closed_v1",
         },
         {
@@ -159,8 +202,9 @@ def test_remote_sorter_rejects_unsafe_contract(monkeypatch):
     ])
     monkeypatch.setattr("urllib.request.urlopen", lambda *args, **kwargs: Response(next(responses)))
     sorter = RemoteModelSorter("http://sorter:8765")
+    current = observation()
     try:
-        sorter.predict(np.zeros((8, 8, 3), dtype=np.uint8))
+        sorter.predict(np.zeros((8, 8, 3), dtype=np.uint8), observation=current)
     except RuntimeError as exc:
         assert "unsafe perception decision contract" in str(exc)
     else:
@@ -186,6 +230,7 @@ def test_remote_sorter_rejects_actionable_cross_model_conflict(monkeypatch):
             "ok": True,
             "types": list(BIN_OF_TYPE) + ["empty", "not_cheese"],
             "contract_version": 2,
+            "timing_contract_version": 1,
             "decision_policy": "route_authoritative_fail_closed_v1",
         },
         {
@@ -205,9 +250,10 @@ def test_remote_sorter_rejects_actionable_cross_model_conflict(monkeypatch):
     ])
     monkeypatch.setattr("urllib.request.urlopen", lambda *args, **kwargs: Response(next(responses)))
     sorter = RemoteModelSorter("http://sorter:8765")
+    current = observation()
 
     try:
-        sorter.predict(np.zeros((8, 8, 3), dtype=np.uint8))
+        sorter.predict(np.zeros((8, 8, 3), dtype=np.uint8), observation=current)
     except RuntimeError as exc:
         assert "actionable cross-model conflict" in str(exc)
     else:

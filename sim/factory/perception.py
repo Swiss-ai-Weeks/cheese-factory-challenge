@@ -7,7 +7,7 @@ import json
 import os
 import time
 import urllib.request
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Protocol
 
@@ -15,6 +15,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 from .config import PROJECT_ROOT, FactoryConfig
+from .timing import ObservationContext
 
 
 BIN_OF_TYPE = {
@@ -79,6 +80,13 @@ class DevelopmentSortResult:
     decision_policy: str = "fine_type_aggregation_v1"
     agreement: bool = True
     decision_reason: str = "fine_type_aggregation"
+    item_id: str | None = None
+    observation_sequence: int | None = None
+    request_id: str | None = None
+    frame_sha256: str | None = None
+    observed_at_epoch: float | None = None
+    server_received_at_epoch: float | None = None
+    decision_at_epoch: float | None = None
 
     @property
     def actionable(self) -> bool:
@@ -88,7 +96,27 @@ class DevelopmentSortResult:
         return asdict(self)
 
 
-def showcase_sort_result(ground_truth: str) -> DevelopmentSortResult:
+def bind_local_decision(
+    result: DevelopmentSortResult, observation: ObservationContext,
+) -> DevelopmentSortResult:
+    """Attach trusted correlation metadata to an in-process decision."""
+
+    decided_at = time.time()
+    return replace(
+        result,
+        item_id=observation.item_id,
+        observation_sequence=observation.sequence,
+        request_id=observation.request_id,
+        frame_sha256=observation.frame_sha256,
+        observed_at_epoch=observation.captured_at_epoch,
+        server_received_at_epoch=observation.captured_at_epoch,
+        decision_at_epoch=decided_at,
+    )
+
+
+def showcase_sort_result(
+    ground_truth: str, observation: ObservationContext | None = None,
+) -> DevelopmentSortResult:
     """Return the scripted demo route with an explicit evidence boundary.
 
     Showcase mode still exercises rendered detection, camera localization and
@@ -96,23 +124,31 @@ def showcase_sort_result(ground_truth: str) -> DevelopmentSortResult:
     scripted scenario, so this result must never be reported as model inference.
     """
     if ground_truth == "not_cheese":
-        return DevelopmentSortResult(
+        result = DevelopmentSortResult(
             "not_cheese", None, 1.0, "not_cheese", 1.0, [("not_cheese", 1.0)], 0.0,
             route_label="not_cheese", decision_policy="scripted_showcase_v1",
             decision_reason="scripted_reject",
         )
+        return bind_local_decision(result, observation) if observation else result
     target = BIN_OF_TYPE.get(ground_truth)
     if target is None:
         raise ValueError(f"showcase scenario has no route for {ground_truth!r}")
-    return DevelopmentSortResult(
+    result = DevelopmentSortResult(
         "ok", target, 1.0, ground_truth, 1.0, [(ground_truth, 1.0)], 0.0,
         route_label=target, type_implied_bin=target,
         decision_policy="scripted_showcase_v1", decision_reason="scripted_route",
     )
+    return bind_local_decision(result, observation) if observation else result
 
 
 class Sorter(Protocol):
-    def predict(self, frame: np.ndarray, box: tuple[int, int, int, int] | None = None): ...
+    def predict(
+        self,
+        frame: np.ndarray,
+        box: tuple[int, int, int, int] | None = None,
+        *,
+        observation: ObservationContext | None = None,
+    ): ...
 
 
 class RemoteModelSorter:
@@ -127,15 +163,18 @@ class RemoteModelSorter:
     valid_statuses = {"ok", "empty", "not_cheese", "uncertain"}
     valid_bins = set(BIN_OF_TYPE.values())
 
-    def __init__(self, base_url: str, timeout_s: float = 60.0):
+    def __init__(self, base_url: str, timeout_s: float = 60.0, decision_max_age_s: float = 5.0):
         self.base_url = base_url.rstrip("/")
         self.timeout_s = float(timeout_s)
+        self.decision_max_age_s = float(decision_max_age_s)
         with urllib.request.urlopen(f"{self.base_url}/health", timeout=min(10.0, self.timeout_s)) as response:
             health = json.loads(response.read())
         if health.get("ok") is not True:
             raise RuntimeError(f"perception service is not healthy: {health}")
         if health.get("contract_version") != 2:
             raise RuntimeError(f"perception service contract version is incompatible: {health.get('contract_version')!r}")
+        if health.get("timing_contract_version") != 1:
+            raise RuntimeError("perception service lacks item-bound timing contract v1")
         self.decision_policy = str(health.get("decision_policy", ""))
         types = set(health.get("types", []))
         unknown = types - set(BIN_OF_TYPE) - {"empty", "not_cheese"}
@@ -146,7 +185,11 @@ class RemoteModelSorter:
         self,
         frame: np.ndarray,
         box: tuple[int, int, int, int] | None = None,
+        *,
+        observation: ObservationContext | None = None,
     ) -> DevelopmentSortResult:
+        if observation is None:
+            raise RuntimeError("production inference requires an observation context")
         image = Image.fromarray(_rgb(frame))
         if box is not None:
             image = image.crop(tuple(int(v) for v in box))
@@ -155,10 +198,11 @@ class RemoteModelSorter:
         request = urllib.request.Request(
             f"{self.base_url}/predict",
             data=payload.getvalue(),
-            headers={"Content-Type": "image/png"},
+            headers={"Content-Type": "image/png", **observation.request_headers()},
             method="POST",
         )
-        with urllib.request.urlopen(request, timeout=self.timeout_s) as response:
+        request_timeout = min(self.timeout_s, self.decision_max_age_s)
+        with urllib.request.urlopen(request, timeout=request_timeout) as response:
             result = json.loads(response.read())
         status = str(result.get("status", ""))
         target = result.get("bin")
@@ -188,6 +232,15 @@ class RemoteModelSorter:
             raise RuntimeError("unsafe perception decision contract: actionable cross-model conflict")
         if decision_policy != self.decision_policy:
             raise RuntimeError("perception service changed decision policy")
+        timing_fields = {
+            "item_id": result.get("item_id"),
+            "observation_sequence": result.get("observation_sequence"),
+            "request_id": result.get("request_id"),
+            "frame_sha256": result.get("frame_sha256"),
+            "observed_at_epoch": result.get("observed_at_epoch"),
+            "server_received_at_epoch": result.get("server_received_at_epoch"),
+            "decision_at_epoch": result.get("decision_at_epoch"),
+        }
         return DevelopmentSortResult(
             status=status,
             bin=target,
@@ -201,6 +254,7 @@ class RemoteModelSorter:
             decision_policy=decision_policy,
             agreement=agreement,
             decision_reason=str(result["decision_reason"]),
+            **timing_fields,
         )
 
 
@@ -269,14 +323,21 @@ class DevelopmentColorSorter:
         for label, rendered_rgb in DEVELOPMENT_RENDERED_OVERRIDES.items():
             self.palette_rgb[self.labels.index(label)] = rendered_rgb
 
-    def predict(self, frame: np.ndarray, box: tuple[int, int, int, int] | None = None) -> DevelopmentSortResult:
+    def predict(
+        self,
+        frame: np.ndarray,
+        box: tuple[int, int, int, int] | None = None,
+        *,
+        observation: ObservationContext | None = None,
+    ) -> DevelopmentSortResult:
         started = time.perf_counter()
         image = _rgb(frame)
         if box is not None:
             x0, y0, x1, y1 = box
             image = image[y0:y1, x0:x1]
         if image.size == 0:
-            return self._result("empty", 1.0, started)
+            result = self._result("empty", 1.0, started)
+            return bind_local_decision(result, observation) if observation else result
         # The center half excludes most padded conveyor background while still
         # sampling the rendered object rather than any ground-truth property.
         height, width = image.shape[:2]
@@ -285,7 +346,8 @@ class DevelopmentColorSorter:
         color = np.median(pixels, axis=0)
         norm = np.linalg.norm(color)
         if norm < 15:
-            return self._result("empty", 1.0, started)
+            result = self._result("empty", 1.0, started)
+            return bind_local_decision(result, observation) if observation else result
         distances = np.linalg.norm(self.palette_rgb - color, axis=1)
         order = np.argsort(distances)
         best = int(order[0])
@@ -295,7 +357,8 @@ class DevelopmentColorSorter:
             confidence = min(confidence, float(np.clip(0.55 + margin / 80.0, 0.0, 0.99)))
         label = self.labels[best]
         similarities = 1.0 - distances / (255.0 * np.sqrt(3.0))
-        return self._result(label, confidence, started, order[:3], similarities)
+        result = self._result(label, confidence, started, order[:3], similarities)
+        return bind_local_decision(result, observation) if observation else result
 
     def _result(self, label: str, confidence: float, started: float, order=None, similarity=None) -> DevelopmentSortResult:
         latency = (time.perf_counter() - started) * 1000.0
@@ -327,7 +390,11 @@ def make_sorter(config: FactoryConfig, mode: str) -> Sorter:
         )
     perception = config.section("perception")
     service_url = os.environ.get("CHEESE_SORTER_URL", perception["service_url"])
-    return RemoteModelSorter(service_url, timeout_s=float(perception.get("service_timeout_s", 60.0)))
+    return RemoteModelSorter(
+        service_url,
+        timeout_s=float(perception.get("service_timeout_s", 60.0)),
+        decision_max_age_s=float(perception["decision_max_age_s"]),
+    )
 
 
 def annotate_frame(frame: np.ndarray, detection: Detection | None, result, state: str, output: Path) -> None:

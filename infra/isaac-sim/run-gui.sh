@@ -33,6 +33,7 @@ if [[ "$CLASSIFIER" == "model" ]]; then
   if [[ -n "$SORTER_HEALTH" && (
         "$SORTER_HEALTH" != *'"routing": "direct_bin"'* ||
         "$SORTER_HEALTH" != *'"contract_version": 2'* ||
+        "$SORTER_HEALTH" != *'"timing_contract_version": 1'* ||
         "$SORTER_HEALTH" != *'"decision_policy": "route_authoritative_fail_closed_v1"'*
       ) ]]; then
     if [[ -f "$SORTER_PID_FILE" ]]; then
@@ -69,6 +70,7 @@ if [[ "$CLASSIFIER" == "model" ]]; then
   fi
   if [[ "$SORTER_HEALTH" != *'"routing": "direct_bin"'* ||
         "$SORTER_HEALTH" != *'"contract_version": 2'* ||
+        "$SORTER_HEALTH" != *'"timing_contract_version": 1'* ||
         "$SORTER_HEALTH" != *'"decision_policy": "route_authoritative_fail_closed_v1"'* ]]; then
     if [[ -n "$SORTER_PID" ]]; then
       kill "$SORTER_PID" >/dev/null 2>&1 || true

@@ -105,11 +105,13 @@ not evidence of model accuracy.
   **Completed without promotion:** commit documented in
   [`docs/stages/19-frozen-model-gate.md`](stages/19-frozen-model-gate.md).
 
-- [ ] **P1.5 — Harden camera-to-control timing.** Couple observations, decisions and
+- [x] **P1.5 — Harden camera-to-control timing.** Couple observations, decisions and
   actions with item IDs and timestamps so stale responses cannot move the arm for the
   wrong cheese. Expose timeout/fault states in telemetry and the HUD.
   **Accept when:** delayed, missing and malformed inference tests fail safely and a
   normal run has traceable end-to-end timing.
+  **Completed:** commit documented in
+  [`docs/stages/20-camera-control-timing.md`](stages/20-camera-control-timing.md).
 
 - [ ] **P1.6 — Expose safe agent/factory control.** Keep the documentation MCP's scope
   distinct from runtime control. Provide a narrow authenticated/read-only-by-default

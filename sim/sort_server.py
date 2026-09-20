@@ -19,10 +19,12 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "src"))
 
 from PIL import Image                               # noqa: E402
 from predict import CheeseSorter, HybridCheeseSorter, HYBRID_DECISION_POLICY  # noqa: E402
+from sim.factory.timing import parse_request_headers  # noqa: E402
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--checkpoint", default=str(RACINE / "runs/sim_type13/best.pt"))
@@ -64,6 +66,7 @@ class Handler(BaseHTTPRequestHandler):
             self._repondre(200, {"ok": True, "types": sorter.types,
                                  "bins": sorter.bins, "routing": routing_mode,
                                  "contract_version": 2,
+                                 "timing_contract_version": 1,
                                  "decision_policy": HYBRID_DECISION_POLICY if routing_mode == "direct_bin" else "fine_type_aggregation_v1",
                                  "servies": compteur["n"]})
         else:
@@ -72,6 +75,11 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.path.startswith("/predict"):
             return self._repondre(404, {"erreur": "route inconnue"})
+        try:
+            correlation = parse_request_headers(self.headers)
+        except ValueError as exc:
+            return self._repondre(400, {"erreur": f"invalid timing contract: {exc}"})
+        received_at = time.time()
         taille = int(self.headers.get("Content-Length", 0))
         brut = self.rfile.read(taille)
         try:
@@ -85,6 +93,9 @@ class Handler(BaseHTTPRequestHandler):
         compteur["n"] += 1
         charge = res.as_dict()
         charge["server_ms"] = (time.perf_counter() - t0) * 1e3
+        charge.update(correlation)
+        charge["server_received_at_epoch"] = received_at
+        charge["decision_at_epoch"] = time.time()
         self._repondre(200, charge)
 
     def log_message(self, *a):               # pas de bruit sur stderr

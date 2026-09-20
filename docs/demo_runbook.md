@@ -71,9 +71,13 @@ infra/isaac-sim/factory-demo.sh stop
 Generated artifacts are ignored by Git and written under `outputs/factory/`:
 
 - `results.json`: per-object lifecycle and separate detection, classification,
-  pick, correct-bin, and end-to-end metrics.
+  pick, correct-bin, and end-to-end metrics. Successful model records also carry the
+  observation sequence, request UUID, frame SHA-256, observation/decision/authorization/
+  action timestamps, decision age, authorization age and whether arm action was
+  authorized. Perception-fault records keep `arm_action_authorized=false` and identify
+  the failed timing check.
 - `frames/*.png`: camera frames with crop, state, prediction, bin, confidence,
-  status, and inference latency.
+  status, inference latency and timing/fault context.
 
 The terminal emits one `FACTORY_RESULTS` JSON line on success. Any object whose
 status is `empty`, `not_cheese`, or `uncertain` has `pick_attempted=false`.
@@ -87,6 +91,10 @@ status is `empty`, `not_cheese`, or `uncertain` has `pick_attempted=false`.
 - Verify the industrial belt, inspection portal, five labelled cheese receivers,
   red reject receiver and Franka are visible without overlap.
 - Watch the HUD state, item, decision, destination, confidence/evidence type and totals.
+- During observation/classification, confirm the HUD shows the timing deadline and
+  `ARM INHIBITED`. A validated response changes the safety line to authorized; a
+  timeout, missing field or correlation mismatch must show a perception fault and must
+  not start robot motion.
 - Keep the emergency action simple: stop the Isaac container. The loop has
   motion timeouts and fail-closed rejection, but a hackathon operator should
   still monitor it.

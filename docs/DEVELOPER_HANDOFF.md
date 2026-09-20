@@ -130,6 +130,7 @@ layer, but that conversion has not been validated yet.
 | `controller.py` | wrap NVIDIA `PickPlaceTask`; accept camera-derived targets |
 | `geometry.py` | project image pixels to a world plane |
 | `perception.py` | foreground detector, sorter adapters, showcase/development paths and annotations |
+| `timing.py` | observation identity, HTTP correlation headers and fail-closed decision validation |
 | `state_machine.py` | legal lifecycle and timeout transitions |
 | `run_factory.py` | orchestrate the full scenario and write evidence |
 | `kit_entry.py` | entry point executed inside Isaac Sim after extensions load |
@@ -141,6 +142,16 @@ layer, but that conversion has not been validated yet.
 | `replicator_plan.py` | pure randomization-plan generation |
 | `capture_filters.py` | fail-closed split/bin selection for captures |
 | `layout.py` | 2-D belt/receiver footprints and overlap checks |
+
+The camera-to-control boundary is explicit. `run_factory.py` creates an
+`ObservationContext` only after a camera crop exists, then passes it to the sorter. In
+model mode, `perception.py` sends the item ID, sequence number, UUID request ID, capture
+time and frame hash to `sort_server.py`; the server echoes that identity with its receive
+and decision timestamps. `timing.py` validates the response once after inference and
+again immediately before actuation. A missing, malformed, mismatched, future-dated or
+expired response enters recovery, leaves the arm unauthorized and diverts the item to
+the simulated reject path. The contract prevents accidental stale-response actuation;
+it is not authentication against a malicious local service.
 
 ### Perception (`src/`)
 

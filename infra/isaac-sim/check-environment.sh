@@ -71,7 +71,9 @@ else
 fi
 
 SORTER_HEALTH=$(curl -fsS --max-time 5 http://127.0.0.1:8765/health 2>/dev/null || true)
-if [[ "$SORTER_HEALTH" == *'"routing": "direct_bin"'* ]]; then
+if [[ "$SORTER_HEALTH" == *'"routing": "direct_bin"'* &&
+      "$SORTER_HEALTH" == *'"contract_version": 2'* &&
+      "$SORTER_HEALTH" == *'"timing_contract_version": 1'* ]]; then
   pass "production perception service: healthy"
 else
   warn "production perception service is stopped (run-gui.sh model starts it)"

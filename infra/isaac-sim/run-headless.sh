@@ -66,8 +66,10 @@ if [[ "$CLASSIFIER" == "model" ]]; then
       exit 1
     fi
   fi
-  if [[ "$SORTER_HEALTH" != *'"routing": "direct_bin"'* ]]; then
-    echo "perception service on $SORTER_HOST_URL is healthy but is not the Stage 5 direct-bin router" >&2
+  if [[ "$SORTER_HEALTH" != *'"routing": "direct_bin"'* ||
+        "$SORTER_HEALTH" != *'"contract_version": 2'* ||
+        "$SORTER_HEALTH" != *'"timing_contract_version": 1'* ]]; then
+    echo "perception service on $SORTER_HOST_URL lacks the required routing/timing contract" >&2
     echo "stop the stale service before starting the factory" >&2
     exit 1
   fi

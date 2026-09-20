@@ -13,6 +13,7 @@ def test_config_has_exact_five_destinations():
     assert config.model_path.name == "best.pt"
     assert config.section("perception")["service_url"].startswith("http://")
     assert config.section("perception")["service_timeout_s"] > 0
+    assert config.section("perception")["decision_max_age_s"] > 0
     assert config.section("belt")["object_orientation_wxyz"] == [1.0, 0.0, 0.0, 0.0]
 
 

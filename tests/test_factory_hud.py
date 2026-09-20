@@ -21,6 +21,7 @@ def test_hud_progress_is_compact_and_complete():
     )
     assert snapshot.mode_banner == MODE_BANNERS["showcase"]
     assert snapshot.progress_text == "7/11 processed  ·  6 successful  ·  1 safe rejects  ·  0 faults"
+    assert "ARM INHIBITED" in snapshot.safety
 
 
 def test_unknown_mode_cannot_be_presented_without_a_label():

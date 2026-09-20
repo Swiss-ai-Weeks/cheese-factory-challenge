@@ -48,6 +48,8 @@ class HudSnapshot:
     prediction: str = "—"
     confidence: str = "—"
     destination: str = "—"
+    timing: str = "—"
+    safety: str = "ARM INHIBITED · awaiting valid decision"
     completed: int = 0
     total: int = 0
     successful: int = 0
@@ -71,7 +73,7 @@ class FactoryHud:
 
         self._ui = ui
         self.snapshot = HudSnapshot(mode=mode, scenario=scenario, total=total)
-        self.window = ui.Window("Cheese Factory · Live", width=430, height=285)
+        self.window = ui.Window("Cheese Factory · Live", width=460, height=335)
         self.window.position_x = 105
         self.window.position_y = 125
         with self.window.frame:
@@ -85,6 +87,8 @@ class FactoryHud:
                 self._decision = ui.Label("Decision: —", height=20)
                 self._target = ui.Label("Destination: —", height=20)
                 self._confidence = ui.Label("Confidence: —", height=20)
+                self._timing = ui.Label("Timing: —", height=20)
+                self._safety = ui.Label(f"Safety: {self.snapshot.safety}", height=20)
                 ui.Separator(height=4)
                 self._progress = ui.Label(self.snapshot.progress_text, height=24)
 
@@ -98,6 +102,8 @@ class FactoryHud:
         self._decision.text = f"Decision: {snap.prediction}"
         self._target.text = f"Destination: {snap.destination}"
         self._confidence.text = f"Confidence: {snap.confidence}"
+        self._timing.text = f"Timing: {snap.timing}"
+        self._safety.text = f"Safety: {snap.safety}"
         self._progress.text = snap.progress_text
 
     def destroy(self) -> None:
