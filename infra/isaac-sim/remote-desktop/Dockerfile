@@ -6,7 +6,7 @@ ENV WEB_VIEWER_PORT=${WEB_VIEWER_PORT}
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        curl novnc openbox websockify x11vnc xvfb \
+        curl ffmpeg novnc openbox websockify x11vnc xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --chmod=755 start.sh /usr/local/bin/start-isaac-desktop

@@ -35,6 +35,10 @@ else:
 in [`sim/factory/scene_layout.json`](sim/factory/scene_layout.json), which maps
 directly to stable paths in Isaac's Stage hierarchy.
 
+For judging and system review, use the [`Judge guide`](docs/JUDGE_GUIDE.md),
+[`Architecture and evidence boundaries`](docs/ARCHITECTURE.md), and the production
+[`Model card`](docs/MODEL_CARD.md).
+
 The corrective integration and demo acceptance plan is tracked in
 [`docs/HACKATHON_READINESS_CHECKLIST.md`](docs/HACKATHON_READINESS_CHECKLIST.md).
 
