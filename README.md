@@ -10,6 +10,11 @@ Isaac Sim camera ──▶ CheeseSorter.predict(frame) ──▶ SortResult ─�
 The model answers three things at once — the fine cheese **type**, the **bin** it belongs
 in, and a **status** telling the arm whether to act at all.
 
+The hackathon integration is complete on `codex/hackathon-integration`. Start with the
+[`Judge guide`](docs/JUDGE_GUIDE.md) and launch the verified showcase with
+`infra/isaac-sim/factory-demo.sh launch showcase`. The trained model's limitations are
+reported openly in [`evaluation_results.md`](docs/evaluation_results.md).
+
 ```python
 from predict import CheeseSorter
 

@@ -149,12 +149,14 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/24-judge-ready-evidence.md`](stages/24-judge-ready-evidence.md).
 
-- [ ] **P2.4 — Final regression and branch audit.** Confirm both parent histories remain
+- [x] **P2.4 — Final regression and branch audit.** Confirm both parent histories remain
   contained, no generated datasets/checkpoints leaked into Git, no source branch was
   modified, and `codex/hackathon-integration` is visibly and functionally superior to
   `work/perception` for the live factory experience.
   **Accept when:** full tests, compile checks, shell checks, diff checks, service health,
   screenshot review and the feature matrix all pass on the remote commit.
+  **Completed:** commit documented in
+  [`docs/stages/25-final-release-audit.md`](stages/25-final-release-audit.md).
 
 ## Required gate for every checklist commit
 

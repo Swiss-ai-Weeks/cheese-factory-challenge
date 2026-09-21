@@ -1,0 +1,139 @@
+{
+  "branch": "codex/hackathon-integration",
+  "checks": [
+    {
+      "detail": "codex/hackathon-integration",
+      "name": "integration_branch",
+      "passed": true
+    },
+    {
+      "detail": {
+        "local": "cdcc2bbcfae48d02d205f019141b13d8f12b7958",
+        "remote": "cdcc2bbcfae48d02d205f019141b13d8f12b7958"
+      },
+      "name": "remote_sha",
+      "passed": true
+    },
+    {
+      "detail": "fe70eab58185881190fc3ddc257f0933159384ed",
+      "name": "source_unchanged:work/perception",
+      "passed": true
+    },
+    {
+      "detail": "fe70eab58185881190fc3ddc257f0933159384ed",
+      "name": "source_contained:work/perception",
+      "passed": true
+    },
+    {
+      "detail": "0f144ae65c23b13e3b92e0cf29d61ee71680122b",
+      "name": "source_unchanged:work/isaac-factory",
+      "passed": true
+    },
+    {
+      "detail": "0f144ae65c23b13e3b92e0cf29d61ee71680122b",
+      "name": "source_contained:work/isaac-factory",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "no_dataset_or_checkpoint_leak",
+      "passed": true
+    },
+    {
+      "detail": {
+        "bytes": 47274975,
+        "path": "sim/cheese_picking.mp4"
+      },
+      "name": "github_blob_limit",
+      "passed": true
+    },
+    {
+      "detail": [
+        "docs/JUDGE_GUIDE.md",
+        "docs/ARCHITECTURE.md",
+        "docs/MODEL_CARD.md",
+        "docs/evaluation_results.md"
+      ],
+      "name": "judge_package",
+      "passed": true
+    },
+    {
+      "detail": "ddf4239bdd50985f1c5ddb7ae2dfd75001033f56d0895261d720b062b95922a4",
+      "name": "evidence_hash:docs/evidence/p23-live-showcase.mp4",
+      "passed": true
+    },
+    {
+      "detail": "52aa3e7194d542d864bf7bd9346d4e655fa189412dd9f77876ee76ba4bf659bd",
+      "name": "evidence_hash:docs/evidence/p23-live-showcase-preview.jpg",
+      "passed": true
+    },
+    {
+      "detail": {
+        "application": "cheese_factory",
+        "arm_action_authorized": false,
+        "classifier_mode": "showcase",
+        "commit": "cdcc2bbcfae48d02d205f019141b13d8f12b7958",
+        "completed_objects": 0,
+        "current_object": "object-000",
+        "cycle_state": "CLASSIFYING",
+        "frame_sha256": "c3a4ab0456422f06718afb62306d93788cb298bb6c7b4ccbb61f23c234c68685",
+        "observation_sequence": 1,
+        "observed_at_epoch": 1790033860.8270414,
+        "phase": "running",
+        "pid": 53,
+        "request_id": "7b693330-3edf-4dd0-8cce-8970b3f252c1",
+        "runtime_id": "cdcc2bbcfae4-20260921T233642Z-2679846-13129",
+        "scenario": "canonical-showcase",
+        "started_at_epoch": 1790033850.1350324,
+        "total_objects": 11,
+        "updated_at_epoch": 1790033860.8271356
+      },
+      "name": "live_runtime_identity",
+      "passed": true
+    },
+    {
+      "detail": {
+        "isaac-sim": "running/healthy",
+        "remote-desktop": "running/healthy",
+        "web-viewer": "running/healthy"
+      },
+      "name": "live_service_health",
+      "passed": true
+    },
+    {
+      "detail": 200,
+      "name": "viewer_http",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "command:/home/ubuntu/cheese-factory-challenge/.venv/bin/python -m compileall -q src sim tests",
+      "passed": true
+    },
+    {
+      "detail": "........................................................................ [ 64%]\n.......................................                                  [100%]\n111 passed in 6.03s",
+      "name": "command:/home/ubuntu/cheese-factory-challenge/.venv/bin/python -m pytest -q",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "command:bash -n infra/isaac-sim/capture-all-domain.sh infra/isaac-sim/capture-demo.sh infra/isaac-sim/capture-domain.sh infra/isaac-sim/capture-replicator.sh infra/isaac-sim/check-environment.sh infra/isaac-sim/factory-demo.sh infra/isaac-sim/prepare-environment.sh infra/isaac-sim/replicator-smoke.sh infra/isaac-sim/run-evaluation.sh infra/isaac-sim/run-gui.sh infra/isaac-sim/run-headless.sh infra/isaac-sim/stop-gui.sh infra/isaac-sim/verify-live-demo.sh",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "command:git diff --check",
+      "passed": true
+    },
+    {
+      "detail": [],
+      "name": "clean_worktree",
+      "passed": true
+    }
+  ],
+  "commit": "cdcc2bbcfae48d02d205f019141b13d8f12b7958",
+  "evidence_boundary": "Simulation and scripted-showcase evidence; not real-world safety or classifier accuracy.",
+  "generated_at_epoch": 1790033875.3835974,
+  "passed": true,
+  "schema_version": 1
+}
