@@ -320,11 +320,13 @@ Both bounded P1.4 candidates were rejected, so production deliberately remains
 on `runs/sim_bin_adapt_v2/best.pt`. See
 [`docs/stages/19-frozen-model-gate.md`](docs/stages/19-frozen-model-gate.md).
 
-For agent/UI integration, `sim/factory/control_server.py` exposes localhost-only
-health and latest-result reads. A fixed, bounded evaluation start is available
-only with an operator-provided token; NVIDIA's separate `isaacsim_mcp` remains
-a documentation and extension-search service, not a simulator control plane.
-See [`docs/stages/06-agent-ready-control.md`](docs/stages/06-agent-ready-control.md).
+For agent/UI integration, `sim/factory/control_server.py` exposes loopback-only
+health, status and audit reads. An operator token, actor label and unique UUID
+unlock only three fixed mutations: bounded evaluation, canonical reset/mode
+selection and emergency stop. NVIDIA's separate `isaacsim_mcp` remains a
+documentation and extension-search service, not a simulator control plane.
+See [`docs/stages/06-agent-ready-control.md`](docs/stages/06-agent-ready-control.md)
+and [`docs/stages/21-safe-factory-control.md`](docs/stages/21-safe-factory-control.md).
 
 The three robot paths have different evidence:
 

@@ -26,8 +26,10 @@ runtime environment if NVIDIA-hosted intelligence is desired.
 This MCP is a documentation and discovery service; it does not expose live USD
 stage mutation or factory controls. The separate localhost gateway documented
 in [`stages/06-agent-ready-control.md`](stages/06-agent-ready-control.md) keeps
-read-only monitoring open and places the single bounded run action behind an
-operator token.
+read-only monitoring open and places its small allowlist of bounded evaluation,
+reset/mode selection and emergency-stop actions behind an operator token. See
+[`stages/21-safe-factory-control.md`](stages/21-safe-factory-control.md) for the
+control contract and its safety limits.
 
 The required tools were listed and exercised:
 

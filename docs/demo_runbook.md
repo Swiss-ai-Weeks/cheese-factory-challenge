@@ -66,6 +66,19 @@ contract is incompatible. Stop the stream and repository-owned sorter with:
 infra/isaac-sim/factory-demo.sh stop
 ```
 
+For a local agent or operator UI, start the read-only-by-default control gateway:
+
+```bash
+.venv/bin/python sim/factory/control_server.py
+curl -fsS http://127.0.0.1:8766/status
+curl -fsS http://127.0.0.1:8766/capabilities
+```
+
+Authenticated reset, mode/scenario selection, bounded evaluation and emergency-stop
+examples are in [Safe factory control](stages/21-safe-factory-control.md). The gateway
+is a convenience control plane for this simulated cell, not a safety-rated industrial
+emergency-stop system.
+
 ## Expected outputs
 
 Generated artifacts are ignored by Git and written under `outputs/factory/`:
@@ -95,9 +108,10 @@ status is `empty`, `not_cheese`, or `uncertain` has `pick_attempted=false`.
   `ARM INHIBITED`. A validated response changes the safety line to authorized; a
   timeout, missing field or correlation mismatch must show a perception fault and must
   not start robot motion.
-- Keep the emergency action simple: stop the Isaac container. The loop has
-  motion timeouts and fail-closed rejection, but a hackathon operator should
-  still monitor it.
+- Keep the emergency action simple: use the authenticated `/emergency-stop` endpoint
+  when the control gateway is enabled, or run `factory-demo.sh stop` directly. The loop
+  has motion timeouts and fail-closed rejection, but a hackathon operator should still
+  monitor it.
 - After the run, inspect at least the first, one middle, foreign-object, and last
   annotated frame plus `results.json`.
 

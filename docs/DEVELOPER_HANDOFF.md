@@ -136,7 +136,7 @@ layer, but that conversion has not been validated yet.
 | `kit_entry.py` | entry point executed inside Isaac Sim after extensions load |
 | `hud.py` | operator window and evidence labels |
 | `runtime_status.py` | atomic health/status identity used by Docker checks |
-| `control_server.py` | localhost-only, token-gated, bounded control/read API |
+| `control_server.py` | loopback-only status/audit API and token-gated allowlisted control plane |
 | `capture_domain.py` | canonical-camera dataset capture |
 | `capture_replicator.py` | seeded Replicator capture with domain randomization |
 | `replicator_plan.py` | pure randomization-plan generation |

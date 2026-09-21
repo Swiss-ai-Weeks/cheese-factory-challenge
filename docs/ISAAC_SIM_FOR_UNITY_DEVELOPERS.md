@@ -254,7 +254,10 @@ loop currently runs in-process plus an HTTP model service.
 The installed `isaacsim_mcp` searches Isaac documentation and extension
 information. It does not press Play, modify the Stage or control the robot.
 The repository's `control_server.py` is a separate, deliberately limited
-localhost control/read interface.
+localhost control/read interface. Its unauthenticated surface is read-only.
+Mutations require an operator token, actor label and unique request UUID, and
+are restricted to bounded evaluation, canonical reset and emergency stop. It
+cannot execute arbitrary Python, shell commands, paths or USD edits.
 
 ## Debugging checklist
 

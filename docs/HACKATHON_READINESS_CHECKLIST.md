@@ -113,12 +113,14 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/20-camera-control-timing.md`](stages/20-camera-control-timing.md).
 
-- [ ] **P1.6 — Expose safe agent/factory control.** Keep the documentation MCP's scope
+- [x] **P1.6 — Expose safe agent/factory control.** Keep the documentation MCP's scope
   distinct from runtime control. Provide a narrow authenticated/read-only-by-default
   interface for status, reset, mode/scenario selection and approved actions, with an
   audit trail and emergency stop behavior.
   **Accept when:** unsafe or unknown commands are rejected and every accepted mutation
   is attributable and reversible by reset.
+  **Completed:** commit documented in
+  [`docs/stages/21-safe-factory-control.md`](stages/21-safe-factory-control.md).
 
 ## P2 — hackathon delivery
 
