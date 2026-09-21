@@ -5,7 +5,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$(cd -- "$SCRIPT_DIR/../.." && pwd)
 CLASSIFIER=${1:-model}
 MAX_OBJECTS=${CHEESE_MAX_OBJECTS:-11}
-IMAGE=${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0}
+IMAGE=${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0@sha256:af1d2b4e75d553bfa27beb5a401198654aa8d607f3b7a6749196e9ce253def20}
 ISAAC_SIM_DATA_DIR=${ISAAC_SIM_DATA:-"$HOME/docker/isaac-sim"}
 SORTER_HOST_URL=${CHEESE_SORTER_HOST_URL:-http://127.0.0.1:8765}
 SORTER_CONTAINER_URL=${CHEESE_SORTER_URL:-http://host.docker.internal:8765}
@@ -86,6 +86,7 @@ docker run --rm --gpus all \
   -e CHEESE_RUNTIME_ID="$RUNTIME_ID" \
   -e CHEESE_GIT_COMMIT="$GIT_COMMIT" \
   -e CHEESE_SCENARIO="$SCENARIO" \
+  -e CHEESE_ISAAC_IMAGE="$IMAGE" \
   --add-host host.docker.internal:host-gateway \
   -v "$PROJECT_ROOT:/workspace:rw" \
   -v "$ISAAC_SIM_DATA_DIR/cache/main:/isaac-sim/.cache:rw" \

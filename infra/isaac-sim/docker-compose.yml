@@ -19,6 +19,7 @@ services:
       CHEESE_RUNTIME_ID: ${CHEESE_RUNTIME_ID:-}
       CHEESE_GIT_COMMIT: ${CHEESE_GIT_COMMIT:-unknown}
       CHEESE_SCENARIO: ${CHEESE_SCENARIO:-default-evaluation}
+      CHEESE_ISAAC_IMAGE: ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.1.0@sha256:af1d2b4e75d553bfa27beb5a401198654aa8d607f3b7a6749196e9ce253def20}
     volumes:
       - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/cache/main:/isaac-sim/.cache:rw
       - ${ISAAC_SIM_DATA:-${HOME}/docker/isaac-sim}/cache/computecache:/isaac-sim/.nv/ComputeCache:rw

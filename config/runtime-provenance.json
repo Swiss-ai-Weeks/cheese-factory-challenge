@@ -16,13 +16,19 @@
       "path": "runs/sim_type13/best.pt",
       "sha256": "26ea0e5e8b977216ba081170e23cd906f79462801ce6330b504031d7afb7961f",
       "bytes": 350430261,
-      "role": "13-class ConvNeXt cheese/reject classifier"
+      "role": "13-class ConvNeXt cheese/reject classifier",
+      "training_seed": 42,
+      "task": "sim_type",
+      "manifest": "data/processed/manifest_sim.csv"
     },
     "routing_classifier": {
       "path": "runs/sim_bin_adapt_v2/best.pt",
       "sha256": "0b02bb00096d6735c7700c4657fc2f853c615a027cf04513698dccccc609b16f",
       "bytes": 350405557,
-      "role": "production direct-bin routing checkpoint"
+      "role": "production direct-bin routing checkpoint",
+      "training_seed": 42,
+      "task": "sim_bin",
+      "manifest": "data/processed/manifest_factory_adapt.csv"
     }
   },
   "notes": [

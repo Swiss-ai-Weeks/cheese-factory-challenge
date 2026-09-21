@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import os
 import time
@@ -594,7 +595,24 @@ async def run(
             "mean_decision_age_ms": sum(float(r["decision_age_ms"]) for r in timed_records) / max(1, len(timed_records)),
             "max_authorization_age_ms": max((float(r["authorization_age_ms"]) for r in timed_records), default=None),
         }
-        report = {"metrics": metrics, "records": records}
+        config_bytes = factory_config.source.read_bytes()
+        report = {
+            "schema_version": 2,
+            "metadata": {
+                "commit": runtime_status.identity["commit"],
+                "runtime_id": runtime_status.identity["runtime_id"],
+                "scenario": runtime_status.identity["scenario"],
+                "classifier_mode": classifier_mode,
+                "seed": factory_config.seed,
+                "config": str(factory_config.source.relative_to(factory_config.source.parents[2])),
+                "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
+                "isaac_image": os.environ.get("CHEESE_ISAAC_IMAGE", "unknown"),
+                "max_objects": max_objects,
+                "generated_at_epoch": time.time(),
+            },
+            "metrics": metrics,
+            "records": records,
+        }
         (output / "results.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         runtime_status.update("complete", metrics=metrics)
         hud.update(phase="RUN COMPLETE", safety="ARM INHIBITED · run complete")
