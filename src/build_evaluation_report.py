@@ -30,8 +30,9 @@ def load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def canonical_json_sha256(payload: dict) -> str:
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def display_path(path: Path) -> str:
@@ -73,7 +74,7 @@ def offline_metrics(path: Path, provenance: dict, model_key: str) -> dict:
     return {
         "scope": "saved held-out test split; not live-camera or real-world accuracy",
         "artifact": display_path(path),
-        "artifact_sha256": sha256(path),
+        "artifact_canonical_sha256": canonical_json_sha256(payload),
         "checkpoint_sha256": model["sha256"],
         "training_seed": model["training_seed"],
         "manifest": model["manifest"],
@@ -102,7 +103,7 @@ def live_metrics(path: Path, expected_mode: str) -> dict:
     return {
         "scope": "deterministic Isaac Sim scenario; not real-world performance",
         "artifact": display_path(path),
-        "artifact_sha256": sha256(path),
+        "artifact_canonical_sha256": canonical_json_sha256(payload),
         "metadata": metadata,
         "detection": binomial(sum(bool(row.get("detected")) for row in objects), len(objects)),
         "fine_type_classification": binomial(sum(bool(row.get("classification_correct")) for row in detected), len(detected)),
@@ -181,7 +182,7 @@ def render_markdown(report: dict) -> str:
         ".venv/bin/python src/build_evaluation_report.py",
         "```",
         "",
-        "The machine-readable summary is `docs/evidence/p22-evaluation-summary.json`. Source artifact hashes and checkpoint hashes are included there.",
+        "The machine-readable summary is `docs/evidence/p22-evaluation-summary.json`. Cross-platform canonical JSON hashes and checkpoint hashes are included there.",
         "",
     ]
     return "\n".join(lines)

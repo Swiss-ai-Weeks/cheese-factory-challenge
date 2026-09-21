@@ -13,7 +13,8 @@ one flattering accuracy number:
 `src/build_evaluation_report.py` regenerates both `docs/evaluation_results.md` and
 `docs/evidence/p22-evaluation-summary.json`. The report derives every live count from
 per-item records and every offline aggregate from committed result JSON. It also stores
-SHA-256 hashes of each input and both production checkpoints.
+cross-platform canonical JSON SHA-256 hashes of each input and raw SHA-256 hashes of
+both production checkpoints.
 
 ## Reproducibility and uncertainty
 

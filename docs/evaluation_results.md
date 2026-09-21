@@ -63,4 +63,4 @@ infra/isaac-sim/run-evaluation.sh showcase 11 docs/evidence/p22-showcase-results
 .venv/bin/python src/build_evaluation_report.py
 ```
 
-The machine-readable summary is `docs/evidence/p22-evaluation-summary.json`. Source artifact hashes and checkpoint hashes are included there.
+The machine-readable summary is `docs/evidence/p22-evaluation-summary.json`. Cross-platform canonical JSON hashes and checkpoint hashes are included there.

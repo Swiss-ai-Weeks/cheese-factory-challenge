@@ -3,7 +3,7 @@
   "live": {
     "model": {
       "artifact": "docs/evidence/p22-model-results.json",
-      "artifact_sha256": "6998ecbdab5de44ad9c3b54112bb8c9db4d13ddb49c34805ceeec624559272a5",
+      "artifact_canonical_sha256": "aa4c50ece74dcaf5b406b5a7cf0eefbb128227aad90de63ddb199bde5563a33c",
       "correct_bin_placement": {
         "rate": 0.3,
         "samples": 10,
@@ -107,7 +107,7 @@
     },
     "showcase": {
       "artifact": "docs/evidence/p22-showcase-results.json",
-      "artifact_sha256": "76c6aaa29d71f3b09f49245f8c07c24c48174a483fb4704ab7fb00562ba8d033",
+      "artifact_canonical_sha256": "68310671d7087dadea8ec1a6fa0154abd83478af5dd69435b9b026a0bd13a4d5",
       "correct_bin_placement": {
         "rate": 1.0,
         "samples": 10,
@@ -209,7 +209,7 @@
   "offline": {
     "routing_classifier": {
       "artifact": "runs/sim_bin_adapt_v2/results.json",
-      "artifact_sha256": "5d9c77f3037cc1a23ab819f7138b0bc45083e470fb0628e6610aac401635f603",
+      "artifact_canonical_sha256": "a0ce26b71a369cb75aa2bcf6ee9ba8d56986c202ddc88a9118c384076f9b2abc",
       "checkpoint_sha256": "0b02bb00096d6735c7700c4657fc2f853c615a027cf04513698dccccc609b16f",
       "interval_note": "Predictions are not saved, so no defensible resampling interval can be regenerated for macro-F1.",
       "macro_f1": 0.5509141109502698,
@@ -229,7 +229,7 @@
     },
     "type_classifier": {
       "artifact": "runs/sim_type13/results.json",
-      "artifact_sha256": "d5279cdba20c01e4f6b9bdab6d41f9de6f662140d4667d371bd36f5a5c8b230f",
+      "artifact_canonical_sha256": "f24c284aba6379639d0d77a406163f3a1c8f25e69d79ab970134e1ad6266fa58",
       "checkpoint_sha256": "26ea0e5e8b977216ba081170e23cd906f79462801ce6330b504031d7afb7961f",
       "interval_note": "Predictions are not saved, so no defensible resampling interval can be regenerated for macro-F1.",
       "macro_f1": 0.43645333323629254,
