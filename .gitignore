@@ -31,6 +31,9 @@ runs/**/*.onnx.data
 # Validation-only Stage 8 candidates are retained locally, never versioned.
 runs/sim_bin_stage8_*/
 runs/stage8_baselines/
+# Frozen-gate candidate outputs retained on the workstation, never shipped.
+runs/p14_gate/
+runs/sim_bin_p14_balanced_*/
 
 # environnement
 .venv/
