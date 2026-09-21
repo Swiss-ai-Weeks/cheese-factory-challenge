@@ -20,13 +20,15 @@ Run the non-destructive preflight before starting a demo:
 infra/isaac-sim/check-environment.sh
 ```
 
-It treats GPU, Docker, running services, MCP, model endpoint and the Python
-environment as required. Missing datasets, raw renders and the ignored trained
-checkpoint are reported as warnings so the development integration harness can
-still be tested honestly.
+It validates the GPU, Docker daemon and Compose plugin, NVIDIA container runtime,
+Git checkout, pinned image and cache location. It does not require services to be
+running. Documentation MCP and H200/Qwen health are informational because neither
+is part of the runtime. `check-environment.sh model` additionally requires the
+Python environment and verifies both ignored checkpoints against committed hashes.
 
-The default image is `nvcr.io/nvidia/isaac-sim:6.1.0`. Override it explicitly
-when reproducing an older result:
+The default image is Isaac Sim 6.1.0 pinned by registry digest in
+`config/runtime-provenance.json`. Override it explicitly only when intentionally
+testing another build:
 
 ```bash
 export ISAAC_SIM_IMAGE=nvcr.io/nvidia/isaac-sim:<tag>
@@ -35,16 +37,12 @@ export ISAAC_SIM_IMAGE=nvcr.io/nvidia/isaac-sim:<tag>
 ## Start
 
 ```bash
-cd infra/isaac-sim
-cp .env.example .env
-mkdir -p /home/ubuntu/docker/isaac-sim/{cache/main,cache/computecache,cache/kit,config,data,logs,pkg}
-sudo chown -R 1234:1234 /home/ubuntu/docker/isaac-sim
-docker compose -p isim up -d --build
-docker compose -p isim ps
+infra/isaac-sim/factory-demo.sh launch showcase
 ```
 
-All three services should become healthy. The first Isaac Sim startup may take
-several minutes while shaders and extensions are cached.
+The command performs preflight, safely prepares persistent cache paths, launches all
+three services and verifies the live runtime identity. The first Isaac Sim startup
+may take several minutes while the image, shaders and extensions are cached.
 
 Open `http://127.0.0.1:6080` on the host. For Brev, publish the desktop as an
 authenticated HTTPS endpoint:
@@ -88,7 +86,7 @@ The supported operator entry point is:
 
 ```bash
 infra/isaac-sim/factory-demo.sh help
-infra/isaac-sim/factory-demo.sh showcase
+infra/isaac-sim/factory-demo.sh launch showcase
 ```
 
 It exposes only allowlisted actions and uses the canonical runtime launcher for

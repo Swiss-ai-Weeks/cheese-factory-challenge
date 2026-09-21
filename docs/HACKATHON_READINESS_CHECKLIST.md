@@ -124,11 +124,13 @@ not evidence of model accuracy.
 
 ## P2 — hackathon delivery
 
-- [ ] **P2.1 — One-command reproducibility.** Pin dependencies and model provenance,
+- [x] **P2.1 — One-command reproducibility.** Pin dependencies and model provenance,
   validate prerequisites, and supply one documented command for the live demo plus a
   fast preflight.
   **Accept when:** a clean workstation reaches a healthy canonical demo using the
   runbook without undocumented manual repair.
+  **Completed:** commit documented in
+  [`docs/stages/22-one-command-reproducibility.md`](stages/22-one-command-reproducibility.md).
 
 - [ ] **P2.2 — Publish honest end-to-end evaluation.** Separate classifier, routing,
   manipulation and full-loop metrics; include failure counts, sample sizes, seeds and

@@ -4,11 +4,15 @@
 
 1. NVIDIA driver, Docker, NVIDIA Container Toolkit, and access to
    `nvcr.io/nvidia/isaac-sim:6.1.0`.
-2. Start the MCP server and restart the coding-agent session after first adding
-   it. See [Isaac MCP research](isaac_mcp_research.md).
-3. For production, restore or rebuild both ignored checkpoints:
+2. For trained-model mode, create a Python 3.12 environment from the pinned
+   `requirements-runtime.txt` file.
+3. For trained-model mode, restore or rebuild both ignored checkpoints:
    `runs/sim_type13/best.pt` and `runs/sim_bin_adapt_v2/best.pt`. Both are
-   present on the evaluation workstation.
+   present on the evaluation workstation and verified against
+   `config/runtime-provenance.json` before launch.
+
+The Isaac documentation MCP is useful while developing but is not a runtime
+dependency. The H200/Qwen service is also unrelated to execution of the factory.
 
 The live runtime has three deliberately separate modes:
 
@@ -20,16 +24,20 @@ The live runtime has three deliberately separate modes:
 
 ## Commands
 
-Use one allowlisted operator command for the live demo:
+From the repository root, this is the canonical one-command live demo:
 
 ```bash
-infra/isaac-sim/factory-demo.sh preflight
-infra/isaac-sim/factory-demo.sh showcase
-infra/isaac-sim/factory-demo.sh status
+infra/isaac-sim/factory-demo.sh launch showcase
 ```
 
-`showcase` is the recommended judge-facing experience. The on-screen HUD labels
-it `SCRIPTED ROUTING (NOT MODEL ACCURACY)`. Reset it to object 1 at any time:
+It runs a fast static preflight, creates the persistent cache directories, starts
+the complete Isaac/WebRTC/noVNC stack, and refuses success until service health and
+the live commit/mode/scenario identity all match. It prints the viewer URL as a
+`READY` line. The shorter `factory-demo.sh showcase` command is an exact alias.
+
+`showcase` is the recommended judge-facing experience because it reliably shows the
+physical loop. The on-screen HUD labels it `SCRIPTED ROUTING (NOT MODEL ACCURACY)`.
+Reset it to object 1 at any time:
 
 ```bash
 infra/isaac-sim/factory-demo.sh replay
@@ -38,7 +46,15 @@ infra/isaac-sim/factory-demo.sh replay
 Start honest trained perception separately:
 
 ```bash
-infra/isaac-sim/factory-demo.sh model
+infra/isaac-sim/factory-demo.sh launch model
+```
+
+The model preflight hashes both checkpoints before starting. To inspect prerequisites
+without starting or changing any service, run:
+
+```bash
+infra/isaac-sim/factory-demo.sh preflight showcase
+infra/isaac-sim/factory-demo.sh preflight model
 ```
 
 Open the authenticated noVNC endpoint already provisioned for port 6080, or
@@ -125,6 +141,7 @@ status is `empty`, `not_cheese`, or `uncertain` has `pick_attempted=false`.
   from NVIDIA's Isaac 6.1 asset service. Verify outbound access and reuse the
   mounted Hub/cache paths.
 - Production command says checkpoint missing: restore or rebuild both Stage 5
-  checkpoints; do not silently switch a public demo to the development classifier.
+  checkpoints. A provenance mismatch also stops model mode; never silently switch a
+  public demo to the development classifier.
 - Stream busy, blank, stale, or wrong app: run
   `infra/isaac-sim/factory-demo.sh recover showcase`.

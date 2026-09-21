@@ -38,6 +38,16 @@ directly to stable paths in Isaac's Stage hierarchy.
 The corrective integration and demo acceptance plan is tracked in
 [`docs/HACKATHON_READINESS_CHECKLIST.md`](docs/HACKATHON_READINESS_CHECKLIST.md).
 
+On a configured NVIDIA workstation, the canonical live demo is one command:
+
+```bash
+infra/isaac-sim/factory-demo.sh launch showcase
+```
+
+It validates prerequisites, prepares persistent caches, starts Isaac Sim and the
+browser viewer, and verifies that the running commit and mode are the requested ones.
+See the [`demo runbook`](docs/demo_runbook.md) for model mode and remote access.
+
 **The full documentation is an Obsidian vault in [`vault/`](vault/).**
 Open that folder in Obsidian (*Open folder as vault*) — 52 linked notes, 11 figures and a
 visual canvas. It also reads fine as plain Markdown on GitHub.

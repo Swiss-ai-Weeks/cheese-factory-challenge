@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "reference_platform": {
+    "os": "Ubuntu 22.04",
+    "python": "3.12.14",
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.91.07",
+    "cuda_runtime": "12.8"
+  },
+  "isaac_sim": {
+    "version": "6.1.0",
+    "image": "nvcr.io/nvidia/isaac-sim:6.1.0@sha256:af1d2b4e75d553bfa27beb5a401198654aa8d607f3b7a6749196e9ce253def20"
+  },
+  "models": {
+    "type_classifier": {
+      "path": "runs/sim_type13/best.pt",
+      "sha256": "26ea0e5e8b977216ba081170e23cd906f79462801ce6330b504031d7afb7961f",
+      "bytes": 350430261,
+      "role": "13-class ConvNeXt cheese/reject classifier"
+    },
+    "routing_classifier": {
+      "path": "runs/sim_bin_adapt_v2/best.pt",
+      "sha256": "0b02bb00096d6735c7700c4657fc2f853c615a027cf04513698dccccc609b16f",
+      "bytes": 350405557,
+      "role": "production direct-bin routing checkpoint"
+    }
+  },
+  "notes": [
+    "Model files are intentionally excluded from Git because each exceeds GitHub's 100 MB limit.",
+    "A model-mode preflight verifies both ignored files against these hashes.",
+    "Showcase mode does not use either model and is labelled scripted routing in the HUD."
+  ]
+}

@@ -13,12 +13,13 @@ Usage: infra/isaac-sim/factory-demo.sh ACTION [MODE]
 
 Actions:
   status              Show commit, services, canonical runtime and viewing URL.
-  showcase            Start the judge-facing scripted physical showcase.
+  launch [MODE]       Preflight, prepare, start and verify one healthy live demo.
+  showcase            Alias for: launch showcase (recommended for judges).
   replay              Reset and replay the showcase from object 1.
   model               Start honest trained-perception mode.
   development         Start the lighting-sensitive pixel proxy diagnostic.
   recover [MODE]      Recreate the full stream in showcase, model, or development mode.
-  preflight           Run the workstation/environment check.
+  preflight [MODE]    Fast static check; does not require running services.
   stop                Stop the streamed factory and repository-owned sorter.
   help                 Show this help.
 
@@ -34,7 +35,10 @@ valid_mode() {
 start_mode() {
   local mode=$1
   local scenario=$2
-  CHEESE_SCENARIO="$scenario" exec "$SCRIPT_DIR/run-gui.sh" "$mode"
+  "$SCRIPT_DIR/check-environment.sh" "$mode"
+  "$SCRIPT_DIR/prepare-environment.sh"
+  CHEESE_SCENARIO="$scenario" "$SCRIPT_DIR/run-gui.sh" "$mode"
+  "$SCRIPT_DIR/verify-live-demo.sh" "$mode" "$scenario"
 }
 
 action=${1:-status}
@@ -49,8 +53,8 @@ case "$action" in
     docker compose -p isim -f "$COMPOSE" ps
     if [[ -f "$PROJECT_ROOT/outputs/factory/runtime-status.json" ]]; then
       printf '\nCanonical runtime\n'
-      "$PROJECT_ROOT/.venv/bin/python" -m json.tool "$PROJECT_ROOT/outputs/factory/runtime-status.json"
-      runtime_commit=$("$PROJECT_ROOT/.venv/bin/python" -c 'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' "$PROJECT_ROOT/outputs/factory/runtime-status.json")
+      python3 -m json.tool "$PROJECT_ROOT/outputs/factory/runtime-status.json"
+      runtime_commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' "$PROJECT_ROOT/outputs/factory/runtime-status.json")
       repository_commit=$(git -C "$PROJECT_ROOT" rev-parse HEAD)
       if [[ "$runtime_commit" != "$repository_commit" ]]; then
         printf '\nWARN runtime commit does not match repository HEAD; run factory-demo.sh recover showcase\n'
@@ -60,8 +64,16 @@ case "$action" in
     fi
     printf '\nViewer (host-local): http://127.0.0.1:6080/vnc.html?autoconnect=1&resize=scale\n'
     ;;
+  launch)
+    mode=${2:-showcase}
+    if ! valid_mode "$mode"; then
+      printf 'launch mode must be showcase, model, or development\n' >&2
+      exit 2
+    fi
+    start_mode "$mode" "canonical-$mode"
+    ;;
   showcase)
-    start_mode showcase judge-showcase
+    start_mode showcase canonical-showcase
     ;;
   replay)
     start_mode showcase judge-showcase-replay
@@ -81,7 +93,12 @@ case "$action" in
     start_mode "$mode" "recovery-$mode"
     ;;
   preflight)
-    exec "$SCRIPT_DIR/check-environment.sh"
+    mode=${2:-showcase}
+    if ! valid_mode "$mode"; then
+      printf 'preflight mode must be showcase, model, or development\n' >&2
+      exit 2
+    fi
+    exec "$SCRIPT_DIR/check-environment.sh" "$mode"
     ;;
   stop)
     exec "$SCRIPT_DIR/stop-gui.sh"
