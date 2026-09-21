@@ -133,24 +133,22 @@ shades. 1,909 pieces → **9,545 images**.
 | `empty` | 900 | 900 |
 | **total** | **3,191** | **12,355** |
 
-## 📊 Results
+## 📊 Accepted results
 
-Shipped model **`sim_type13`** — ConvNeXt-Base, 384 px, trained on 12355 Isaac Sim
-belt renders from 3191 distinct pieces.
+Current evidence is generated from committed machine-readable artifacts rather than
+hand-copied headline numbers. The held-out 545-sample fine-type test reports 78.7%
+top-1 and 0.4365 macro-F1; the held-out 845-sample direct-bin test reports 77.6%
+top-1 and 0.5509 macro-F1. These are dataset results, not real-camera accuracy.
 
-| measurement | top-1 | macro-F1 |
-|---|---|---|
-| 13 classes | 0.728 | 0.600 |
-| bin decision | 0.754 | 0.733 |
-| cheese vs reject | 0.953 | 0.932 |
+In the fresh 11-object Isaac scenario, trained-model mode completed 4/11 full-loop
+outcomes; manipulation succeeded on all 4 attempted picks, while perception coverage
+and routing remained the bottleneck. Scripted showcase mode completed 11/11, but uses
+known scenario routes and is explicitly not classifier evidence.
 
-`empty` recall **1.000** · `not_cheese` recall 0.828 · ~14 ms per piece on an H100.
-
-> [!WARNING]
-> **These numbers do not measure performance on the real demo scene.** Training data is
-> renders built from photographs; nothing has been validated against the actual Isaac
-> scene. This is the largest remaining risk —
-> see [Open questions](vault/90%20Decisions/Open%20questions.md).
+See the generated [evaluation report](docs/evaluation_results.md) for numerators,
+denominators, Wilson 95% intervals, seeds, failure counts, artifact hashes and exact
+runtime commits. The Obsidian vault retains useful historical experiment results; do
+not treat every historical checkpoint number there as the accepted production result.
 
 ## 🔧 How it was built
 

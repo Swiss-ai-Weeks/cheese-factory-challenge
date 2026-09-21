@@ -49,7 +49,10 @@ def wilson(successes: int, samples: int, z: float = 1.959963984540054) -> list[f
     denominator = 1 + z * z / samples
     centre = rate + z * z / (2 * samples)
     margin = z * math.sqrt(rate * (1 - rate) / samples + z * z / (4 * samples * samples))
-    return [(centre - margin) / denominator, (centre + margin) / denominator]
+    return [
+        max(0.0, (centre - margin) / denominator),
+        min(1.0, (centre + margin) / denominator),
+    ]
 
 
 def binomial(successes: int, samples: int) -> dict:

@@ -1,0 +1,252 @@
+{
+  "confidence_method": "two-sided 95% Wilson score interval; z=1.959963984540054",
+  "live": {
+    "model": {
+      "artifact": "docs/evidence/p22-model-results.json",
+      "artifact_sha256": "6998ecbdab5de44ad9c3b54112bb8c9db4d13ddb49c34805ceeec624559272a5",
+      "correct_bin_placement": {
+        "rate": 0.3,
+        "samples": 10,
+        "successes": 3,
+        "wilson_95": [
+          0.10779126740630099,
+          0.6032218525388546
+        ]
+      },
+      "detection": {
+        "rate": 1.0,
+        "samples": 11,
+        "successes": 11,
+        "wilson_95": [
+          0.7411670330319683,
+          1.0
+        ]
+      },
+      "empty_interval_handling": {
+        "rate": 1.0,
+        "samples": 1,
+        "successes": 1,
+        "wilson_95": [
+          0.20654931437723742,
+          1.0
+        ]
+      },
+      "failure_counts": {
+        "not_cheese": 4,
+        "ok": 1,
+        "uncertain": 2
+      },
+      "fine_type_classification": {
+        "rate": 0.45454545454545453,
+        "samples": 11,
+        "successes": 5,
+        "wilson_95": [
+          0.21271271622459764,
+          0.719908462590678
+        ]
+      },
+      "full_loop_outcome": {
+        "rate": 0.36363636363636365,
+        "samples": 11,
+        "successes": 4,
+        "wilson_95": [
+          0.15166471095367573,
+          0.6461988254921511
+        ]
+      },
+      "manipulation_given_attempt": {
+        "rate": 1.0,
+        "samples": 4,
+        "successes": 4,
+        "wilson_95": [
+          0.5101091635454027,
+          1.0
+        ]
+      },
+      "mean_cycle_time_s": 10.040325561099136,
+      "metadata": {
+        "classifier_mode": "model",
+        "commit": "4bc39ee3e7fe766f636e9e7321f6010cf167497a",
+        "config": "sim/factory/config.yaml",
+        "config_sha256": "801403105580faababdd605051a8c90730f5676a19291b00885fa5c725a38a68",
+        "generated_at_epoch": 1790032031.1296756,
+        "isaac_image": "nvcr.io/nvidia/isaac-sim:6.1.0@sha256:af1d2b4e75d553bfa27beb5a401198654aa8d607f3b7a6749196e9ce253def20",
+        "max_objects": 11,
+        "runtime_id": "headless-4bc39ee3e7fe-20260921T230439Z-2631636-15975",
+        "scenario": "p22-model-evaluation",
+        "seed": 2026
+      },
+      "pick_attempt_coverage": {
+        "rate": 0.4,
+        "samples": 10,
+        "successes": 4,
+        "wilson_95": [
+          0.16818032970623617,
+          0.6873262302663417
+        ]
+      },
+      "routing_decision": {
+        "rate": 0.3,
+        "samples": 10,
+        "successes": 3,
+        "wilson_95": [
+          0.10779126740630099,
+          0.6032218525388546
+        ]
+      },
+      "safe_foreign_rejection": {
+        "rate": 1.0,
+        "samples": 1,
+        "successes": 1,
+        "wilson_95": [
+          0.20654931437723742,
+          1.0
+        ]
+      },
+      "scope": "deterministic Isaac Sim scenario; not real-world performance"
+    },
+    "showcase": {
+      "artifact": "docs/evidence/p22-showcase-results.json",
+      "artifact_sha256": "76c6aaa29d71f3b09f49245f8c07c24c48174a483fb4704ab7fb00562ba8d033",
+      "correct_bin_placement": {
+        "rate": 1.0,
+        "samples": 10,
+        "successes": 10,
+        "wilson_95": [
+          0.7224672001371106,
+          0.9999999999999999
+        ]
+      },
+      "detection": {
+        "rate": 1.0,
+        "samples": 11,
+        "successes": 11,
+        "wilson_95": [
+          0.7411670330319683,
+          1.0
+        ]
+      },
+      "empty_interval_handling": {
+        "rate": 1.0,
+        "samples": 1,
+        "successes": 1,
+        "wilson_95": [
+          0.20654931437723742,
+          1.0
+        ]
+      },
+      "failure_counts": {},
+      "fine_type_classification": {
+        "rate": 1.0,
+        "samples": 11,
+        "successes": 11,
+        "wilson_95": [
+          0.7411670330319683,
+          1.0
+        ]
+      },
+      "full_loop_outcome": {
+        "rate": 1.0,
+        "samples": 11,
+        "successes": 11,
+        "wilson_95": [
+          0.7411670330319683,
+          1.0
+        ]
+      },
+      "manipulation_given_attempt": {
+        "rate": 1.0,
+        "samples": 10,
+        "successes": 10,
+        "wilson_95": [
+          0.7224672001371106,
+          0.9999999999999999
+        ]
+      },
+      "mean_cycle_time_s": 15.046794531999199,
+      "metadata": {
+        "classifier_mode": "showcase",
+        "commit": "4bc39ee3e7fe766f636e9e7321f6010cf167497a",
+        "config": "sim/factory/config.yaml",
+        "config_sha256": "801403105580faababdd605051a8c90730f5676a19291b00885fa5c725a38a68",
+        "generated_at_epoch": 1790032299.1227858,
+        "isaac_image": "nvcr.io/nvidia/isaac-sim:6.1.0@sha256:af1d2b4e75d553bfa27beb5a401198654aa8d607f3b7a6749196e9ce253def20",
+        "max_objects": 11,
+        "runtime_id": "headless-4bc39ee3e7fe-20260921T230813Z-2636851-26358",
+        "scenario": "p22-showcase-evaluation",
+        "seed": 2026
+      },
+      "pick_attempt_coverage": {
+        "rate": 1.0,
+        "samples": 10,
+        "successes": 10,
+        "wilson_95": [
+          0.7224672001371106,
+          0.9999999999999999
+        ]
+      },
+      "routing_decision": {
+        "rate": 1.0,
+        "samples": 10,
+        "successes": 10,
+        "wilson_95": [
+          0.7224672001371106,
+          0.9999999999999999
+        ]
+      },
+      "safe_foreign_rejection": {
+        "rate": 1.0,
+        "samples": 1,
+        "successes": 1,
+        "wilson_95": [
+          0.20654931437723742,
+          1.0
+        ]
+      },
+      "scope": "deterministic Isaac Sim scenario; not real-world performance"
+    }
+  },
+  "offline": {
+    "routing_classifier": {
+      "artifact": "runs/sim_bin_adapt_v2/results.json",
+      "artifact_sha256": "5d9c77f3037cc1a23ab819f7138b0bc45083e470fb0628e6610aac401635f603",
+      "checkpoint_sha256": "0b02bb00096d6735c7700c4657fc2f853c615a027cf04513698dccccc609b16f",
+      "interval_note": "Predictions are not saved, so no defensible resampling interval can be regenerated for macro-F1.",
+      "macro_f1": 0.5509141109502698,
+      "macro_f1_interval": null,
+      "manifest": "data/processed/manifest_factory_adapt.csv",
+      "scope": "saved held-out test split; not live-camera or real-world accuracy",
+      "top1": {
+        "rate": 0.7763313609467456,
+        "samples": 845,
+        "successes": 656,
+        "wilson_95": [
+          0.7470204939388617,
+          0.803141135358568
+        ]
+      },
+      "training_seed": 42
+    },
+    "type_classifier": {
+      "artifact": "runs/sim_type13/results.json",
+      "artifact_sha256": "d5279cdba20c01e4f6b9bdab6d41f9de6f662140d4667d371bd36f5a5c8b230f",
+      "checkpoint_sha256": "26ea0e5e8b977216ba081170e23cd906f79462801ce6330b504031d7afb7961f",
+      "interval_note": "Predictions are not saved, so no defensible resampling interval can be regenerated for macro-F1.",
+      "macro_f1": 0.43645333323629254,
+      "macro_f1_interval": null,
+      "manifest": "data/processed/manifest_sim.csv",
+      "scope": "saved held-out test split; not live-camera or real-world accuracy",
+      "top1": {
+        "rate": 0.7871559633027523,
+        "samples": 545,
+        "successes": 429,
+        "wilson_95": [
+          0.7508430647085196,
+          0.819449129821662
+        ]
+      },
+      "training_seed": 42
+    }
+  },
+  "schema_version": 1
+}

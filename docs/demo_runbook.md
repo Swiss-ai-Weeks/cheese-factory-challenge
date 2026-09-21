@@ -131,6 +131,18 @@ status is `empty`, `not_cheese`, or `uncertain` has `pick_attempted=false`.
 - After the run, inspect at least the first, one middle, foreign-object, and last
   annotated frame plus `results.json`.
 
+Publish commit-bound evidence and regenerate the public report with:
+
+```bash
+infra/isaac-sim/run-evaluation.sh model 11 docs/evidence/p22-model-results.json
+infra/isaac-sim/run-evaluation.sh showcase 11 docs/evidence/p22-showcase-results.json
+.venv/bin/python src/build_evaluation_report.py
+```
+
+Evidence schema 2 records the commit, runtime ID, deterministic seed, scenario, config
+hash and immutable Isaac image. The generated report calculates counts and confidence
+intervals from per-item records instead of copying headline percentages by hand.
+
 ## Troubleshooting
 
 - `ModuleNotFoundError: isaacsim.robot_motion.examples`: the runner enables the

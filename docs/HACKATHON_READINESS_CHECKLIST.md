@@ -132,12 +132,14 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/22-one-command-reproducibility.md`](stages/22-one-command-reproducibility.md).
 
-- [ ] **P2.2 — Publish honest end-to-end evaluation.** Separate classifier, routing,
+- [x] **P2.2 — Publish honest end-to-end evaluation.** Separate classifier, routing,
   manipulation and full-loop metrics; include failure counts, sample sizes, seeds and
   confidence boundaries. Do not present synthetic or showcase results as real-world
   accuracy.
   **Accept when:** all reported numbers are regenerated from saved machine-readable
   artifacts tied to the tested commit.
+  **Completed:** commit documented in
+  [`docs/stages/23-honest-evaluation.md`](stages/23-honest-evaluation.md).
 
 - [ ] **P2.3 — Produce judge-ready evidence.** Create a short continuous demo capture,
   architecture diagram, feature comparison, model card and concise pitch explaining the

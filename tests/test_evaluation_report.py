@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from src.build_evaluation_report import live_metrics, wilson
+from src.build_evaluation_report import ROOT, build, live_metrics, render_markdown, wilson
 
 
 def test_wilson_interval_is_bounded_and_not_false_certainty():
@@ -97,3 +97,17 @@ def test_live_report_rejects_wrong_mode(tmp_path):
     path.write_text(json.dumps({"schema_version": 2, "metadata": {"classifier_mode": "showcase"}}), encoding="utf-8")
     with pytest.raises(ValueError, match="expected 'model'"):
         live_metrics(path, "model")
+
+
+def test_committed_public_report_is_exactly_regenerated():
+    report = build(
+        ROOT / "runs/sim_type13/results.json",
+        ROOT / "runs/sim_bin_adapt_v2/results.json",
+        ROOT / "docs/evidence/p22-model-results.json",
+        ROOT / "docs/evidence/p22-showcase-results.json",
+        ROOT / "config/runtime-provenance.json",
+    )
+    committed_json = json.loads((ROOT / "docs/evidence/p22-evaluation-summary.json").read_text(encoding="utf-8"))
+    committed_markdown = (ROOT / "docs/evaluation_results.md").read_text(encoding="utf-8")
+    assert report == committed_json
+    assert render_markdown(report) == committed_markdown
