@@ -34,6 +34,8 @@ Then show `docs/evaluation_results.md`: model mode is the honest perception resu
 showcase mode is the reliable physical presentation. A continuous captured run is saved
 as [`evidence/p23-live-showcase.mp4`](evidence/p23-live-showcase.mp4).
 
+![Five moments from the continuous 75-second capture](evidence/p23-live-showcase-preview.jpg)
+
 ## Why this branch is the integrated product
 
 Both source branch tips are ancestors of `codex/hackathon-integration`; neither was

@@ -141,11 +141,13 @@ not evidence of model accuracy.
   **Completed:** commit documented in
   [`docs/stages/23-honest-evaluation.md`](stages/23-honest-evaluation.md).
 
-- [ ] **P2.3 — Produce judge-ready evidence.** Create a short continuous demo capture,
+- [x] **P2.3 — Produce judge-ready evidence.** Create a short continuous demo capture,
   architecture diagram, feature comparison, model card and concise pitch explaining the
   industrial value and limitations.
   **Accept when:** the evidence shows camera input, decision, arm motion and destination
   in one understandable sequence and links to reproducible results.
+  **Completed:** commit documented in
+  [`docs/stages/24-judge-ready-evidence.md`](stages/24-judge-ready-evidence.md).
 
 - [ ] **P2.4 — Final regression and branch audit.** Confirm both parent histories remain
   contained, no generated datasets/checkpoints leaked into Git, no source branch was
