@@ -23,7 +23,7 @@ EXPECTED_EVIDENCE = {
     "docs/evidence/p23-live-showcase-preview.jpg": "52aa3e7194d542d864bf7bd9346d4e655fa189412dd9f77876ee76ba4bf659bd",
 }
 FORBIDDEN_TRACKED = re.compile(
-    r"^(?:data/(?:raw|processed)/|sim/out/|outputs/|\.venv/)|(?:.*\.(?:pt|onnx)(?:\.data)?)$"
+    r"^(?:(?:data/(?:raw|processed)/|sim/out/|outputs/|\.venv/).*|.*\.(?:pt|onnx)(?:\.data)?)$"
 )
 
 
