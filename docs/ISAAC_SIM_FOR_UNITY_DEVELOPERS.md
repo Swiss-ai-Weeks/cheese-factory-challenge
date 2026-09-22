@@ -85,8 +85,10 @@ A cube prim is only geometry until behavior schemas are applied. Typical APIs:
 - articulation root and joint schemas — robot kinematic chain;
 - semantic labels — ground truth for synthetic data.
 
-This is why the inspection portal can be visible while the robot passes through
-it: it currently has geometry but no collision schema and no planner obstacle.
+Visible geometry, PhysX collision and planner obstacles are separate concerns.
+The inspection gantry demonstrates the safe pattern: human-readable rendered
+prims plus aligned invisible collision proxies that are verified in cuMotion's
+world during controller initialization.
 
 ## First tour of the running project
 
@@ -95,7 +97,8 @@ it: it currently has geometry but no collision schema and no planner obstacle.
 3. In Isaac, locate the **Stage** panel. Expand `/World`.
 4. Select `/World/Factory/Inspection/left_post`.
 5. In **Property**, inspect its transform and custom data. The custom data points
-   back to `scene_layout.json` and identifies it as visual-only.
+   back to `scene_layout.json`; its aligned collision proxy is under
+   `/World/Factory/PlanningObstacles/Inspection`.
 6. Select `/World/InspectionCamera`. This is the actual RTX perception camera.
    `/World/Factory/Inspection/camera_body` is only its decorative housing.
 7. Select `/World/OverviewCamera`. This drives the operator viewport; changing
@@ -129,11 +132,13 @@ Each box declaration contains:
 ```json
 {
   "path": "/World/Factory/Inspection/left_post",
-  "size": [0.045, 0.055, 1.18],
-  "position": [0.31, 0.08, 0.57],
+  "collision_path": "/World/Factory/PlanningObstacles/Inspection/left_post",
+  "size": [0.055, 0.075, 1.71],
+  "position": [-1.05, 0.08, 0.845],
   "material": "steel",
-  "collision": "none",
-  "role": "visual-only inspection portal; known robot-clearance defect"
+  "collision": "static",
+  "planning_obstacle": true,
+  "role": "wide inspection gantry post beyond Franka nominal reach"
 }
 ```
 
@@ -143,6 +148,10 @@ Each box declaration contains:
 - optional `rotation_xyz_deg` defaults to zero;
 - `material` refers to the material table in the same file;
 - `collision` can be `none` or `static`;
+- optional `collision_path` creates an aligned invisible collider instead of
+  applying collision directly to the rendered prim;
+- `planning_obstacle: true` makes startup verify that cuMotion tracks the
+  collision root;
 - `role` is required documentation exposed on the prim.
 
 Test the file without launching Isaac:

@@ -231,9 +231,10 @@ camera-domain training assumptions; it requires capture/evaluation again.
 ### Add collision to visible equipment
 
 Setting `collision` to `static` authors a PhysX collider, but that alone does
-not guarantee cuMotion will avoid it. The obstacle must also be represented in
-the motion planner's world and the entire robot route must be revalidated. See
-the gantry issue in `KNOWN_ISSUES.md`.
+not guarantee cuMotion will avoid it. Use `collision_path` for an aligned proxy
+and `planning_obstacle: true` for a startup registration check. Stage 26's
+gantry is the maintained example; any geometry change still requires route
+revalidation.
 
 ### Change perception
 

@@ -5,13 +5,14 @@ an attractive streamed demo as stronger evidence than it is.
 
 ## P0 — blocks a credible robotics claim
 
-- [ ] **Inspection portal intersects the robot's swept volume.** The portal
-  posts and crossbeam are visual-only. They have no PhysX collision and are not
-  registered as cuMotion obstacles, so the arm can pass through them. Adding a
-  collider at the current location would likely make the existing path fail.
-  Redesign or relocate the portal, add physics and planner obstacle data, then
-  rerun all 11 routes. Declarations are now in `scene_layout.json` and explicitly
-  identify this defect in `role` metadata.
+- [x] **Inspection portal is outside the validated robot routes.** The portal
+  posts were widened to x=-1.05/1.80 m and its beam raised to z=1.75 m. All three
+  structural members have PhysX collision and are named safety obstacles in
+  `scene_layout.json`. Aligned invisible collision proxies prevent cuMotion's
+  tracked-world binding from disturbing RTX presentation geometry. Startup now
+  fails unless cuMotion discovers and enables every declared proxy. The full
+  11-item showcase route suite is the acceptance gate; see
+  `docs/stages/26-gantry-safety.md`.
 - [ ] **Production perception is not hackathon-ready.** The accepted model run
   achieved 4/11 complete outcomes and 3/10 correct cheese-bin placements.
   Showcase's 11/11 result uses scenario-provided routing and cannot be used as
@@ -30,9 +31,9 @@ an attractive streamed demo as stronger evidence than it is.
 - [ ] **Belt motion is scripted pose interpolation.** The active object is moved
   along the belt by code; this is not a motorized conveyor with contact-driven
   transport.
-- [ ] **cuMotion world ownership is implicit in NVIDIA's example task.** The
-  project has no explicit repository-owned obstacle registry that can be
-  compared with the visible Stage. Create one before adding industrial guards.
+- [x] **Repository-owned cuMotion safety-obstacle registry.** Declarative
+  `planning_obstacle` entries are validated against static collision and checked
+  against NVIDIA's tracked collision world during controller initialization.
 - [ ] **Static scene edits made only in the GUI are temporary.** The new
   declarative layout makes the source obvious, but a referenced `.usda` plus an
   editable override layer would provide a more native DCC-style authoring flow.

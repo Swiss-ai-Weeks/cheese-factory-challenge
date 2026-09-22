@@ -29,6 +29,7 @@ class IsaacFactoryScene:
     def __init__(self, config: FactoryConfig, classifier_mode: str = "model"):
         self.config = config
         self.classifier_mode = classifier_mode
+        self.scene_layout = load_scene_layout()
         robot = config.section("robot")
         pick = tuple(float(v) for v in robot["pick_position"])
         first_bin = config.bins["bin_hard"]
@@ -37,6 +38,7 @@ class IsaacFactoryScene:
             cube_path="/World/ActiveObject",
             pick_position=pick,
             place_position=first_bin,
+            planning_obstacle_paths=self.scene_layout.planning_obstacle_paths,
         )
         self.camera = None
         self._camera_authoring = None
@@ -48,7 +50,6 @@ class IsaacFactoryScene:
         self._carrier_piece_transform = None
         self._held_out_textures: dict[str, list[Path]] = {}
         self._texture_indices: dict[str, int] = defaultdict(int)
-        self.scene_layout = load_scene_layout()
         self._overview_camera_path = str(self.scene_layout.overview_camera["path"])
 
     def setup_scene(self) -> None:
@@ -114,7 +115,7 @@ class IsaacFactoryScene:
 
     def _create_factory_shell(self, stage) -> None:
         """Author human-editable declarations as a stable OpenUSD hierarchy."""
-        from pxr import Gf, UsdGeom, UsdLux, UsdPhysics
+        from pxr import Gf, Usd, UsdGeom, UsdLux, UsdPhysics
         from sim.usd_kit import boite_orientee, materiau_uni, viser
 
         materials = {}
@@ -140,8 +141,43 @@ class IsaacFactoryScene:
             prim.SetCustomDataByKey("factory_role", declaration["role"])
             prim.SetCustomDataByKey("factory_source", str(self.scene_layout.source))
             prim.SetCustomDataByKey("factory_collision", declaration.get("collision", "none"))
+            prim.SetCustomDataByKey(
+                "factory_planning_obstacle",
+                declaration.get("planning_obstacle", False),
+            )
             if declaration.get("collision", "none") == "static":
-                UsdPhysics.CollisionAPI.Apply(prim)
+                collision_prim = prim
+                collision_path = declaration.get("collision_path")
+                if collision_path:
+                    collision_box = boite_orientee(
+                        stage,
+                        collision_path,
+                        tuple(float(value) for value in declaration["size"]),
+                        tuple(float(value) for value in declaration["position"]),
+                        None,
+                        tuple(
+                            float(value)
+                            for value in declaration.get("rotation_xyz_deg", (0.0, 0.0, 0.0))
+                        ),
+                    )
+                    collision_prim = collision_box.GetPrim()
+                    collision_prim.SetCustomDataByKey("factory_role", declaration["role"])
+                    collision_prim.SetCustomDataByKey("factory_visual_prim", declaration["path"])
+                    collision_prim.SetCustomDataByKey("factory_source", str(self.scene_layout.source))
+                    UsdGeom.Imageable(collision_prim).MakeInvisible()
+                UsdPhysics.CollisionAPI.Apply(collision_prim)
+
+        bounds = UsdGeom.BBoxCache(
+            Usd.TimeCode.Default(),
+            [UsdGeom.Tokens.default_, UsdGeom.Tokens.render],
+        )
+        for path in self.scene_layout.planning_obstacle_paths:
+            extent = bounds.ComputeWorldBound(stage.GetPrimAtPath(path)).ComputeAlignedRange()
+            print(
+                f"FACTORY_OBSTACLE_BOUNDS path={path} "
+                f"min={list(extent.GetMin())} max={list(extent.GetMax())}",
+                flush=True,
+            )
 
         for declaration in self.scene_layout.lights:
             light_type = declaration["type"]

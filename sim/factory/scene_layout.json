@@ -42,11 +42,11 @@
     {"path": "/World/Factory/Conveyor/foot_1_left", "size": [0.09, 0.09, 0.018], "position": [0.38, 0.08, -0.215], "material": "dark", "collision": "none", "role": "visual conveyor foot"},
     {"path": "/World/Factory/Conveyor/foot_1_right", "size": [0.09, 0.09, 0.018], "position": [0.62, 0.08, -0.215], "material": "dark", "collision": "none", "role": "visual conveyor foot"},
 
-    {"path": "/World/Factory/Inspection/left_post", "size": [0.045, 0.055, 1.18], "position": [0.31, 0.08, 0.57], "material": "steel", "collision": "none", "role": "visual-only inspection portal; known robot-clearance defect"},
-    {"path": "/World/Factory/Inspection/right_post", "size": [0.045, 0.055, 1.18], "position": [0.69, 0.08, 0.57], "material": "steel", "collision": "none", "role": "visual-only inspection portal; known robot-clearance defect"},
-    {"path": "/World/Factory/Inspection/left_guard", "size": [0.025, 0.34, 0.20], "position": [0.31, -0.08, 0.13], "material": "safety", "collision": "none", "role": "visual inspection guard"},
-    {"path": "/World/Factory/Inspection/right_guard", "size": [0.025, 0.34, 0.20], "position": [0.69, -0.08, 0.13], "material": "safety", "collision": "none", "role": "visual inspection guard"},
-    {"path": "/World/Factory/Inspection/crossbeam", "size": [0.45, 0.06, 0.065], "position": [0.50, 0.08, 1.13], "material": "steel", "collision": "none", "role": "visual-only inspection portal; known robot-clearance defect"},
+    {"path": "/World/Factory/Inspection/left_post", "collision_path": "/World/Factory/PlanningObstacles/Inspection/left_post", "size": [0.055, 0.075, 1.71], "position": [-1.05, 0.08, 0.845], "material": "steel", "collision": "static", "planning_obstacle": true, "role": "wide inspection gantry post beyond Franka nominal reach; aligned PhysX and cuMotion safety proxy"},
+    {"path": "/World/Factory/Inspection/right_post", "collision_path": "/World/Factory/PlanningObstacles/Inspection/right_post", "size": [0.055, 0.075, 1.71], "position": [1.80, 0.08, 0.845], "material": "steel", "collision": "static", "planning_obstacle": true, "role": "wide inspection gantry post beyond Franka nominal reach; aligned PhysX and cuMotion safety proxy"},
+    {"path": "/World/Factory/Inspection/left_guard", "size": [0.025, 0.34, 0.20], "position": [-1.05, -0.08, 0.13], "material": "safety", "collision": "none", "role": "visual inspection guard outside the robot route envelope"},
+    {"path": "/World/Factory/Inspection/right_guard", "size": [0.025, 0.34, 0.20], "position": [1.80, -0.08, 0.13], "material": "safety", "collision": "none", "role": "visual inspection guard outside the robot route envelope"},
+    {"path": "/World/Factory/Inspection/crossbeam", "collision_path": "/World/Factory/PlanningObstacles/Inspection/crossbeam", "size": [2.905, 0.075, 0.075], "position": [0.375, 0.08, 1.75], "material": "steel", "collision": "static", "planning_obstacle": true, "role": "raised inspection gantry beam above Franka nominal reach; aligned PhysX and cuMotion safety proxy"},
     {"path": "/World/Factory/Inspection/camera_body", "size": [0.16, 0.13, 0.10], "position": [0.50, 0.22, 1.03], "material": "dark", "collision": "none", "role": "visual camera housing; not the calibrated sensor"},
     {"path": "/World/Factory/Inspection/camera_lens", "size": [0.065, 0.065, 0.035], "position": [0.50, 0.15, 0.99], "material": "lens", "collision": "none", "role": "visual camera lens; not the calibrated sensor"},
 
@@ -56,15 +56,15 @@
     {"path": "/World/Factory/Beacon/lamp_2", "size": [0.09, 0.09, 0.065], "position": [-0.30, -0.58, 0.88], "material": "beacon_red", "collision": "none", "role": "visual status beacon lamp"}
   ],
   "lights": [
-    {"path": "/World/Factory/Inspection/left_light", "type": "sphere", "position": [0.38, -0.03, 0.96], "radius": 0.035, "intensity": 600.0, "color": [1.0, 0.94, 0.82], "role": "inspection work light"},
-    {"path": "/World/Factory/Inspection/right_light", "type": "sphere", "position": [0.62, -0.03, 0.96], "radius": 0.035, "intensity": 600.0, "color": [1.0, 0.94, 0.82], "role": "inspection work light"},
+    {"path": "/World/Factory/Inspection/left_light", "type": "sphere", "position": [0.38, -0.03, 0.96], "radius": 0.035, "intensity": 600.0, "color": [1.0, 0.94, 0.82], "role": "inspection work light suspended inside the collision-safe portal opening"},
+    {"path": "/World/Factory/Inspection/right_light", "type": "sphere", "position": [0.62, -0.03, 0.96], "radius": 0.035, "intensity": 600.0, "color": [1.0, 0.94, 0.82], "role": "inspection work light suspended inside the collision-safe portal opening"},
     {"path": "/World/Factory/DomeLight", "type": "dome", "intensity": 180.0, "role": "ambient presentation light"},
     {"path": "/World/Factory/KeyLight", "type": "rect", "position": [0.45, -0.35, 2.45], "width": 1.6, "height": 1.1, "intensity": 4000.0, "role": "presentation key light"}
   ],
   "overview_camera": {
     "path": "/World/OverviewCamera",
-    "position": [2.35, -2.55, 1.85],
-    "look_at": [0.30, -0.02, 0.30],
+    "position": [3.20, -3.60, 2.50],
+    "look_at": [0.35, -0.02, 0.95],
     "focal_length_mm": 31.0,
     "clipping_range": [0.05, 100.0],
     "role": "operator viewport only; perception uses /World/InspectionCamera"

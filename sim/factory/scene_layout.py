@@ -41,6 +41,15 @@ class SceneLayout:
     def overview_camera(self) -> dict[str, Any]:
         return self.raw["overview_camera"]
 
+    @property
+    def planning_obstacle_paths(self) -> tuple[str, ...]:
+        """Static collision roots that must be present in cuMotion's world."""
+        return tuple(
+            str(box.get("collision_path", box["path"]))
+            for box in self.boxes
+            if box.get("planning_obstacle", False)
+        )
+
 
 def _vector(value: Any, length: int, field: str) -> None:
     if not isinstance(value, list) or len(value) != length:
@@ -90,6 +99,20 @@ def _validate(data: dict[str, Any]) -> None:
             raise ValueError(f"{path} refers to unknown material {box.get('material')!r}")
         if box.get("collision", "none") not in {"none", "static"}:
             raise ValueError(f"{path}.collision must be 'none' or 'static'")
+        if "collision_path" in box:
+            collision_path = _absolute_prim_path(
+                box["collision_path"],
+                f"boxes[{index}].collision_path",
+            )
+            if collision_path == path or collision_path in seen_paths:
+                raise ValueError(f"duplicate scene prim path: {collision_path}")
+            if box.get("collision", "none") != "static":
+                raise ValueError(f"{path}.collision_path requires collision='static'")
+            seen_paths.add(collision_path)
+        if not isinstance(box.get("planning_obstacle", False), bool):
+            raise ValueError(f"{path}.planning_obstacle must be boolean")
+        if box.get("planning_obstacle", False) and box.get("collision", "none") != "static":
+            raise ValueError(f"{path}.planning_obstacle requires collision='static'")
         if not str(box.get("role", "")).strip():
             raise ValueError(f"{path}.role must explain the prim's purpose")
 

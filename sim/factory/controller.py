@@ -26,6 +26,7 @@ def create_perception_pick_place_task(
     cube_path: str,
     pick_position: tuple[float, float, float],
     place_position: tuple[float, float, float],
+    planning_obstacle_paths: tuple[str, ...] = (),
 ) -> Any:
     """Build a task whose commanded pick comes from calibrated camera pixels.
 
@@ -47,6 +48,27 @@ def create_perception_pick_place_task(
                 robot_name="franka",
             )
             self.perception_pick_position = np.asarray(pick_position, dtype=np.float32)
+            self.planning_obstacle_paths = tuple(planning_obstacle_paths)
+
+        def initialize(self, exclude_prim_paths=()) -> None:
+            """Bind the world and prove every declared safety obstacle is tracked.
+
+            NVIDIA's task discovers PhysX CollisionAPI prims while creating its
+            cuMotion world. Re-enabling the named roots is an intentional
+            registration check: it raises instead of running if a collider was
+            renamed, omitted, or excluded from the planner world.
+            """
+            super().initialize(exclude_prim_paths)
+            if self.planning_obstacle_paths:
+                self.scenario.set_planning_obstacles_enabled(
+                    self.planning_obstacle_paths,
+                    True,
+                )
+            print(
+                "FACTORY_CUMOTION_OBSTACLES "
+                + ",".join(self.planning_obstacle_paths),
+                flush=True,
+            )
 
         def set_camera_goal(self, pick_xyz, place_xyz) -> None:
             self.perception_pick_position = np.asarray(pick_xyz, dtype=np.float32)
