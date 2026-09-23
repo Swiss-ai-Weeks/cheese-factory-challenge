@@ -15,7 +15,7 @@ import numpy as np
 from sim.factory.config import FactoryConfig, load_config
 from sim.factory.controller import PHASE_TO_FACTORY_STATE
 from sim.factory.geometry import pixel_to_plane
-from sim.factory.hud import FactoryHud, configure_presentation_workspace
+from sim.factory.hud import FactoryHud, configure_presentation_workspace, decision_details
 from sim.factory.perception import (
     BIN_OF_TYPE,
     ForegroundDetector,
@@ -155,6 +155,7 @@ async def run(
         print("FACTORY_STAGE reset", flush=True)
         runtime_status.update("reset", max_objects=max_objects)
         hidden_windows = configure_presentation_workspace()
+        hud.configure_viewport()
         print(f"FACTORY_PRESENTATION hidden_windows={','.join(hidden_windows)}", flush=True)
         hud.update(phase="READY · CAMERA CALIBRATED")
         app_utils.play(commit=True)
@@ -188,6 +189,7 @@ async def run(
             started = time.perf_counter()
             object_id = f"object-{index:03d}"
             machine = FactoryStateMachine()
+            hud.clear_capture()
             hud.update(
                 phase="CONVEYOR → INSPECTION",
                 object_id=object_id,
@@ -197,6 +199,11 @@ async def run(
                 destination="—",
                 timing="awaiting camera observation",
                 safety="ARM INHIBITED · awaiting valid decision",
+                cheese_type="Inspecting next item",
+                route_key="",
+                topk=(),
+                inference_ms=None,
+                decision_note="Waiting for a captured observation",
             )
             scene.set_object(object_id, ground_truth, spawn)
             # The Franka's collision-aware retreat pose is not bit-identical to
@@ -246,6 +253,8 @@ async def run(
                     safety="ARM INHIBITED · detection failure",
                     failures=hud.snapshot.failures + 1,
                     completed=index + 1,
+                    cheese_type="No object detected",
+                    decision_note="No decision issued · arm held",
                 )
                 runtime_status.update(
                     "running",
@@ -260,6 +269,7 @@ async def run(
             machine.begin(object_id)
             machine.transition(FactoryState.CLASSIFYING)
             observation = ObservationContext.capture(object_id, index + 1, detection.crop)
+            hud.set_capture(detection.crop, object_id)
             decision_deadline_s = float(perception["decision_max_age_s"])
             hud.update(
                 phase="CLASSIFYING · DEADLINE ARMED",
@@ -328,6 +338,7 @@ async def run(
                     }
                 )
                 _print_progress(records)
+                hud.record_outcome(diverted=True)
                 hud.update(
                     phase="PERCEPTION FAULT · ITEM QUARANTINED",
                     prediction="no valid decision",
@@ -337,6 +348,9 @@ async def run(
                     safety=f"ARM INHIBITED · {fault_code}"[:90],
                     failures=hud.snapshot.failures + 1,
                     completed=index + 1,
+                    cheese_type="Perception unavailable",
+                    route_key="reject",
+                    decision_note=f"Quarantined · {fault_code}",
                 )
                 runtime_status.update(
                     "running",
@@ -357,6 +371,7 @@ async def run(
             confidence_text = (
                 "SCRIPTED"
                 if classifier_mode == "showcase"
+                else "PROXY" if classifier_mode == "development"
                 else f"{100.0 * result.bin_confidence:.1f}%"
             )
             decision_text = f"{result.status} · {result.cheese_type}"
@@ -365,11 +380,12 @@ async def run(
                 decision_text = f"{result.status} · type {result.cheese_type} · route {result.route_label}"
                 destination_text = "SAFE HOLD · MODEL DISAGREEMENT"
             hud.update(
+                **decision_details(classifier_mode, result),
                 phase="DECISION READY",
                 prediction=decision_text,
                 confidence=confidence_text,
                 destination=destination_text,
-                timing=f"obs #{decision_timing.sequence} · {decision_timing.age_ms:.1f} ms",
+                timing=f"obs #{decision_timing.sequence} · age {decision_timing.age_ms:.1f} ms",
                 safety=(
                     "ARM AUTHORIZED · item-bound decision"
                     if result.status == "ok"
@@ -430,6 +446,7 @@ async def run(
                     }
                 )
                 _print_progress(records)
+                hud.record_outcome(diverted=True)
                 hud.update(
                     phase="AUTHORIZATION EXPIRED · ITEM QUARANTINED",
                     destination="reject / manual review",
@@ -437,6 +454,8 @@ async def run(
                     safety=f"ARM INHIBITED · {exc.code}",
                     failures=hud.snapshot.failures + 1,
                     completed=index + 1,
+                    route_key="reject",
+                    decision_note=f"Authorization expired · {exc.code}",
                 )
                 runtime_status.update(
                     "running",
@@ -546,6 +565,11 @@ async def run(
                 }
             )
             _print_progress(records)
+            hud.record_outcome(
+                result.bin,
+                placed=pick_success,
+                diverted=not pick_attempted,
+            )
             hud.update(
                 phase="CYCLE COMPLETE" if end_to_end else "CYCLE FAILED",
                 safety="ARM INHIBITED · cycle closed",

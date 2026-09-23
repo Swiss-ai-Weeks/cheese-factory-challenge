@@ -134,7 +134,7 @@ layer, but that conversion has not been validated yet.
 | `state_machine.py` | legal lifecycle and timeout transitions |
 | `run_factory.py` | orchestrate the full scenario and write evidence |
 | `kit_entry.py` | entry point executed inside Isaac Sim after extensions load |
-| `hud.py` | operator window and evidence labels |
+| `hud.py` | viewport dashboard, captured inspection crop, decision scores and completed-action counters; see [Stage 27](stages/27-operator-dashboard.md) |
 | `runtime_status.py` | atomic health/status identity used by Docker checks |
 | `control_server.py` | loopback-only status/audit API and token-gated allowlisted control plane |
 | `capture_domain.py` | canonical-camera dataset capture |
