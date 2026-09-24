@@ -10,10 +10,50 @@ Isaac Sim camera ──▶ CheeseSorter.predict(frame) ──▶ SortResult ─�
 The model answers three things at once — the fine cheese **type**, the **bin** it belongs
 in, and a **status** telling the arm whether to act at all.
 
-The hackathon integration is complete on `codex/hackathon-integration`. Start with the
+The maintained hackathon integration is on `main`. Start with the
 [`Judge guide`](docs/JUDGE_GUIDE.md) and launch the verified showcase with
 `infra/isaac-sim/factory-demo.sh launch showcase`. The trained model's limitations are
 reported openly in [`evaluation_results.md`](docs/evaluation_results.md).
+
+## Explore the factory in your browser with Isaac Web Exporter
+
+**[Open the interactive cheese-factory replay](https://adiy.ch/cheese)** ·
+**[Isaac Web Exporter repository](https://github.com/gr9aditya/isaac-web-exporter)** ·
+**[Download the sample export.zip](export.zip)**
+
+[**Isaac Web Exporter**](https://github.com/gr9aditya/isaac-web-exporter),
+developed by Aditya Deshpande as a separate project, turns supported Isaac Sim
+scenes and recorded motion into a portable, self-hosted WebGL experience. It
+packages the scene as GLB with timing, object metadata and guided captions, and
+includes a browser player with Start/Pause/Restart, timeline seeking, free camera
+movement and object inspection.
+
+**Why this matters:** sharing a robotics simulation usually asks the recipient to
+install a heavyweight simulation environment or depend on a running GPU server and
+streaming connection. The exporter separates reviewing a run from running the
+simulator. A teammate, judge, recruiter or customer can open a link, move around
+the scene and inspect what happened instead of being limited to a fixed-angle
+video. Playback needs a capable WebGL browser, but **no Isaac Sim installation,
+Docker, RTX GPU or live simulation server** on the viewer's side. The exported
+files can be served by ordinary static web hosting.
+
+This repository includes [`export.zip`](export.zip), a **72.78-second recording
+of the cheese factory's 11-item camera/model run**, with 12 guided chapters.
+The original run achieved **4/11 end-to-end successes**; the replay preserves
+the unsuccessful and held decisions too. It is an inspectable record, not a
+claim of perfect sorting.
+
+> **Recorded playback, not live browser simulation.** Isaac performs the original
+> simulation and capture. The browser replays exported geometry and motion; it
+> does not run Isaac physics, robot controllers, camera sensors or model inference.
+> This is not an unrestricted “export any Isaac project” guarantee. Source-scene
+> compatibility, material conversion and asset permissions still matter.
+
+See the [sample export guide](docs/WEB_EXPORT.md) for local viewing commands,
+package contents, provenance and integrity checks. The exporter is independent
+of the cheese-factory challenge and does not change the classifier's accuracy.
+
+### Perception API example
 
 ```python
 from predict import CheeseSorter
@@ -368,3 +408,11 @@ uv pip install --python .venv/bin/python timm pillow numpy pandas scikit-learn \
 ```
 
 Then follow [Reproduce everything](vault/80%20Ops/Reproduce%20everything.md).
+
+## Related project
+
+[Kivof](https://kivof.com/) is a Physical AI evidence workspace for reviewing
+robot runs, sensor observations, explanations and task outcomes together. It
+helps teams trace failures and preserve reviewed annotations for the next
+improvement. It is a separate software demonstrator, not the cheese factory's
+robot controller or a safety approval system.
